@@ -27,8 +27,7 @@ export default function BillingPage() {
       <Tabs defaultValue="overview" className="space-y-8">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="topup">Top Up</TabsTrigger>
-          <TabsTrigger value="sender-id">Sender ID</TabsTrigger>
+       
           <TabsTrigger value="usage">Usage</TabsTrigger>
         </TabsList>
 
@@ -77,13 +76,9 @@ export default function BillingPage() {
           <PricingPlans />
         </TabsContent>
 
-        <TabsContent value="topup">
-          <TopUpForm />
-        </TabsContent>
+       
 
-        <TabsContent value="sender-id">
-          <SenderIdSubscription />
-        </TabsContent>
+       
 
         <TabsContent value="usage">
           <UsageStats />
