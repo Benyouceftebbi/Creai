@@ -35,7 +35,7 @@ export const ShopProvider: React.FC<{ userId: string;children: ReactNode }> = ({
      try {
        const shopDoc = await getDoc(doc(db, "Shops", userId));
        if (shopDoc.exists()) {
-         setShopData(shopDoc.data());
+        setShopData({...shopDoc.data(),id:shopDoc.id});
        } else {
          setError("No shop data found");
        }

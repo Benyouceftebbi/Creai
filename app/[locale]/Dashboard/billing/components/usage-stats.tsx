@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -13,22 +14,24 @@ const data = [
 ]
 
 export function UsageStats() {
+  const t = useTranslations('billing')
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Usage Statistics</CardTitle>
-            <CardDescription>Track your token consumption over time</CardDescription>
+            <CardTitle>{t('usage-statistics')}</CardTitle>
+            <CardDescription>{t('track-token-consumption')}</CardDescription>
           </div>
           <Select defaultValue="7days">
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select period" />
+              <SelectValue placeholder={t('select-period')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7days">Last 7 days</SelectItem>
-              <SelectItem value="30days">Last 30 days</SelectItem>
-              <SelectItem value="3months">Last 3 months</SelectItem>
+              <SelectItem value="7days">{t('last-7-days')}</SelectItem>
+              <SelectItem value="30days">{t('last-30-days')}</SelectItem>
+              <SelectItem value="3months">{t('last-3-months')}</SelectItem>
             </SelectContent>
           </Select>
         </div>

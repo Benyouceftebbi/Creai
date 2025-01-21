@@ -4,67 +4,69 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 const plans = [
   {
-    name: "Sender ID",
+    name: "sender-id",
     price: 50,
     features: [
-      "Custom Sender ID (11 characters max)",
-      "Improved brand recognition",
-      "Higher open rates",
-      "Priority support",
+      "custom-sender-id",
+      "improved-brand-recognition",
+      "higher-open-rates",
+      "priority-support",
     ],
     customInput: true,
     special: true,
   },
   {
-    name: "Starter",
+    name: "starter",
     price: 10,
     tokens: "2,400",
     bonus: "",
     features: [
-      "Basic SMS notifications",
-      "Standard delivery tracking",
-      "Email support",
-      "API access",
+      "basic-sms-notifications",
+      "standard-delivery-tracking",
+      "email-support",
+      "api-access",
     ],
   },
   {
-    name: "Enterprise",
+    name: "enterprise",
     price: 100,
     tokens: "24,000",
-    bonus: "+15% Bonus Tokens FREE",
+    bonus: "enterprise-bonus",
     features: [
-      "Enterprise SMS automation",
-      "Premium delivery tracking",
-      "24/7 priority support",
-      "Advanced API access",
-      "Custom analytics",
-      "Dedicated account manager",
-      "Custom integrations",
-      "SLA guarantee",
+      "enterprise-sms-automation",
+      "premium-delivery-tracking",
+      "24-7-priority-support",
+      "advanced-api-access",
+      "custom-analytics",
+      "dedicated-account-manager",
+      "custom-integrations",
+      "sla-guarantee",
     ],
     popular: true,
   },
   {
-    name: "Business",
+    name: "business",
     price: 80,
     tokens: "19,200",
-    bonus: "+5% Bonus Tokens FREE",
+    bonus: "business-bonus",
     features: [
-      "Advanced SMS automation",
-      "Priority delivery tracking",
-      "Priority email & chat support",
-      "Advanced API access",
-      "Analytics dashboard",
-      "Custom integrations",
+      "advanced-sms-automation",
+      "priority-delivery-tracking",
+      "priority-email-chat-support",
+      "advanced-api-access",
+      "analytics-dashboard",
+      "custom-integrations",
     ],
   },
 ]
 
 export function PricingPlans() {
   const [senderID, setSenderID] = useState('')
+  const t = useTranslations('billing')
 
   const handleSenderIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSenderID(e.target.value.slice(0, 11))
@@ -73,9 +75,9 @@ export function PricingPlans() {
   return (
     <div className="py-8">
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold">Charge Your Tokens</h2>
+        <h2 className="text-3xl font-bold">{t('charge-your-tokens')}</h2>
         <p className="text-muted-foreground mt-2">
-          Get the tokens you need to power your SMS communications
+          {t('get-tokens-description')}
         </p>
       </div>
 
@@ -87,22 +89,22 @@ export function PricingPlans() {
           >
             {plan.popular && (
               <Badge className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3">
-                Most Popular
+                {t('most-popular')}
               </Badge>
             )}
             <CardHeader>
-              <CardTitle className={plan.special ? 'text-white' : ''}>{plan.name}</CardTitle>
+              <CardTitle className={plan.special ? 'text-white' : ''}>{t(`plan-${plan.name}`)}</CardTitle>
               <CardDescription className={plan.special ? 'text-white/80' : ''}>
                 <span className="text-3xl font-bold">${plan.price}</span>
-                <span className={plan.special ? 'text-white/80' : 'text-muted-foreground'}>/one-time</span>
+                <span className={plan.special ? 'text-white/80' : 'text-muted-foreground'}>{t('one-time')}</span>
               </CardDescription>
             </CardHeader>
             <CardContent>
               {!plan.special && (
                 <div className="bg-muted/50 rounded-lg p-4 mb-4">
-                  <div className="text-lg font-semibold">{plan.tokens} Tokens</div>
+                  <div className="text-lg font-semibold">{t('tokens-amount', { amount: plan.tokens })}</div>
                   {plan.bonus && (
-                    <div className="text-sm text-primary">{plan.bonus}</div>
+                    <div className="text-sm text-primary">{t(plan.bonus)}</div>
                   )}
                 </div>
               )}
@@ -110,7 +112,7 @@ export function PricingPlans() {
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
                     <Check className={`h-4 w-4 ${plan.special ? 'text-white' : 'text-primary'}`} />
-                    <span className={`text-sm ${plan.special ? 'text-white/90' : ''}`}>{feature}</span>
+                    <span className={`text-sm ${plan.special ? 'text-white/90' : ''}`}>{t(feature)}</span>
                   </li>
                 ))}
               </ul>
@@ -118,14 +120,14 @@ export function PricingPlans() {
                 <div className="mt-4">
                   <Input
                     type="text"
-                    placeholder="Enter Sender ID"
+                    placeholder={t('enter-sender-id')}
                     value={senderID}
                     onChange={handleSenderIDChange}
                     maxLength={11}
                     className="w-full bg-white/20 text-white placeholder-white/50 border-white/30"
                   />
                   <p className="text-xs text-white/80 mt-1">
-                    {11 - senderID.length} characters remaining
+                    {t('characters-remaining', { count: 11 - senderID.length })}
                   </p>
                 </div>
               )}
@@ -133,7 +135,7 @@ export function PricingPlans() {
                 className={`w-full mt-6 ${plan.special ? 'bg-white text-blue-600 hover:bg-white/90' : ''}`} 
                 variant={plan.popular ? "default" : plan.special ? "secondary" : "outline"}
               >
-                {plan.special ? 'Get Custom Sender ID' : 'Proceed'}
+                {plan.special ? t('get-custom-sender-id') : t('proceed')}
               </Button>
             </CardContent>
           </Card>
@@ -142,3 +144,4 @@ export function PricingPlans() {
     </div>
   )
 }
+

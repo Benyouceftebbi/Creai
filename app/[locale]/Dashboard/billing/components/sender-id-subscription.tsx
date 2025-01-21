@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from "@/components/ui/use-toast"
+import { useTranslations } from 'next-intl'
 
 export function SenderIdSubscription() {
   const [senderId, setSenderId] = useState('')
   const [subscriptionPeriod, setSubscriptionPeriod] = useState('monthly')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
+  const t = useTranslations('billing')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,8 +22,8 @@ export function SenderIdSubscription() {
     setIsSubmitting(true)
 
     toast({
-      title: "Request Sent Successfully",
-      description: "Your Sender ID request is now under review. This process typically takes 7 to 10 days to activate.",
+      title: t('request-sent-successfully'),
+      description: t('sender-id-review-message'),
       duration: 5000,
     })
 
@@ -34,8 +36,8 @@ export function SenderIdSubscription() {
       setSubscriptionPeriod('monthly')
     } catch (error) {
       toast({
-        title: "Error",
-        description: "There was a problem submitting your request. Please try again.",
+        title: t('error'),
+        description: t('request-error-message'),
         variant: "destructive",
       })
     } finally {
@@ -46,27 +48,27 @@ export function SenderIdSubscription() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sender ID Subscription</CardTitle>
-        <CardDescription>Set up and manage your custom sender IDs</CardDescription>
+        <CardTitle>{t('sender-id-subscription')}</CardTitle>
+        <CardDescription>{t('sender-id-description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="sender-id">Sender ID</Label>
+            <Label htmlFor="sender-id">{t('sender-id')}</Label>
             <Input 
               id="sender-id" 
-              placeholder="Enter your desired sender ID" 
+              placeholder={t('enter-desired-sender-id')} 
               value={senderId}
               onChange={(e) => setSenderId(e.target.value)}
               required
             />
             <p className="text-sm text-muted-foreground">
-              This is the name that will appear as the sender of your SMS messages
+              {t('sender-id-explanation')}
             </p>
           </div>
 
           <div className="space-y-4">
-            <Label>Subscription Period</Label>
+            <Label>{t('subscription-period')}</Label>
             <RadioGroup 
               value={subscriptionPeriod} 
               onValueChange={setSubscriptionPeriod} 
@@ -77,8 +79,8 @@ export function SenderIdSubscription() {
               >
                 <div className="space-y-1">
                   <RadioGroupItem value="monthly" id="monthly" className="sr-only" />
-                  <span className="font-semibold">Monthly</span>
-                  <p className="text-sm text-muted-foreground">$29/month</p>
+                  <span className="font-semibold">{t('monthly')}</span>
+                  <p className="text-sm text-muted-foreground">{t('monthly-price')}</p>
                 </div>
               </Label>
               <Label
@@ -86,15 +88,15 @@ export function SenderIdSubscription() {
               >
                 <div className="space-y-1">
                   <RadioGroupItem value="yearly" id="yearly" className="sr-only" />
-                  <span className="font-semibold">Yearly</span>
-                  <p className="text-sm text-muted-foreground">$290/year (Save 20%)</p>
+                  <span className="font-semibold">{t('yearly')}</span>
+                  <p className="text-sm text-muted-foreground">{t('yearly-price')}</p>
                 </div>
               </Label>
             </RadioGroup>
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Subscribe'}
+            {isSubmitting ? t('submitting') : t('subscribe')}
           </Button>
         </form>
       </CardContent>

@@ -8,17 +8,25 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Steps } from "./components/steps"
+import { PlusCircle, Trash2, X } from 'lucide-react'
+import { useShop } from "@/app/context/ShopContext"
 export default function Component() {
+  const {shopData}= useShop()
+  console.log('shop',shopData);
+  
   const [shippingProviders, setShippingProviders] = useState([
     { provider: "DHD", apiKey: "abc123", apiSecret: "def456", webhookUrl: "https://example.com/webhook" },
   ])
-  const [partNameMessage, setPartNameMessage] = useState("")
   const [keywords, setKeywords] = useState("")
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [selectedProvider, setSelectedProvider] = useState("")
+  const [showSetupModal, setShowSetupModal] = useState(false)
 
   const addShippingProvider = () => {
-    setShippingProviders([...shippingProviders, { provider: "", apiKey: "", apiSecret: "", webhookUrl: "" }])
+    setSelectedProvider("")
+    setShowSetupModal(true)
   }
 
   const updateShippingProvider = (index, field, value) => {
@@ -33,12 +41,9 @@ export default function Component() {
     setShippingProviders(updatedProviders)
   }
 
-  const updatePartNameMessage = (value) => {
-    setPartNameMessage(value)
-  }
-
-  const updateKeywords = (value) => {
-    setKeywords(value)
+  const handleSetupComplete = (provider, apiKey, apiSecret, webhookUrl) => {
+    setShippingProviders([...shippingProviders, { provider, apiKey, apiSecret, webhookUrl }])
+    setShowSetupModal(false)
   }
 
   return (
@@ -46,6 +51,29 @@ export default function Component() {
       <div className="container mx-auto space-y-8">
         <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8">
           <div className="grid gap-8">
+            <h1 className="text-4xl font-bold">Billing-subscriptions</h1>
+            <div className="bg-[#faf5ff] p-4 rounded-lg">
+              <div className="flex flex-col sm:flex-row gap-4 items-start">
+                <div className="w-full sm:w-1/6">
+                  <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src="https://www.youtube.com/embed/jNQXAC9IVRw"
+                      title="Delivery Update Video"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    ></iframe>
+                  </div>
+                </div>
+                <div className="w-full sm:w-5/6">
+                  <h3 className="text-lg font-semibold mb-2">billing-subscriptions</h3>
+                  <p className="text-sm text-gray-600">billing-subscriptions-description</p>
+                </div>
+              </div>
+            </div>
             <Card>
               <CardHeader>
                 <CardTitle>Profile Settings</CardTitle>
@@ -92,7 +120,7 @@ export default function Component() {
                     <Input
                       id="keywords"
                       value={keywords}
-                      onChange={(e) => updateKeywords(e.target.value)}
+                      onChange={(e) => setKeywords(e.target.value)}
                       placeholder="Enter keywords"
                     />
                   </div>
@@ -100,106 +128,49 @@ export default function Component() {
               </CardContent>
             </Card>
 
-            {/* Updated video section with new layout */}
-            <div className="w-full mb-6 sm:mb-8">
-              <div className="bg-[#faf5ff] p-4 rounded-lg">
-                <div className="flex flex-col sm:flex-row gap-4 items-start">
-                  <div className="w-full sm:w-2/5">
-                    <div className="aspect-video rounded-lg overflow-hidden bg-black">
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src="https://www.youtube.com/embed/jNQXAC9IVRw"
-                        title="Delivery Update Video"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full"
-                      ></iframe>
-                    </div>
-                  </div>
-                  <div className="w-full sm:w-3/5 space-y-3">
-                    <div className="flex justify-between items-start">
-                      <h2 className="text-base sm:text-lg font-semibold text-gray-800">Ready to streamline your delivery updates?</h2>
-                      <button className="text-gray-500 hover:text-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 sm:w-5 sm:h-5">
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      </button>
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Our delivery update system keeps your customers informed in real-time. Track packages across multiple carriers, automate notifications, and improve customer satisfaction with timely updates about their deliveries.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <Card>
               <CardHeader>
                 <CardTitle>Shipping Integration</CardTitle>
                 <CardDescription>Configure your shipping provider settings.</CardDescription>
-                <div className="ml-auto">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full bg-primary text-primary-foreground hover:bg-primary/80"
-                    onClick={addShippingProvider}
-                  >
-                    <PlusIcon className="h-5 w-5" />
-                    <span className="sr-only">Add Shipping Provider</span>
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={addShippingProvider}
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Shipping Provider
+                </Button>
               </CardHeader>
               <CardContent>
-                <form className="grid gap-6">
+                <div className="space-y-6">
                   {shippingProviders.map((provider, index) => (
-                    <div key={index} className="grid gap-6">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="ml-auto bg-primary text-primary-foreground hover:bg-primary/80"
-                        onClick={() => removeShippingProvider(index)}
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                        <span className="sr-only">Remove Shipping Provider</span>
-                      </Button>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="grid gap-2">
-                          <Label htmlFor={`provider-${index}`}>Shipping Provider</Label>
-                          <Select
-                            id={`provider-${index}`}
-                            defaultValue={provider.provider}
-                            onValueChange={(value) => updateShippingProvider(index, "provider", value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select provider" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="DHD">DHD</SelectItem>
-                              <SelectItem value="Yalidin Express">Yalidin Express</SelectItem>
-                              <SelectItem value="UPS">UPS</SelectItem>
-                              <SelectItem value="Go livri">Go livri</SelectItem>
-                              <SelectItem value="maystero delivery">maystero delivery</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                    <div key={index} className="bg-muted p-4 rounded-lg">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-lg font-semibold">{provider.provider}</h4>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive/90"
+                          onClick={() => removeShippingProvider(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid gap-4">
                         <div className="grid gap-2">
                           <Label htmlFor={`api-key-${index}`}>API Key</Label>
                           <Input
                             id={`api-key-${index}`}
-                            defaultValue={provider.apiKey}
+                            value={provider.apiKey}
                             onChange={(e) => updateShippingProvider(index, "apiKey", e.target.value)}
                           />
                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-6">
                         <div className="grid gap-2">
                           <Label htmlFor={`api-secret-${index}`}>API Secret</Label>
                           <Input
                             id={`api-secret-${index}`}
-                            defaultValue={provider.apiSecret}
+                            value={provider.apiSecret}
                             onChange={(e) => updateShippingProvider(index, "apiSecret", e.target.value)}
                           />
                         </div>
@@ -207,15 +178,14 @@ export default function Component() {
                           <Label htmlFor={`webhook-url-${index}`}>Webhook URL</Label>
                           <Input
                             id={`webhook-url-${index}`}
-                            defaultValue={provider.webhookUrl}
+                            value={provider.webhookUrl}
                             onChange={(e) => updateShippingProvider(index, "webhookUrl", e.target.value)}
                           />
                         </div>
                       </div>
-                      {index < shippingProviders.length - 1 && <Separator className="my-4" />}
                     </div>
                   ))}
-                </form>
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -268,21 +238,58 @@ export default function Component() {
                       </div>
                     </div>
                   )}
-                  <div className="grid gap-2">
-                    <Label htmlFor="part-name-message">Part Name Message</Label>
-                    <Input
-                      id="part-name-message"
-                      value={partNameMessage}
-                      onChange={(e) => updatePartNameMessage(e.target.value)}
-                      placeholder="Enter the message to get the part name"
-                    />
-                  </div>
                 </form>
               </CardContent>
             </Card>
           </div>
         </main>
       </div>
+      <Dialog open={showSetupModal} onOpenChange={setShowSetupModal}>
+  <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden">
+    {!selectedProvider ? (
+      <div className="p-6 space-y-6">
+        <DialogHeader>
+          <DialogTitle className="text-2xl">Choose a Shipping Provider</DialogTitle>
+          <DialogDescription>
+            Select your preferred shipping provider to begin the integration setup process.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-4">
+          {["DHD", "Yalidin Express", "UPS", "Go livri", "maystero delivery"].map((provider) => (
+            <Button
+              key={provider}
+              variant="outline"
+              className="h-auto p-4 flex flex-col items-center gap-2"
+              onClick={() => setSelectedProvider(provider)}
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <img
+                  src={`/placeholder.svg?height=24&width=24`}
+                  alt={provider}
+                  className="w-6 h-6"
+                />
+              </div>
+              <span>{provider}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute right-4 top-4 z-10"
+          onClick={() => setShowSetupModal(false)}
+        >
+          
+          <span className="sr-only">Close</span>
+        </Button>
+        <Steps shopData = {shopData} provider={selectedProvider} onComplete={handleSetupComplete} />
+      </>
+    )}
+  </DialogContent>
+</Dialog>
     </div>
   )
 }
@@ -327,3 +334,4 @@ function TrashIcon(props) {
     </svg>
   )
 }
+

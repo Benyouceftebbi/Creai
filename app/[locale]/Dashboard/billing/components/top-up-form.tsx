@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,11 +13,13 @@ const topUpOptions = [
 ]
 
 export function TopUpForm() {
+  const t = useTranslations('billing')
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Up Your Account</CardTitle>
-        <CardDescription>Purchase additional tokens for your SMS communications</CardDescription>
+        <CardTitle>{t('top-up-your-account')}</CardTitle>
+        <CardDescription>{t('purchase-additional-tokens')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <RadioGroup defaultValue="24000" className="grid grid-cols-2 gap-4">
@@ -27,18 +30,18 @@ export function TopUpForm() {
             >
               <RadioGroupItem value={option.tokens} className="sr-only" />
               <span className="text-2xl font-bold">{option.tokens}</span>
-              <span className="text-sm text-muted-foreground">Tokens</span>
-              <span className="mt-2 font-semibold">${option.price}</span>
+              <span className="text-sm text-muted-foreground">{t('tokens')}</span>
+              <span className="mt-2 font-semibold">{t('price', { amount: option.price })}</span>
             </Label>
           ))}
         </RadioGroup>
 
         <div className="space-y-2">
-          <Label htmlFor="custom-amount">Or enter custom amount</Label>
-          <Input id="custom-amount" type="number" placeholder="Enter number of tokens" />
+          <Label htmlFor="custom-amount">{t('enter-custom-amount')}</Label>
+          <Input id="custom-amount" type="number" placeholder={t('enter-number-of-tokens')} />
         </div>
 
-        <Button className="w-full">Proceed to Payment</Button>
+        <Button className="w-full">{t('proceed-to-payment')}</Button>
       </CardContent>
     </Card>
   )
