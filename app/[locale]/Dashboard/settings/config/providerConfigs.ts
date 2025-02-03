@@ -3,6 +3,17 @@ import yalidineDevelopmentImage from "../components/yalidin-screens/yalidin-devl
 import yalidineDevelopmentImage2 from "../components/yalidin-screens/yalidin-devlpment2.png"
 import yalidineGereleswebhook from "../components/yalidin-screens/yalidin-gerer-les-webhooks.png"
 import webhookConfig from "../components/yalidin-screens/webhookConfig.png"
+import { defaultHead } from "@/node_modules/next/head"
+
+
+import stepOne from "../components/dhd-screens/Step-1-dhd.png"
+import stepTwo from "../components/dhd-screens/Step-2-dhd.png"
+import stepThree from "../components/dhd-screens/3rd-step-dhd.jpg"
+import submitDhd from "../components/dhd-screens/submition-step-dhd.png"
+import pending from "../components/dhd-screens/pending-step-dhd.png"
+import activated from "../components/dhd-screens/activated-step-dhd.png"
+import viewToken from "../components/dhd-screens/view-token-dhd.png"
+
 export interface ProviderConfig {
   name: string
   fields: {
@@ -75,34 +86,45 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
   DHD: {
     name: "DHD",
     fields: {
-      apiKey: { label: "API Key", type: "text", placeholder: "Enter API Key" },
-      apiSecret: { label: "API Secret", type: "password", placeholder: "Enter API Secret" },
-      webhookUrl: { label: "Webhook URL", type: "url", placeholder: "Enter Webhook URL" },
+     
     },
-    languageOptions: [], // DHD doesn't have language options in this example
+    languageOptions: [  { value: "fr", label: "Français" },
+    { value: "ar", label: "العربية" },],
     steps: [
       {
-        title: "Create an account",
-        description: "Go to the DHD website and create an account.",
-        image: "/placeholder.svg?height=150&width=250",
+        title: "Start DHD Integration",
+        description: "Begin the DHD integration process by accessing the integration page. visit the follwing link https://dhd.ecotrack.dz/market",
+        image: stepOne,
       },
       {
-        title: "Generate API credentials",
-        description: "Navigate to the API section and generate your API key and secret.",
-        image: "/placeholder.svg?height=150&width=250",
+        title: "Enter Integration Details",
+        description: "Fill in the required integration details, including your company information.",
+        image: stepTwo,
       },
       {
-        title: "Set up webhook",
-        description: "Configure the webhook URL in your DHD account settings.",
-        image: "/placeholder.svg?height=150&width=250",
+        title: "Provide Additional Information",
+        description: "Enter any additional information required for the DHD integration.",
+        image: stepThree,
       },
       {
-        title: "Enter Configuration Details",
-        description: "Enter the required configuration details for DHD.",
+        title: "Submit Integration Request",
+        description: "Review your information and submit the DHD integration request.",
+        image: submitDhd,
       },
       {
-        title: "Finalize Setup",
-        description: "Review your information and finalize the setup.",
+        title: "Await Approval",
+        description: "Your integration request is pending. Wait for DHD to review and approve it.",
+        image: pending,
+      },
+      {
+        title: "Integration Activated",
+        description: "Congratulations! Your DHD integration has been activated.",
+        image: activated,
+      },
+      {
+        title: "View API Token",
+        description: "Access your API token, which you'll need to configure the integration in your system.",
+        image: viewToken,
       },
     ],
   },

@@ -1,9 +1,10 @@
+import React from 'react';
 import { Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { parseExcelFile } from '../../../utils/excel';
-import type { RetargetingCampaignHook } from '../../../types';
+import { parseExcelFile } from "../../../utils/excel"
+import type { RetargetingCampaignHook } from '../types';
 
 type ExcelFileUploaderProps = {
   campaign: RetargetingCampaignHook;
@@ -13,14 +14,27 @@ export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const headers = await parseExcelFile(file);
+      const { headers, data } = await parseExcelFile(file);
       campaign.setExcelData({
         headers,
         phoneColumn: '',
         nameColumn: '',
-        data: []
+        data
       });
+      console.log("Excel file parsed:", { headers, dataLength: data.length });
     }
+  };
+
+  const handleColumnSelect = (columnType: 'phoneColumn' | 'nameColumn', value: string) => {
+    campaign.setExcelData({
+      ...campaign.excelData!,
+      [columnType]: value
+    });
+    
+    // Log the processed data after column selection
+    setTimeout(() => {
+      campaign.logProcessedData();
+    }, 0);
   };
 
   return (
@@ -49,10 +63,7 @@ export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
             <Label>Select Phone Number Column</Label>
             <Select 
               value={campaign.excelData.phoneColumn}
-              onValueChange={(value) => campaign.setExcelData({
-                ...campaign.excelData!,
-                phoneColumn: value
-              })}
+              onValueChange={(value) => handleColumnSelect('phoneColumn', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select column" />
@@ -71,10 +82,7 @@ export function ExcelFileUploader({ campaign }: ExcelFileUploaderProps) {
             <Label>Select Name Column</Label>
             <Select 
               value={campaign.excelData.nameColumn}
-              onValueChange={(value) => campaign.setExcelData({
-                ...campaign.excelData!,
-                nameColumn: value
-              })}
+              onValueChange={(value) => handleColumnSelect('nameColumn', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select column" />

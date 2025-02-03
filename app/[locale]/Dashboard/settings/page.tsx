@@ -6,23 +6,30 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Steps } from "./components/steps"
-import { PlusCircle, Trash2, X } from 'lucide-react'
+import { PlusCircle, Trash2 } from "lucide-react"
 import { useShop } from "@/app/context/ShopContext"
+import { toast } from "@/components/ui/use-toast"
+
 export default function Component() {
-  const {shopData}= useShop()
-  console.log('shop',shopData);
-  
-  const [shippingProviders, setShippingProviders] = useState([
-    { provider: "DHD", apiKey: "abc123", apiSecret: "def456", webhookUrl: "https://example.com/webhook" },
-  ])
+  const { shopData } = useShop()
+  console.log("shop", shopData)
+
+  const [shippingProviders, setShippingProviders] = useState([])
   const [keywords, setKeywords] = useState("")
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState("")
   const [showSetupModal, setShowSetupModal] = useState(false)
+  const [dhdSetupComplete, setDhdSetupComplete] = useState(false)
+
+  const providerImages = {
+    DHD: "https://dhd-dz.com/assets/img/logo.png",
+    "Yalidin Express": "https://yalidine.com/assets/img/yalidine-logo.png",
+    UPS: "https://www.ups.com/assets/resources/webcontent/images/ups-logo.svg",
+    "Go livri": "https://www.golivri.dz/assets/img/logo.png",
+    "Maystero Delivery": "https://maystro-delivery.com/img/logo.svg",
+  }
 
   const addShippingProvider = () => {
     setSelectedProvider("")
@@ -41,9 +48,22 @@ export default function Component() {
     setShippingProviders(updatedProviders)
   }
 
-  const handleSetupComplete = (provider, apiKey, apiSecret, webhookUrl) => {
-    setShippingProviders([...shippingProviders, { provider, apiKey, apiSecret, webhookUrl }])
+  const handleSetupComplete = (provider, data) => {
+    if (provider === "DHD") {
+      setDhdSetupComplete(true)
+    } else {
+      setShippingProviders([...shippingProviders, { ...data, provider, apiToken: "" }])
+    }
     setShowSetupModal(false)
+  }
+
+  const handleApiTokenSubmit = (index) => {
+    // Here you would typically send the API token to your backend
+    // For now, we'll just show a success message
+    toast({
+      title: "API Token Updated",
+      description: "Your DHD API token has been successfully saved.",
+    })
   }
 
   return (
@@ -158,179 +178,120 @@ export default function Component() {
                         </Button>
                       </div>
                       <div className="grid gap-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor={`api-key-${index}`}>API Key</Label>
-                          <Input
-                            id={`api-key-${index}`}
-                            value={provider.apiKey}
-                            onChange={(e) => updateShippingProvider(index, "apiKey", e.target.value)}
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor={`api-secret-${index}`}>API Secret</Label>
-                          <Input
-                            id={`api-secret-${index}`}
-                            value={provider.apiSecret}
-                            onChange={(e) => updateShippingProvider(index, "apiSecret", e.target.value)}
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor={`webhook-url-${index}`}>Webhook URL</Label>
-                          <Input
-                            id={`webhook-url-${index}`}
-                            value={provider.webhookUrl}
-                            onChange={(e) => updateShippingProvider(index, "webhookUrl", e.target.value)}
-                          />
-                        </div>
+                        {provider.provider === "DHD" && dhdSetupComplete ? (
+                          <div className="grid gap-2">
+                            <Label htmlFor={`api-token-${index}`}>API Token</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                id={`api-token-${index}`}
+                                value={provider.apiToken}
+                                onChange={(e) => updateShippingProvider(index, "apiToken", e.target.value)}
+                                placeholder="Enter your DHD API Token"
+                              />
+                              <Button onClick={() => handleApiTokenSubmit(index)}>Submit</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="grid gap-2">
+                              <Label htmlFor={`api-key-${index}`}>API Key</Label>
+                              <Input
+                                id={`api-key-${index}`}
+                                value={provider.apiKey}
+                                onChange={(e) => updateShippingProvider(index, "apiKey", e.target.value)}
+                              />
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor={`api-secret-${index}`}>API Secret</Label>
+                              <Input
+                                id={`api-secret-${index}`}
+                                value={provider.apiSecret}
+                                onChange={(e) => updateShippingProvider(index, "apiSecret", e.target.value)}
+                              />
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor={`webhook-url-${index}`}>Webhook URL</Label>
+                              <Input
+                                id={`webhook-url-${index}`}
+                                value={provider.webhookUrl}
+                                onChange={(e) => updateShippingProvider(index, "webhookUrl", e.target.value)}
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Other Settings</CardTitle>
-                <CardDescription>Manage your account and preferences.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form className="grid gap-6">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="grid gap-2">
-                      <Label htmlFor="notifications">Notifications</Label>
-                      <Switch id="notifications" defaultChecked />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="dark-mode">Dark Mode</Label>
-                      <Switch id="dark-mode" />
-                    </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Change Password</Label>
-                    <div className="grid grid-cols-2 gap-6">
-                      <Input id="password" type="password" placeholder="New password" />
-                      <Input id="confirm-password" type="password" placeholder="Confirm password" />
-                    </div>
-                  </div>
-                  <div className="w-1/6 grid gap-2">
-                    <Label htmlFor="delete-account">Delete Account</Label>
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
-                      type="button"
-                      className="bg-red-500 text-white hover:bg-red-600 text-xs px-2 py-1"
-                      onClick={() => setShowDeleteConfirmation(true)}
-                    >
-                      Delete Account
-                    </Button>
-                  </div>
-                  {showDeleteConfirmation && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                      <div className="bg-white p-6 rounded-lg">
-                        <h2 className="text-xl font-bold mb-4">Are you sure you want to delete your account?</h2>
-                        <div className="flex justify-end space-x-4">
-                          <Button variant="outline" onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
-                          <Button variant="destructive" onClick={() => {
-                            // Add account deletion logic here
-                            setShowDeleteConfirmation(false)
-                          }}>Delete</Button>
+                  {dhdSetupComplete && !shippingProviders.some((p) => p.provider === "DHD") && (
+                    <div className="bg-muted p-4 rounded-lg">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-lg font-semibold">DHD</h4>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="dhd-api-token">API Token</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="dhd-api-token"
+                            placeholder="Enter your DHD API Token"
+                            onChange={(e) =>
+                              updateShippingProvider(shippingProviders.length, "apiToken", e.target.value)
+                            }
+                          />
+                          <Button onClick={() => handleApiTokenSubmit(shippingProviders.length)}>Submit</Button>
                         </div>
                       </div>
                     </div>
                   )}
-                </form>
+                </div>
               </CardContent>
             </Card>
           </div>
         </main>
       </div>
       <Dialog open={showSetupModal} onOpenChange={setShowSetupModal}>
-  <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden">
-    {!selectedProvider ? (
-      <div className="p-6 space-y-6">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Choose a Shipping Provider</DialogTitle>
-          <DialogDescription>
-            Select your preferred shipping provider to begin the integration setup process.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid grid-cols-2 gap-4">
-          {["DHD", "Yalidin Express", "UPS", "Go livri", "maystero delivery"].map((provider) => (
-            <Button
-              key={provider}
-              variant="outline"
-              className="h-auto p-4 flex flex-col items-center gap-2"
-              onClick={() => setSelectedProvider(provider)}
-            >
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <img
-                  src={`/placeholder.svg?height=24&width=24`}
-                  alt={provider}
-                  className="w-6 h-6"
-                />
+        <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden">
+          {!selectedProvider ? (
+            <div className="p-6 space-y-6">
+              <DialogHeader>
+                <DialogTitle className="text-2xl">Choose a Shipping Provider</DialogTitle>
+                <DialogDescription>
+                  Select your preferred shipping provider to begin the integration setup process.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-4">
+                {["DHD", "Yalidin Express", "UPS", "Go livri", "Maystero Delivery"].map((provider) => (
+                  <Button
+                    key={provider}
+                    variant="outline"
+                    className="h-auto p-4 flex flex-col items-center gap-2"
+                    onClick={() => setSelectedProvider(provider)}
+                  >
+                    <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
+                      <img
+                        src={providerImages[provider] || `/placeholder.svg?height=64&width=64`}
+                        alt={provider}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                    <span>{provider}</span>
+                  </Button>
+                ))}
               </div>
-              <span>{provider}</span>
-            </Button>
-          ))}
-        </div>
-      </div>
-    ) : (
-      <>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 top-4 z-10"
-          onClick={() => setShowSetupModal(false)}
-        >
-          
-          <span className="sr-only">Close</span>
-        </Button>
-        <Steps shopData = {shopData} provider={selectedProvider} onComplete={handleSetupComplete} />
-      </>
-    )}
-  </DialogContent>
-</Dialog>
+            </div>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-4 z-10"
+                onClick={() => setShowSetupModal(false)}
+              ></Button>
+              <Steps shopData={shopData} provider={selectedProvider} onComplete={handleSetupComplete} />
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-function PlusIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </svg>
-  )
-}
-
-function TrashIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3 6h18" />
-      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-    </svg>
-  )
-}

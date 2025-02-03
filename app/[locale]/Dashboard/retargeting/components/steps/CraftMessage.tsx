@@ -16,6 +16,13 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
     campaign.excelData?.nameColumn && 
     !campaign.message.includes('{{name}}');
 
+  const renderValue = (value: any) => {
+    if (typeof value === 'object' && value !== null) {
+      return JSON.stringify(value);
+    }
+    return value;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -28,7 +35,7 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
         <p className="text-sm text-muted-foreground">
           Select a template or create your own message
         </p>
-        <CampaignIdeasCarousel onSelectIdea={campaign.setMessage} />
+        <CampaignIdeasCarousel onSelectIdea={(idea) => campaign.setMessage(renderValue(idea))} />
       </div>
 
       <div className="space-y-4">
@@ -45,7 +52,7 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
                 <p>Best practices for retargeting messages:</p>
                 <ul className="list-disc pl-4 mt-2">
                   <li>Keep it concise and clear</li>
-                  <li>Use {{name}} for personalization</li>
+                  <li>Use {'{{name}}'} for personalization</li>
                   <li>Include a strong call-to-action</li>
                   <li>Highlight unique value propositions</li>
                 </ul>
@@ -57,7 +64,7 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
         {showPersonalizationTip && (
           <Alert>
             <AlertDescription>
-              Tip: You can personalize your message by using {{name}} - it will be replaced with each customer's name
+              Tip: You can personalize your message by using {'{{name}}'} - it will be replaced with each customer's name
             </AlertDescription>
           </Alert>
         )}
@@ -65,25 +72,27 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
         <Textarea
           id="message"
           placeholder="Type your retargeting message here... Use {{name}} to personalize the message"
-          value={campaign.message}
+          value={renderValue(campaign.message)}
           onChange={(e) => campaign.setMessage(e.target.value)}
           rows={4}
           className="w-full resize-none"
         />
 
         <div className="flex justify-between items-center text-sm text-muted-foreground">
-          <span>{campaign.remainingCharacters} characters remaining</span>
+          <span>{renderValue(campaign.remainingCharacters)} characters remaining</span>
           <span>
-            {campaign.messageCount} message{campaign.messageCount !== 1 ? 's' : ''} × {campaign.totalRecipients} recipients
+            {renderValue(campaign.messageCount)} message
+            {renderValue(campaign.messageCount) !== 1 ? 's' : ''} × 
+            {renderValue(campaign.totalRecipients)} recipients
           </span>
         </div>
 
         <Progress 
-          value={(campaign.CHARACTER_LIMIT - campaign.remainingCharacters) / campaign.CHARACTER_LIMIT * 100}
+          value={((Number(campaign.CHARACTER_LIMIT) - Number(campaign.remainingCharacters)) / Number(campaign.CHARACTER_LIMIT) * 100) || 0}
         />
 
         <p className="text-sm text-muted-foreground">
-          Estimated total cost: {campaign.totalCost.toLocaleString()} DZD
+          Estimated total cost: {renderValue(campaign.totalCost?.toLocaleString())} DZD
         </p>
       </div>
     </motion.div>

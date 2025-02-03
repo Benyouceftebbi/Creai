@@ -1,16 +1,45 @@
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { ClientGroupSelector } from './ClientGroupSelector';
-import { ExcelFileUploader } from './ExcelFileUploader';
-import type { RetargetingCampaignHook } from '../../../types';
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { ClientGroupSelector } from "./ClientGroupSelector"
+import { ExcelFileUploader } from "./ExcelFileUploader"
+import type { RetargetingCampaignHook } from "../../../types"
 
 type SelectAudienceProps = {
-  campaign: RetargetingCampaignHook;
-};
+  campaign: RetargetingCampaignHook
+}
 
 export function SelectAudience({ campaign }: SelectAudienceProps) {
+  const [totalRecipients, setTotalRecipients] = useState(0)
+  const [estimatedCost, setEstimatedCost] = useState(0)
+
+  useEffect(() => {
+    // Update the local state whenever campaign data changes
+    setTotalRecipients(campaign.totalRecipients)
+    setEstimatedCost(campaign.totalCost)
+  }, [campaign.totalRecipients, campaign.totalCost])
+
+  const handleAudienceSourceChange = (value: "group" | "excel") => {
+    // Reset the campaign details
+    setTotalRecipients(0)
+    setEstimatedCost(0)
+
+    // Clear the selected data
+    if (value === "group") {
+      campaign.selectedClientGroup = null
+    } else {
+      // Assuming there's a way to clear the Excel file
+      // You might need to adjust this based on how you're handling the Excel file
+      campaign.excelFile = null
+    }
+
+    // Set the new audience source
+    campaign.setAudienceSource(value)
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
@@ -20,8 +49,8 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
             <p className="text-sm text-muted-foreground">Token per SMS: {campaign.CHARACTER_LIMIT} DZD</p>
           </div>
           <div>
-            <p className="text-sm">Total Recipients: {campaign.totalRecipients}</p>
-            <p className="text-sm">Estimated Cost: {campaign.totalCost.toLocaleString()} DZD</p>
+            <p className="text-sm">Total Recipients: {totalRecipients}</p>
+            <p className="text-sm">Estimated Cost: {estimatedCost.toLocaleString()} DZD</p>
           </div>
         </div>
       </div>
@@ -30,9 +59,9 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
         <CardContent className="pt-6 space-y-6">
           <div className="space-y-4">
             <Label>Select Audience Source</Label>
-            <RadioGroup 
-              value={campaign.audienceSource} 
-              onValueChange={(value) => campaign.setAudienceSource(value as 'group' | 'excel')}
+            <RadioGroup
+              value={campaign.audienceSource}
+              onValueChange={handleAudienceSourceChange}
               className="space-y-2"
             >
               <div className="flex items-center space-x-2">
@@ -46,7 +75,7 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
             </RadioGroup>
           </div>
 
-          {campaign.audienceSource === 'group' ? (
+          {campaign.audienceSource === "group" ? (
             <ClientGroupSelector campaign={campaign} />
           ) : (
             <ExcelFileUploader campaign={campaign} />
@@ -54,5 +83,6 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
+
