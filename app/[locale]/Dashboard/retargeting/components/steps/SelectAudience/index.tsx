@@ -22,20 +22,22 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
     setEstimatedCost(campaign.totalCost)
   }, [campaign.totalRecipients, campaign.totalCost])
 
-  const handleAudienceSourceChange = (value: "group" | "excel") => {
-    // Reset the campaign details
+  useEffect(() => {
+    // Reset data when audience source changes
     setTotalRecipients(0)
     setEstimatedCost(0)
 
     // Clear the selected data
-    if (value === "group") {
+    if (campaign.audienceSource === "group") {
       campaign.selectedClientGroup = null
     } else {
       // Assuming there's a way to clear the Excel file
       // You might need to adjust this based on how you're handling the Excel file
       campaign.excelFile = null
     }
+  }, [campaign.audienceSource])
 
+  const handleAudienceSourceChange = (value: "group" | "excel") => {
     // Set the new audience source
     campaign.setAudienceSource(value)
   }
@@ -85,4 +87,3 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
     </div>
   )
 }
-

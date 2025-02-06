@@ -63,7 +63,7 @@ export function Steps({
     formState: { errors },
   } = useForm<FormData>()
 
-  const config: ProviderConfig = providerConfigs[provider] || providerConfigs["Yalidin Express"]
+  const config: ProviderConfig = providerConfigs[provider] || providerConfigs["DHD"]
   const steps = config.steps
 
   const name = "ColiTrack"

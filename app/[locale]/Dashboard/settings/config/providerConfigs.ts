@@ -128,5 +128,103 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
       },
     ],
   },
+  "Go Livri": {
+    name: "Go Livri",
+    fields: {
+      apiKey: { label: "API Key", type: "text", placeholder: "Enter Go Livri API Key" },
+      accountId: { label: "Account ID", type: "text", placeholder: "Enter Go Livri Account ID" },
+    },
+    languageOptions: [
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Create Go Livri Account",
+        description: "Sign up for a Go Livri account if you don't have one already.",
+        image: stepOne,
+      },
+      {
+        title: "Access API Settings",
+        description: "Navigate to the API settings in your Go Livri dashboard.",
+        image: stepTwo,
+      },
+      {
+        title: "Generate API Key",
+        description: "Generate a new API key for integration purposes.",
+        image: stepThree,
+      },
+      {
+        title: "Copy Account Information",
+        description: "Copy your Account ID and newly generated API Key.",
+        image: submitDhd,
+      },
+      {
+        title: "Configure Webhook",
+        description: "Set up a webhook in Go Livri to receive real-time updates.",
+        image: pending,
+      },
+      {
+        title: "Enter Configuration Details",
+        description: "Enter the API Key and Account ID in the configuration fields.",
+        image: activated,
+      },
+      {
+        title: "Test Integration",
+        description: "Perform a test to ensure the integration is working correctly.",
+        image: viewToken,
+      },
+    ],
+  },
+  UPS: {
+    name: "UPS",
+    fields: {
+      accessKey: { label: "Access Key", type: "text", placeholder: "Enter UPS Access Key" },
+      userId: { label: "User ID", type: "text", placeholder: "Enter UPS User ID" },
+      password: { label: "Password", type: "password", placeholder: "Enter UPS Password" },
+    },
+    languageOptions: [
+      { value: "en", label: "English" },
+      { value: "fr", label: "Français" },
+      { value: "ar", label: "العربية" },
+    ],
+    steps: [
+      {
+        title: "Create UPS Developer Account",
+        description: "Sign up for a UPS developer account at https://www.ups.com/upsdeveloperkit",
+        image: stepOne,
+      },
+      {
+        title: "Request API Access",
+        description: "Request access to the UPS APIs you need for integration.",
+        image: stepTwo,
+      },
+      {
+        title: "Generate Access Key",
+        description: "Generate an Access Key in your UPS developer account.",
+        image: stepThree,
+      },
+      {
+        title: "Obtain Credentials",
+        description: "Obtain your User ID and Password for API authentication.",
+        image: submitDhd,
+      },
+      {
+        title: "Configure Webhook (if applicable)",
+        description: "Set up webhooks for real-time notifications, if supported by UPS.",
+        image: pending,
+      },
+      {
+        title: "Enter Configuration Details",
+        description: "Enter the Access Key, User ID, and Password in the configuration fields.",
+        image: activated,
+      },
+      {
+        title: "Test Integration",
+        description: "Perform a test to ensure the UPS integration is working correctly.",
+        image: viewToken,
+      },
+    ],
+  },
   // Add more providers as needed
 }
