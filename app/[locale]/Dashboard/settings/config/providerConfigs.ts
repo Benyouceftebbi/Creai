@@ -36,7 +36,6 @@ export const providerConfigs: { [key: string]: ProviderConfig } = {
     name: "Yalidin Express",
     fields: {
       apiId: { label: "API ID", type: "text", placeholder: "Enter API ID" },
-      apiKey: { label: "API Key", type: "text", placeholder: "Enter API Key" },
       apiToken: { label: "API Token", type: "text", placeholder: "Enter API Token" },
     },
     languageOptions: [

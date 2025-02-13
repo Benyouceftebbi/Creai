@@ -8,7 +8,6 @@ import { ClientGroupSelector } from "./ClientGroupSelector"
 import { ExcelFileUploader } from "./ExcelFileUploader"
 import type { RetargetingCampaignHook } from "../../../types"
 import { useTranslations } from "next-intl"
-import { Input } from "@/components/ui/input"
 
 type SelectAudienceProps = {
   campaign: RetargetingCampaignHook
@@ -34,24 +33,14 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
     } else {
       campaign.excelFile = null
     }
-  }, [campaign.audienceSource, campaign]) // Added campaign dependency
+  }, [campaign.audienceSource])
 
   const handleAudienceSourceChange = (value: "group" | "excel") => {
     campaign.setAudienceSource(value)
   }
 
   return (
-    <div className="space-y-3">
-      <div className="space-y-2">
-        <Label htmlFor="campaign-name">{t("campaignName")}</Label>
-        <Input
-          id="campaign-name"
-          value={campaign.campaignName}
-          onChange={(e) => campaign.setCampaignName(e.target.value)}
-          placeholder={t("enterCampaignName")}
-          className="mb-4"
-        />
-      </div>
+    <div className="space-y-6">
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -61,18 +50,14 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
             </p>
           </div>
           <div>
-            <p className="text-sm">
-              {t("totalRecipients")}: {totalRecipients}
-            </p>
-            <p className="text-sm">
-              {t("estimatedCost")}: {estimatedCost.toLocaleString()} DZD
-            </p>
+            <p className="text-sm">{t("totalRecipients")}: {totalRecipients}</p>
+            <p className="text-sm">{t("estimatedCost")}: {estimatedCost.toLocaleString()} DZD</p>
           </div>
         </div>
       </div>
 
       <Card>
-        <CardContent className="pt-4 space-y-6">
+        <CardContent className="pt-6 space-y-6">
           <div className="space-y-4">
             <Label>{t("selectAudienceSource")}</Label>
             <RadioGroup
@@ -101,4 +86,3 @@ export function SelectAudience({ campaign }: SelectAudienceProps) {
     </div>
   )
 }
-

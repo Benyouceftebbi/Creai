@@ -13,7 +13,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
-import { Check, ArrowRight, ArrowLeft, Copy, CheckCircle, ZoomIn, ZoomOut } from "lucide-react"
+import { Check, ArrowRight, ArrowLeft, ZoomIn, ZoomOut } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/use-toast"
@@ -23,7 +23,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
 interface FormData {
-  [key: string]: string
+  apiToken: string
+  language: string
 }
 
 function useIsMobile() {
@@ -51,10 +52,6 @@ export function Steps({
   const isMobile = useIsMobile()
   const [currentStep, setCurrentStep] = useState(0)
   const [imageLoading, setImageLoading] = useState(true)
-  const [copiedName, setCopiedName] = useState(false)
-  const [copiedEmail, setCopiedEmail] = useState(false)
-  const [copiedLink, setCopiedLink] = useState(false)
-  const [language, setLanguage] = useState("fr")
   const [isZoomed, setIsZoomed] = useState(false)
 
   const {
@@ -66,17 +63,10 @@ export function Steps({
   const config: ProviderConfig = providerConfigs[provider] || providerConfigs["DHD"]
   const steps = config.steps
 
-  const name = "ColiTrack"
-  const webhookEmail = "your-webhook@example.com"
-  const webhookLink = "https://your-app.com/api/yalidine-webhook"
-
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
       setImageLoading(true)
-      setCopiedName(false)
-      setCopiedEmail(false)
-      setCopiedLink(false)
     }
   }
 
@@ -84,24 +74,14 @@ export function Steps({
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
       setImageLoading(true)
-      setCopiedName(false)
-      setCopiedEmail(false)
-      setCopiedLink(false)
     }
   }
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const submissionData =
-        provider === "Yalidin Express" ? { ...data, provider, lng: language } : { provider, lng: language }
-
-      if (provider === "DHD") {
-        // For DHD, we don't submit any data here
-        onComplete(provider, {})
-      } else {
-        await updateShippingInfo("8hlH0zIJbfNaCDfibG8K", submissionData)
-        onComplete(provider, submissionData)
-      }
+      const submissionData = { ...data, provider }
+      await updateShippingInfo("8hlH0zIJbfNaCDfibG8K", submissionData)
+      onComplete(provider, submissionData)
 
       toast({
         title: "Setup completed",
@@ -114,17 +94,6 @@ export function Steps({
         variant: "destructive",
       })
     }
-  }
-
-  const copyToClipboard = (text: string, setCopiedState: (value: boolean) => void) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedState(true)
-      toast({
-        title: "Copied to clipboard",
-        description: "The information has been copied to your clipboard.",
-      })
-      setTimeout(() => setCopiedState(false), 3000)
-    })
   }
 
   return (
@@ -196,49 +165,26 @@ export function Steps({
                   <h3 className="text-3xl font-bold mb-4">{steps[currentStep]?.title}</h3>
                   <p className="text-lg text-muted-foreground leading-relaxed">{steps[currentStep]?.description}</p>
                 </div>
-                {currentStep === steps.length - 3 && provider === "Yalidin Express" ? (
+                {currentStep === steps.length - 1 ? (
                   <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    <div className="flex items-center space-x-2">
-                      <Input value={name} readOnly className="bg-muted flex-grow text-lg" />
-                      <Button
-                        onClick={() => copyToClipboard(name, setCopiedName)}
-                        className="flex items-center justify-center"
-                        size="icon"
-                        type="button"
-                      >
-                        {copiedName ? <CheckCircle className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-                      </Button>
+                    <div>
+                      <label htmlFor="apiToken" className="block text-lg font-medium text-gray-700 mb-2">
+                        API Token
+                      </label>
+                      <Input
+                        id="apiToken"
+                        type="text"
+                        placeholder={`Enter your ${provider} API Token`}
+                        {...register("apiToken", { required: true })}
+                        className={`text-lg ${errors.apiToken ? "border-red-500" : ""}`}
+                      />
+                      {errors.apiToken && <p className="mt-1 text-sm text-red-500">This field is required</p>}
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Input value={webhookEmail} readOnly className="bg-muted flex-grow text-lg" />
-                      <Button
-                        onClick={() => copyToClipboard(webhookEmail, setCopiedEmail)}
-                        className="flex items-center justify-center"
-                        size="icon"
-                        type="button"
-                      >
-                        {copiedEmail ? <CheckCircle className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-                      </Button>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Input value={webhookLink} readOnly className="bg-muted flex-grow text-lg" />
-                      <Button
-                        onClick={() => copyToClipboard(webhookLink, setCopiedLink)}
-                        className="flex items-center justify-center"
-                        size="icon"
-                        type="button"
-                      >
-                        {copiedLink ? <CheckCircle className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-                      </Button>
-                    </div>
-                  </div>
-                ) : currentStep === steps.length - 2 && provider === "Yalidin Express" ? (
-                  <div className="w-full max-w-md space-y-4 px-4 md:px-0">
                     <div>
                       <label htmlFor="language" className="block text-lg font-medium text-gray-700 mb-2">
                         Language
                       </label>
-                      <Select value={language} onValueChange={setLanguage}>
+                      <Select {...register("language", { required: true })}>
                         <SelectTrigger className="w-full text-lg">
                           <SelectValue placeholder="Select a language" />
                         </SelectTrigger>
@@ -250,29 +196,8 @@ export function Steps({
                           ))}
                         </SelectContent>
                       </Select>
+                      {errors.language && <p className="mt-1 text-sm text-red-500">This field is required</p>}
                     </div>
-                    {Object.entries(config.fields).map(([key, field]) => (
-                      <div key={key}>
-                        <label htmlFor={key} className="block text-lg font-medium text-gray-700 mb-2">
-                          {field.label}
-                        </label>
-                        <Input
-                          id={key}
-                          type={field.type}
-                          placeholder={field.placeholder}
-                          {...register(key, { required: true })}
-                          className={`text-lg ${errors[key] ? "border-red-500" : ""}`}
-                        />
-                        {errors[key] && <p className="mt-1 text-sm text-red-500">This field is required</p>}
-                      </div>
-                    ))}
-                  </div>
-                ) : currentStep === steps.length - 1 && provider === "DHD" ? (
-                  <div className="w-full max-w-md space-y-4 px-4 md:px-0">
-                    <p className="text-center text-lg text-muted-foreground">
-                      You have completed the DHD setup process. Click "Finish Setup" to return to the main screen, where
-                      you can enter your API token.
-                    </p>
                   </div>
                 ) : steps[currentStep]?.image ? (
                   <div className="relative w-full max-w-2xl aspect-[16/9] bg-muted rounded-lg overflow-hidden group">

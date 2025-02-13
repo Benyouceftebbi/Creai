@@ -1,9 +1,7 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import confetti from "canvas-confetti"
 import { utils, writeFile } from "xlsx"
-import type { SentMessage, ClientGroup, ExcelData, CampaignStatus } from "../types"
+import type { SentMessage, ClientGroup, ExcelData } from "../types"
 import { CLIENT_GROUPS, CHARACTER_LIMIT, COST_PER_MESSAGE } from "../components/constants"
 
 export function useRetargetingCampaign() {
@@ -14,12 +12,12 @@ export function useRetargetingCampaign() {
   const [currentStep, setCurrentStep] = useState(0)
   const [isPersonalized, setIsPersonalized] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [sentMessages, setSentMessages] = useState<SentMessage[]>([])
   const [audienceSource, setAudienceSource] = useState("group")
   const [deliveryStatus, setDeliveryStatus] = useState("all")
   const [excelData, setExcelData] = useState<ExcelData | null>(null)
-  const [processedData, setProcessedData] = useState<Array<{ name: string; number: string }>>([])
+  const [processedData, setProcessedData] = useState<Array<{ name: string, number: string }>>([])
   const [totalRecipients, setTotalRecipients] = useState(0)
-  const [campaignName, setCampaignName] = useState("")
 
   const characterCount = message.length
   const messageCount = Math.ceil(characterCount / CHARACTER_LIMIT)
@@ -31,14 +29,15 @@ export function useRetargetingCampaign() {
       const phoneIndex = excelData.headers.indexOf(excelData.phoneColumn)
       const nameIndex = excelData.headers.indexOf(excelData.nameColumn)
 
-      const processed = excelData.data.map((row) => ({
+      const processed = excelData.data.map(row => ({
         name: row[nameIndex] as string,
-        number: row[phoneIndex] as string,
+        number: row[phoneIndex] as string
       }))
 
       setProcessedData(processed)
       setTotalRecipients(processed.length)
 
+      // Log the processed data
       console.log("Processed Excel Data:", processed)
       console.log("Total Recipients:", processed.length)
     }
@@ -51,48 +50,32 @@ export function useRetargetingCampaign() {
     const newMessage: SentMessage = {
       id: Date.now().toString(),
       date: new Date(),
-      campaignName,
       recipients: totalRecipients,
       messageCount,
       totalCost,
       content: message,
-      status: "pending",
     }
+
+    setSentMessages((prev) => [newMessage, ...prev])
+
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+    })
 
     setIsSending(false)
     setIsAlertOpen(false)
-
-    resetForm()
-
-    return newMessage
-  }
-
-  const updateCampaignStatus = async (messageId: string, newStatus: CampaignStatus) => {
-    // In a real application, you would update the status on the server here
-    // For now, we'll just simulate a delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    if (newStatus === "sent") {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      })
-    }
-
-    return newStatus
   }
 
   const exportToExcel = (message: SentMessage) => {
     const worksheet = utils.json_to_sheet([
       {
         Date: message.date.toLocaleString(),
-        "Campaign Name": message.campaignName,
         Recipients: message.recipients,
         "Message Count": message.messageCount,
         "Total Cost": message.totalCost,
         Content: message.content,
-        Status: message.status,
       },
     ])
     const workbook = utils.book_new()
@@ -100,14 +83,9 @@ export function useRetargetingCampaign() {
     writeFile(workbook, `campaign_${message.id}.xlsx`)
   }
 
-  const resetForm = () => {
-    setCampaignName("")
-    setMessage("")
-    setSelectedGroup(CLIENT_GROUPS[0])
-    setAudienceSource("group")
-    setExcelData(null)
-    setTotalRecipients(0)
-    setCurrentStep(0)
+  const logProcessedData = () => {
+    console.log("Current Processed Data:", processedData)
+    console.log("Current Total Recipients:", totalRecipients)
   }
 
   return {
@@ -124,12 +102,12 @@ export function useRetargetingCampaign() {
     isPersonalized,
     setIsPersonalized,
     isSending,
+    sentMessages,
     characterCount,
     messageCount,
     remainingCharacters,
     totalCost,
     handleSendCampaign,
-    updateCampaignStatus,
     exportToExcel,
     CLIENT_GROUPS,
     CHARACTER_LIMIT,
@@ -142,9 +120,6 @@ export function useRetargetingCampaign() {
     processedData,
     totalRecipients,
     setTotalRecipients,
-    campaignName,
-    setCampaignName,
-    resetForm,
+    logProcessedData,
   }
 }
-

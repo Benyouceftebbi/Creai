@@ -10,18 +10,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Steps } from "./components/steps"
 import { PlusCircle, Trash2 } from "lucide-react"
 import { useShop } from "@/app/context/ShopContext"
-import { toast } from "@/components/ui/use-toast"
 
 export default function Component() {
   const { shopData } = useShop()
   console.log("shop", shopData)
 
-  const [shippingProviders, setShippingProviders] = useState([])
+  const [shippingProviders, setShippingProviders] = useState<
+    Array<{ provider: string; apiToken: string; language: string }>
+  >([])
   const [keywords, setKeywords] = useState("")
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState("")
   const [showSetupModal, setShowSetupModal] = useState(false)
-  const [dhdSetupComplete, setDhdSetupComplete] = useState(false)
 
   const providerImages = {
     DHD: "https://dhd-dz.com/assets/img/logo.png",
@@ -48,22 +48,9 @@ export default function Component() {
     setShippingProviders(updatedProviders)
   }
 
-  const handleSetupComplete = (provider, data) => {
-    if (provider === "DHD") {
-      setDhdSetupComplete(true)
-    } else {
-      setShippingProviders([...shippingProviders, { ...data, provider, apiToken: "" }])
-    }
+  const handleSetupComplete = (provider: string, data: { apiToken: string; language: string }) => {
+    setShippingProviders([...shippingProviders, { ...data, provider }])
     setShowSetupModal(false)
-  }
-
-  const handleApiTokenSubmit = (index) => {
-    // Here you would typically send the API token to your backend
-    // For now, we'll just show a success message
-    toast({
-      title: "API Token Updated",
-      description: "Your DHD API token has been successfully saved.",
-    })
   }
 
   return (
@@ -178,70 +165,27 @@ export default function Component() {
                         </Button>
                       </div>
                       <div className="grid gap-4">
-                        {provider.provider === "DHD" && dhdSetupComplete ? (
-                          <div className="grid gap-2">
-                            <Label htmlFor={`api-token-${index}`}>API Token</Label>
-                            <div className="flex gap-2">
-                              <Input
-                                id={`api-token-${index}`}
-                                value={provider.apiToken}
-                                onChange={(e) => updateShippingProvider(index, "apiToken", e.target.value)}
-                                placeholder="Enter your DHD API Token"
-                              />
-                              <Button onClick={() => handleApiTokenSubmit(index)}>Submit</Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="grid gap-2">
-                              <Label htmlFor={`api-key-${index}`}>API Key</Label>
-                              <Input
-                                id={`api-key-${index}`}
-                                value={provider.apiKey}
-                                onChange={(e) => updateShippingProvider(index, "apiKey", e.target.value)}
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor={`api-secret-${index}`}>API Secret</Label>
-                              <Input
-                                id={`api-secret-${index}`}
-                                value={provider.apiSecret}
-                                onChange={(e) => updateShippingProvider(index, "apiSecret", e.target.value)}
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor={`webhook-url-${index}`}>Webhook URL</Label>
-                              <Input
-                                id={`webhook-url-${index}`}
-                                value={provider.webhookUrl}
-                                onChange={(e) => updateShippingProvider(index, "webhookUrl", e.target.value)}
-                              />
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {dhdSetupComplete && !shippingProviders.some((p) => p.provider === "DHD") && (
-                    <div className="bg-muted p-4 rounded-lg">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-lg font-semibold">DHD</h4>
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="dhd-api-token">API Token</Label>
-                        <div className="flex gap-2">
+                        <div className="grid gap-2">
+                          <Label htmlFor={`api-token-${index}`}>API Token</Label>
                           <Input
-                            id="dhd-api-token"
-                            placeholder="Enter your DHD API Token"
-                            onChange={(e) =>
-                              updateShippingProvider(shippingProviders.length, "apiToken", e.target.value)
-                            }
+                            id={`api-token-${index}`}
+                            value={provider.apiToken}
+                            onChange={(e) => updateShippingProvider(index, "apiToken", e.target.value)}
+                            placeholder={`Enter your ${provider.provider} API Token`}
                           />
-                          <Button onClick={() => handleApiTokenSubmit(shippingProviders.length)}>Submit</Button>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor={`language-${index}`}>Language</Label>
+                          <Input
+                            id={`language-${index}`}
+                            value={provider.language}
+                            onChange={(e) => updateShippingProvider(index, "language", e.target.value)}
+                            placeholder="Language"
+                          />
                         </div>
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
               </CardContent>
             </Card>

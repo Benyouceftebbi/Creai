@@ -1,29 +1,31 @@
-import { motion } from "framer-motion"
-import { InfoIcon } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
-import { Progress } from "@/components/ui/progress"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CampaignIdeasCarousel } from "../campaign-ideas/CampaignIdeasCarousel"
-import type { RetargetingCampaignHook } from "../../types"
-import { useTranslations } from "next-intl"
+import { motion } from "framer-motion";
+import { InfoIcon } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CampaignIdeasCarousel } from "../campaign-ideas/CampaignIdeasCarousel";
+import type { RetargetingCampaignHook } from "../../types";
+import { useTranslations } from "next-intl";
 
 type CraftMessageProps = {
-  campaign: RetargetingCampaignHook
-}
+  campaign: RetargetingCampaignHook;
+};
 
 export function CraftMessage({ campaign }: CraftMessageProps) {
-  const t = useTranslations("retargeting")
+  const t = useTranslations("retargeting");
 
   const showPersonalizationTip =
-    campaign.audienceSource === "excel" && campaign.excelData?.nameColumn && !campaign.message.includes("{{name}}")
+    campaign.audienceSource === "excel" &&
+    campaign.excelData?.nameColumn &&
+    !campaign.message.includes("{{name}}");
 
   const renderValue = (value: any) => {
     if (typeof value === "object" && value !== null) {
-      return JSON.stringify(value)
+      return JSON.stringify(value);
     }
-    return value
-  }
+    return value;
+  };
 
   return (
     <motion.div
@@ -34,8 +36,12 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
     >
       <div className="space-y-3">
         <h3 className="text-lg font-semibold">{t("campaignIdeas")}</h3>
-        <p className="text-sm text-muted-foreground">{t("selectTemplateOrCreate")}</p>
-        <CampaignIdeasCarousel onSelectIdea={(idea) => campaign.setMessage(renderValue(idea))} />
+        <p className="text-sm text-muted-foreground">
+          {t("selectTemplateOrCreate")}
+        </p>
+        <CampaignIdeasCarousel
+          onSelectIdea={(idea) => campaign.setMessage(renderValue(idea))}
+        />
       </div>
 
       <div className="space-y-4">
@@ -63,7 +69,9 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
 
         {showPersonalizationTip && (
           <Alert>
-            <AlertDescription>{t("personalizationTip")}</AlertDescription>
+            <AlertDescription>
+              {t("personalizationTip")}
+            </AlertDescription>
           </Alert>
         )}
 
@@ -81,16 +89,17 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
           <span>
             {t("messageCount", {
               count: renderValue(campaign.messageCount),
-            })}{" "}
-            × {renderValue(campaign.totalRecipients)} {t("recipients")}
+            })} × {renderValue(campaign.totalRecipients)} {t("recipients")}
           </span>
         </div>
 
         <Progress
           value={
-            ((Number(campaign.CHARACTER_LIMIT) - Number(campaign.remainingCharacters)) /
-              Number(campaign.CHARACTER_LIMIT)) *
-              100 || 0
+            ((
+              (Number(campaign.CHARACTER_LIMIT) -
+                Number(campaign.remainingCharacters)) /
+              Number(campaign.CHARACTER_LIMIT)
+            ) * 100) || 0
           }
         />
 
@@ -99,6 +108,5 @@ export function CraftMessage({ campaign }: CraftMessageProps) {
         </p>
       </div>
     </motion.div>
-  )
+  );
 }
-

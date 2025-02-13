@@ -1,23 +1,19 @@
-export type AlertAction = "test" | "campaign"
-
-export type CampaignStatus = "pending" | "sent" | "failed"
+export type AlertAction = "test" | "campaign";
 
 export type SentMessage = {
-  id: string
-  date: Date
-  campaignName: string
-  recipients: number
-  messageCount: number
-  totalCost: number
-  content: string
-  status: CampaignStatus
-}
+  id: string;
+  date: Date;
+  recipients: number;
+  messageCount: number;
+  totalCost: number;
+  content: string;
+};
 
 export type ClientGroup = {
-  value: string
-  label: string
-  recipients: number
-}
+  value: string;
+  label: string;
+  recipients: number;
+};
 
 export type RetargetingCampaignHook = {
   message: string
@@ -25,6 +21,7 @@ export type RetargetingCampaignHook = {
   totalRecipients: number
   CHARACTER_LIMIT: number
 }
+
 
 export type ExcelData = {
   headers: string[]
@@ -46,5 +43,6 @@ export type RetargetingCampaignHook = {
   totalCost?: number
 }
 
-export type RetargetingCampaignHook = ReturnType<typeof import("./hooks/useRetargetingCampaign").useRetargetingCampaign>
 
+
+export type RetargetingCampaignHook = ReturnType<typeof import('./hooks/useRetargetingCampaign').useRetargetingCampaign>;
