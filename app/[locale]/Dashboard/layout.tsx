@@ -1,19 +1,8 @@
 "use client";
-
 import { useAuth } from "@/app/context/AuthContext";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { redirect } from "@/i18n/routing";
 import { useLocale } from "next-intl";
-import { AppSidebar } from "@/components/ui/navigation/app-sidebar"
-import { Separator } from "@/components/ui/separator";
+
 import {usePathname} from "@/i18n/routing";
 import { LoadingOverlay } from "../Auth/SignUp/page";
 import React from "react";
@@ -39,32 +28,11 @@ export default function DashboardLayout({
   }
   return ( 
 
-    <SidebarProvider>
-        <ShopProvider userId={user.uid} userEmail={user.email}>
-      <AppSidebar />
-      <SidebarInset>
+  <ShopProvider userId={user.uid} userEmail={user.email}>
+
+
         <header className="flex h-16 shrink-0 items-center gap-2">
-        <div className="flex flex-1 items-center gap-2 px-3">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                {pathSegments.map((segment, index) => {
-                  const href = '/' + pathSegments.slice(0, index + 1).join('/');
-                  return (
-                    <React.Fragment key={index}>
-                      <BreadcrumbSeparator className="hidden md:block" />
-                      <BreadcrumbItem className="hidden md:block">
-                        <BreadcrumbLink href={href}>
-                          {segment.charAt(0).toUpperCase() + segment.slice(1)}
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                    </React.Fragment>
-                  );
-                })}
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
+
           <div className="ml-auto px-3">
             <TopHeader/>
           </div>
@@ -74,14 +42,14 @@ export default function DashboardLayout({
         {children}
  
       </main>
-      </SidebarInset>
+
           {/* WhatsApp Support Button */}
       <WhatsAppSupport
         phoneNumber="+213561041724" // Replace with your actual WhatsApp number
         message="Hi! I need help with your SaaS platform. Can you assist me?"
       />
       </ShopProvider>
-      </SidebarProvider>
+
 
   );
 }
