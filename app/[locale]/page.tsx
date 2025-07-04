@@ -1,98 +1,101 @@
 "use client"
-import { Sparkles, ChevronRight } from "lucide-react"
-import Navbar from "../components/Navbar"
-import Stats from "../components/Stats"
-import FeatureSection from "../components/FeatureCarousel"
-import FloatingVideoPlayer from "../components/FloatingVideoPlayer"
-import FeatureShowcase from "../components/FeatureShowcase"
-import SMSDemo from "../components/SMSDemo"
+import { ChevronRight, Star } from "lucide-react"
 import { HeroWithMediaBackground } from "../components/Ai-Images/hero-with-media-background"
-import CTASection from "../components/CTASection"
-import ComingSoon from "../components/ComingSoon"
-import Testimonials from "../components/Testimonials"
-import Footer from "../components/Footer"
+import { BeforeAfterShowcase } from "../components/Ai-Images/before-after-showcase"
+import { CreativeAIFeatures } from "../components/Ai-Images/creative-ai-features"
+import { CreativeAIPricing } from "../components/Ai-Images/creative-ai-pricing"
+import { CreativeAITestimonials } from "../components/Ai-Images/creative-ai-testimonials"
+import { CreativeAINavbar } from "../components/Ai-Images/creative-ai-navbar"
+import { CreativeAIFooter } from "../components/Ai-Images/creative-ai-footer"
+import { CreativeAIStats } from "../components/Ai-Images/creative-ai-stats"
 import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 
-export default function App() {
-  const t = useTranslations("header")
+export default function CreativeAIPage() {
+  const t = useTranslations("creativeAi")
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50/30 dark:from-gray-900 dark:to-gray-800">
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-purple-50/30 dark:from-gray-900 dark:to-gray-800">
+      <CreativeAINavbar />
 
-      {/* Hero Section */}
-      <header className="pt-32 pb-20 overflow-hidden bg-gradient-to-b from-white to-indigo-50/20 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/50 px-4 py-2 rounded-full mb-8">
-              <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-              <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">{t("badge")}</span>
-            </div>
-            <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
-              {t("title")}
-              <span className="text-indigo-600 dark:text-indigo-400">{t("highlight")}</span> {t("and")} {t("subtitle")}
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">{t("description")}</p>
-            <div className="flex justify-center gap-6 mb-16">
-              <Link
-                href="/Auth/SignIn"
-                className="px-8 py-4 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-lg"
-              >
-                {t("getStarted")} <ChevronRight className="h-5 w-5" />
-              </Link>
-              <button
-                onClick={() => {
-                  const element = document.getElementById("sms-demo")
-                  element?.scrollIntoView({ behavior: "smooth", block: "start" })
-                }}
-                className="px-8 py-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-semibold text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-300 transform hover:scale-105"
-              >
-                {t("tryDemo")}
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Floating Video Player */}
-      <FloatingVideoPlayer />
-
-      <Stats />
-
-      <section
-        id="features"
-        className="bg-white dark:bg-gray-900 bg-gradient-to-b from-white to-indigo-50/20 dark:from-gray-900 dark:to-gray-800"
-      >
-        <FeatureSection />
-      </section>
-
-     
-
-      <section id="ai-images" className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      {/* Hero Section with Media Background */}
+      <section id="hero" className="relative">
         <HeroWithMediaBackground />
       </section>
 
-      <section id="ai">
-        <ComingSoon />
+      {/* Stats Section */}
+      <section className="relative z-10 -mt-20">
+        <CreativeAIStats />
       </section>
 
-      <section id="sms-demo" className="bg-white dark:bg-gray-900">
-        <SMSDemo />
+      {/* Before/After Showcase */}
+      <section
+        id="showcase"
+        className="py-12 bg-gradient-to-b from-white to-slate-50 dark:from-gray-900 dark:to-gray-800"
+      >
+        <BeforeAfterShowcase />
       </section>
 
-      <section id="pricing" className="bg-gradient-to-b from-white to-indigo-50/30 dark:from-gray-900 dark:to-gray-800">
-        <CTASection />
+      {/* Features Section */}
+      <section
+        id="features"
+        className="py-12 bg-gradient-to-b from-slate-50 to-white dark:from-gray-800 dark:to-gray-900"
+      >
+        <CreativeAIFeatures />
       </section>
 
-      <section id="analytics" className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <FeatureShowcase />
-      </section>
-      <section id="testimonials">
-        <Testimonials />
+      {/* Pricing Section */}
+      <section
+        id="pricing"
+        className="py-20 bg-gradient-to-b from-white to-purple-50/30 dark:from-gray-900 dark:to-gray-800"
+      >
+        <CreativeAIPricing />
       </section>
 
-      <Footer />
+      {/* Testimonials */}
+      <section
+        id="testimonials"
+        className="py-20 bg-gradient-to-b from-purple-50/30 to-white dark:from-gray-800 dark:to-gray-900"
+      >
+        <CreativeAITestimonials />
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+            <Star className="h-4 w-4 text-yellow-300" />
+            <span className="text-sm font-medium text-white">Join 50,000+ Creators</span>
+          </div>
+
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Ready to Transform Your Creative Process?</h2>
+
+          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of creators who are already using Creative AI to bring their wildest ideas to life.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/Auth/SignIn"
+              className="px-8 py-4 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-xl"
+            >
+              Start Creating Now
+              <ChevronRight className="h-5 w-5" />
+            </Link>
+            <button className="px-8 py-4 border-2 border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+              Watch Demo
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <CreativeAIFooter />
     </div>
   )
 }

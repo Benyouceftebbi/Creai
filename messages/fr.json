@@ -496,18 +496,11 @@
     "signUp": "S'inscrire"
   },
   "signup":{
-   "backToSignIn": "Retour à la connexion",
-  "createAccount": "Créez votre compte",
-  "getStarted": "Commencez avec Colitrack aujourd'hui",
-  "firstName": "Prénom",
-  "lastName": "Nom de famille",
-  "email": "Adresse e-mail",
-  "phoneNumber": "Numéro de téléphone",
-  "companyName": "Nom de l'entreprise",
-  "businessType": "Type d'entreprise",
-  "pleaseSpecify": "Veuillez spécifier votre type d'entreprise",
-  "password": "Mot de passe",
-  "confirmPassword": "Confirmer le mot de passe",
+    "daily-order-volume": "Volume de commandes quotidien",
+    "checkYourEmail": "Vérifiez votre e-mail",
+    "checkSpam": "Vérifiez le dossier spam",
+    "close": "Fermer",
+   
   "terms": "J'accepte les conditions d'utilisation et la politique de confidentialité",
   "createAccountButton": "Créer un compte",
   "passwordMismatch": "Les mots de passe ne correspondent pas !",
@@ -1521,7 +1514,62 @@
       "precisionCustomization": "Précision et personnalisation",
       "precisionDescription": "Affinez chaque aspect de votre contenu avec des contrôles avancés et des paramètres pour des résultats parfaits au pixel près."
     }
-  
+  ,"creativeAiNav": {
+    "showcase": "Vitrine",
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "testimonials": "Témoignages",
+    "getStarted": "Commencer"
+  },
+  "beforeAfter": {
+    "beforeAfterShowcase": "Vitrine Avant & Après",
+    "seeTheMagic": "Voyez la Magie en Action",
+    "witnessTransformation": "Découvrez l'incroyable pouvoir de transformation de notre technologie IA. Faites glisser le curseur pour révéler les résultats époustouflants.",
+    "dragSlider": "Faites glisser le curseur pour comparer les images avant et après"
+  },
+  "creativeAiFeatures": {
+    "powerfulFeatures": "Fonctionnalités Puissantes",
+    "everythingYouNeed": "Tout ce dont Vous Avez Besoin pour Créer",
+    "unlockCreativePotential": "Libérez votre potentiel créatif avec notre suite complète d'outils alimentés par l'IA",
+    "advancedAiModels": "Modèles IA Avancés",
+    "advancedAiDescription": "Alimenté par une technologie IA de pointe pour des résultats époustouflants",
+    "lightningFast": "Ultra-Rapide",
+    "lightningFastDescription": "Générez du contenu professionnel en secondes, pas en heures",
+    "styleTransfer": "Transfert de Style",
+    "styleTransferDescription": "Appliquez instantanément n'importe quel style artistique à vos images",
+    "imageEnhancement": "Amélioration d'Image",
+    "imageEnhancementDescription": "Agrandissez, restaurez et améliorez n'importe quelle image avec l'IA",
+    "videoGeneration": "Génération Vidéo",
+    "videoGenerationDescription": "Créez du contenu vidéo époustouflant à partir de prompts texte",
+    "magicEditing": "Édition Magique",
+    "magicEditingDescription": "Supprimez des objets, changez les arrière-plans, ajoutez des éléments",
+    "precisionControl": "Contrôle de Précision",
+    "precisionControlDescription": "Ajustez finement chaque aspect avec des paramètres avancés",
+    "creativeFilters": "Filtres Créatifs",
+    "creativeFiltersDescription": "Transformez votre contenu avec des filtres artistiques"
+  },
+  "creativeAiPricing": {
+    "choosePlan": "Choisissez Votre Plan",
+    "unlockCreativePotential": "Libérez Votre Potentiel Créatif",
+    "flexiblePricing": "Commencez à créer du contenu incroyable aujourd'hui avec nos plans tarifaires flexibles",
+    "starter": "Débutant",
+    "pro": "Pro",
+    "enterprise": "Entreprise",
+    "mostPopular": "Le Plus Populaire",
+    "perMonth": "/mois",
+    "creditsIncluded": "crédits inclus",
+    "getStarted": "Commencer",
+    "commercialLicensing": "Tous les plans incluent une licence commerciale et un support prioritaire",
+    "moneyBackGuarantee": "Garantie de remboursement de 30 jours"
+  },
+  "creativeAiTestimonials": {
+    "lovedByCreators": "Aimé par les Créateurs",
+    "whatUsersSay": "Ce que Disent Nos Utilisateurs",
+    "joinCreators": "Rejoignez des milliers de créateurs qui transforment déjà leur processus créatif",
+    "readyToJoin": "Prêt à Rejoindre Notre Communauté Créative ?",
+    "startCreatingToday": "Commencez à créer du contenu incroyable aujourd'hui et découvrez pourquoi des milliers de créateurs choisissent Creative AI",
+    "startCreatingNow": "Commencez à Créer Maintenant"
+  }
   
   }
   

@@ -486,9 +486,27 @@
     "signUp": "Sign up"
   },
   "signup":{
+    "promoCodeSectionTitle": "Have a promo code?",
+    "promoCodeSectionDescription": "You already have 50 tokens as a welcome bonus!",
+    "promoCodePlaceholder": "Enter promo code",
+    "applyPromoCode": "Apply",
+    "promoCodeApplied": "Promo code \"{promoCode}\" applied! You received {tokenAmount} tokens.",
+    "defaultBonusApplied": "Default bonus applied! You received {tokenAmount} tokens.",
+    "tryDifferentCode": "Try a different code",
+   
+    "alreadyHaveAccount": "Already have an account? ",
+    "backToHome": "Back to home",
+    "welcomeBack": "Welcome back",
+    "signInToContinue": "Sign in to your account to continue",
+    "emailAddress": "Email address",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign up",
     "backToSignIn": "Back to sign in",
     "createAccount": "Create your account",
-    "getStarted": "Get started with Colitrack today",
+    "getStarted": "Get started with Creative AI today",
     "firstName": "First name",
     "lastName": "Last name",
     "email": "Email address",
@@ -1480,7 +1498,64 @@
         "lightningFastDescription": "Generate professional-quality content in seconds, not hours. Our optimized AI models deliver results at unprecedented speed.",
         "precisionCustomization": "Precision & Customization",
         "precisionDescription": "Fine-tune every aspect of your content with advanced controls and parameters for pixel-perfect results."
+      },
+      "creativeAiNav": {
+        "showcase": "Showcase",
+        "features": "Features",
+        "pricing": "Pricing",
+        "testimonials": "Testimonials",
+        "getStarted": "Get Started"
+      },
+      "beforeAfter": {
+        "beforeAfterShowcase": "Before & After Showcase",
+        "seeTheMagic": "See the Magic in Action",
+        "witnessTransformation": "Witness the incredible transformation power of our AI technology. Drag the slider to reveal the stunning results.",
+        "dragSlider": "Drag the slider to compare before and after images"
+      },
+      "creativeAiFeatures": {
+        "powerfulFeatures": "Powerful Features",
+        "everythingYouNeed": "Everything You Need to Create",
+        "unlockCreativePotential": "Unlock your creative potential with our comprehensive suite of AI-powered tools",
+        "advancedAiModels": "Advanced AI Models",
+        "advancedAiDescription": "Powered by cutting-edge AI technology for stunning results",
+        "lightningFast": "Lightning Fast",
+        "lightningFastDescription": "Generate professional content in seconds, not hours",
+        "styleTransfer": "Style Transfer",
+        "styleTransferDescription": "Apply any artistic style to your images instantly",
+        "imageEnhancement": "Image Enhancement",
+        "imageEnhancementDescription": "Upscale, restore, and enhance any image with AI",
+        "videoGeneration": "Video Generation",
+        "videoGenerationDescription": "Create stunning video content from text prompts",
+        "magicEditing": "Magic Editing",
+        "magicEditingDescription": "Remove objects, change backgrounds, add elements",
+        "precisionControl": "Precision Control",
+        "precisionControlDescription": "Fine-tune every aspect with advanced parameters",
+        "creativeFilters": "Creative Filters",
+        "creativeFiltersDescription": "Transform your content with artistic filters"
+      },
+      "creativeAiPricing": {
+        "choosePlan": "Choose Your Plan",
+        "unlockCreativePotential": "Unlock Your Creative Potential",
+        "flexiblePricing": "Start creating amazing content today with our flexible pricing plans",
+        "starter": "Starter",
+        "pro": "Pro",
+        "enterprise": "Enterprise",
+        "mostPopular": "Most Popular",
+        "perMonth": "/month",
+        "creditsIncluded": "credits included",
+        "getStarted": "Get Started",
+        "commercialLicensing": "All plans include commercial licensing and priority support",
+        "moneyBackGuarantee": "30-day money-back guarantee"
+      },
+      "creativeAiTestimonials": {
+        "lovedByCreators": "Loved by Creators",
+        "whatUsersSay": "What Our Users Say",
+        "joinCreators": "Join thousands of creators who are already transforming their creative process",
+        "readyToJoin": "Ready to Join Our Creative Community?",
+        "startCreatingToday": "Start creating amazing content today and see why thousands of creators choose Creative AI",
+        "startCreatingNow": "Start Creating Now"
       }
+      
     
     
 }

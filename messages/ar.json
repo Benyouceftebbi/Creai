@@ -491,14 +491,11 @@
     "signUp": "إنشاء حساب"
   },
   "signup":{
-    "backToSignIn": "العودة إلى تسجيل الدخول",
-    "createAccount": "إنشاء حسابك",
-    "getStarted": "ابدأ مع كوليتراك اليوم",
-    "firstName": "الاسم الأول",
-    "lastName": "اسم العائلة",
-    "email": "عنوان البريد الإلكتروني",
-    "phoneNumber": "رقم الهاتف",
-    "companyName": "اسم الشركة",
+    "daily-order-volume": "حجم الطلبات اليومي",
+    "checkYourEmail": "تحقق من بريدك الإلكتروني",
+    "checkSpam": "تحقق من مجلد البريد العشوائي",
+    "close": "إغلاق",
+   
     "businessType": "نوع العمل",
     "pleaseSpecify": "يرجى تحديد نوع عملك",
     "password": "كلمة المرور",
@@ -1496,7 +1493,66 @@
     "lightningFastDescription": "أنشئ محتوى بجودة احترافية في ثوانٍ، وليس ساعات. نماذج الذكاء الاصطناعي المحسّنة لدينا تقدم نتائج بسرعة لا مثيل لها.",
     "precisionCustomization": "الدقة والتخصيص",
     "precisionDescription": "اضبط كل جانب من جوانب محتواك بضوابط متقدمة ومعاملات للحصول على نتائج مثالية بدقة البكسل."
-  }
+  },
+  
+    "creativeAiNav": {
+      "showcase": "المعرض",
+      "features": "المميزات",
+      "pricing": "الأسعار",
+      "testimonials": "الشهادات",
+      "getStarted": "ابدأ الآن"
+    },
+    "beforeAfter": {
+      "beforeAfterShowcase": "معرض قبل وبعد",
+      "seeTheMagic": "شاهد السحر في العمل",
+      "witnessTransformation": "اشهد القوة المذهلة لتحويل تقنية الذكاء الاصطناعي لدينا. اسحب المنزلق لكشف النتائج المذهلة.",
+      "dragSlider": "اسحب المنزلق لمقارنة الصور قبل وبعد"
+    },
+    "creativeAiFeatures": {
+      "powerfulFeatures": "مميزات قوية",
+      "everythingYouNeed": "كل ما تحتاجه للإبداع",
+      "unlockCreativePotential": "أطلق إمكاناتك الإبداعية مع مجموعتنا الشاملة من أدوات الذكاء الاصطناعي",
+      "advancedAiModels": "نماذج ذكاء اصطناعي متقدمة",
+      "advancedAiDescription": "مدعوم بتقنية ذكاء اصطناعي متطورة للحصول على نتائج مذهلة",
+      "lightningFast": "فائق السرعة",
+      "lightningFastDescription": "أنتج محتوى احترافي في ثوانٍ، وليس ساعات",
+      "styleTransfer": "نقل الأسلوب",
+      "styleTransferDescription": "طبق أي أسلوب فني على صورك فوراً",
+      "imageEnhancement": "تحسين الصور",
+      "imageEnhancementDescription": "كبّر واستعد وحسّن أي صورة بالذكاء الاصطناعي",
+      "videoGeneration": "إنتاج الفيديو",
+      "videoGenerationDescription": "أنشئ محتوى فيديو مذهل من النصوص",
+      "magicEditing": "تحرير سحري",
+      "magicEditingDescription": "احذف الكائنات، غيّر الخلفيات، أضف عناصر",
+      "precisionControl": "تحكم دقيق",
+      "precisionControlDescription": "اضبط كل جانب بدقة مع معاملات متقدمة",
+      "creativeFilters": "مرشحات إبداعية",
+      "creativeFiltersDescription": "حوّل محتواك بمرشحات فنية"
+    },
+    "creativeAiPricing": {
+      "choosePlan": "اختر خطتك",
+      "unlockCreativePotential": "أطلق إمكاناتك الإبداعية",
+      "flexiblePricing": "ابدأ في إنشاء محتوى مذهل اليوم مع خطط أسعارنا المرنة",
+      "starter": "المبتدئ",
+      "pro": "المحترف",
+      "enterprise": "المؤسسة",
+      "mostPopular": "الأكثر شعبية",
+      "perMonth": "/شهر",
+      "creditsIncluded": "رصيد مشمول",
+      "getStarted": "ابدأ الآن",
+      "commercialLicensing": "جميع الخطط تشمل ترخيص تجاري ودعم أولوية",
+      "moneyBackGuarantee": "ضمان استرداد الأموال لمدة 30 يوماً"
+    },
+    "creativeAiTestimonials": {
+      "lovedByCreators": "محبوب من المبدعين",
+      "whatUsersSay": "ما يقوله مستخدمونا",
+      "joinCreators": "انضم إلى آلاف المبدعين الذين يحولون عمليتهم الإبداعية بالفعل",
+      "readyToJoin": "مستعد للانضمام إلى مجتمعنا الإبداعي؟",
+      "startCreatingToday": "ابدأ في إنشاء محتوى مذهل اليوم واكتشف لماذا يختار آلاف المبدعين Creative AI",
+      "startCreatingNow": "ابدأ الإبداع الآن"
+    }
+  
+  
   
   
   }

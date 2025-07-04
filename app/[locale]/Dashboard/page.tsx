@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useTranslations } from "next-intl"
-import Algeria from "@react-map/algeria"
+//import Algeria from "@react-map/algeria"
 import { useTheme } from "next-themes"
 import {
   useReactTable,
@@ -771,19 +771,7 @@ const percentageChangereturn =
               <h2 className="text-2xl font-bold mb-4">{t("algeria-map")}</h2>
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-1">
-                  <Algeria
-                    size={300}
-                    type="select-single"
-                    mapColor={theme === "dark" ? "#374151" : undefined}
-                    hoverColor={theme === "dark" ? "#6B7280" : "#9CA3AF"}
-                    selectColor={theme === "dark" ? "#9CA3AF" : "#4B5563"}
-                    strokeColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
-                    strokeWidth={1}
-                    hints={true}
-                    hintTextColor={theme === "dark" ? "#000000" : "#FFFFFF"}
-                    hintBackgroundColor={theme === "dark" ? "#D1D5DB" : "#1F2937"}
-                    hintBorderRadius={3}
-                  />
+                
                 </div>
                 <div className="flex-1">
                   {algeriaData.length === 0 ? (

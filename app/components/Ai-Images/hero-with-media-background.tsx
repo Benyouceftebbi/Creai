@@ -2,12 +2,9 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Link } from "@/i18n/routing"
 import { collection, getDocs } from "firebase/firestore"
 import { db } from "../../../firebase/firebase"
 import { Sparkles, Brain, Zap, Target, ArrowRight, Pause } from "lucide-react"
-
-
 
 import { useTranslations } from "next-intl"
 
