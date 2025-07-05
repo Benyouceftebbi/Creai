@@ -54,7 +54,7 @@ export default function SignIn() {
     try {
       const logged = await login(email, password, isRemembered)
       if (logged === true) {
-        router.push("/dashboard")
+       router.push("/dashboard/ai-creative")
       } else {
         setError(true)
         toast({
@@ -80,9 +80,9 @@ const handleGoogleSignIn = async () => {
   setGoogleLoading(true);
   const result = await googleSignup();
      if (result === "new") {
-      router.push("/dashboard");
+        router.push("/dashboard/ai-creative")
     } else if (result === "existing") {
-      router.push("/dashboard");
+        router.push("/dashboard/ai-creative")
     }
     setGoogleLoading(false);
   

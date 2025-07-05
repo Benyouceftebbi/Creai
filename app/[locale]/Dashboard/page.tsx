@@ -1,15 +1,15 @@
 "use client"
-import * as React from "react"
-import { useTranslations } from "next-intl"
+
+import { redirect } from "@/i18n/routing";
+
+
 
 
 export default function Dashboard() {
-  const t = useTranslations("header")
-
-  return (
-<div>
-
-</div>
-  )
+redirect({
+  href: "/dashboard/ai-creative",
+  locale: "en", // or "fr", etc.
+});
 }
+
 

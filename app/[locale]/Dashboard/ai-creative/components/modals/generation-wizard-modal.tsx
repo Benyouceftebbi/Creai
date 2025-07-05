@@ -208,6 +208,7 @@ export function GenerationWizardModal({
           adStyleImageBase64,
           type: generationType === "image" ? "image" : "video",
           shopId: shopData.id,
+          noText:true
         })
 
         if (result.data?.reason === "tokens") {
