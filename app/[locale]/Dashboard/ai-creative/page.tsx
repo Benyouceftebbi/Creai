@@ -19,6 +19,10 @@ import { ImageViewerModal } from "./components/modals/image-viewer-modal"
 import { useTranslations } from "next-intl"
 import { Play, X } from "lucide-react"
 
+// Declare the getDefaultImageSettings and getDefaultReelSettings functions
+
+
+// Declare the getDefaultImageSettings and getDefaultReelSettings functions
 
 
 
@@ -114,6 +118,7 @@ export default function AICreativePage() {
 
   // Video player state
   const [isVideoOpen, setIsVideoOpen] = useState(false)
+  const [isVideoButtonAnimating, setIsVideoButtonAnimating] = useState(false)
 
   // Simulate API call to refresh tokens
 
@@ -131,6 +136,16 @@ export default function AICreativePage() {
   // Google Drive direct video link - replace with your video ID
   const videoId = "1igoCOn1TvALIcksn9nthVLbbdWk7lGiS"
   const videoUrl = `https://www.youtube.com/embed/MoUSV-pg7ow`
+
+  // Enhanced auto-animate video button every 5 seconds with impressive hover-like effects
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsVideoButtonAnimating(true)
+      setTimeout(() => setIsVideoButtonAnimating(false), 2000) // Animation lasts 2 seconds for more impact
+    }, 5000) // Every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [])
 
   // Prevent body scroll when video modal is open
   useEffect(() => {
@@ -534,40 +549,98 @@ export default function AICreativePage() {
   }, [])
 
   return (
-    <div className="h-screen bg-white dark:bg-slate-950 flex flex-col relative overflow-hidden border-t border-border">
-      {/* Floating Video Button */}
-      <div className="absolute left-6 top-6 z-40 group">
-        <button
-          onClick={() => setIsVideoOpen(true)}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center gap-2 group-hover:pr-5"
-        >
-          <Play className="w-5 h-5" fill="currentColor" />
-          <span className="hidden group-hover:block text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300">
-            {t("watchDemo")}
-          </span>
-        </button>
+    <div className="h-screen bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col relative overflow-hidden border-t border-border/50">
+      {/* Enhanced Floating Video Button - Only show on welcome screen */}
+      {currentView === "welcome" && (
+        <div className="absolute left-4 sm:left-6 top-4 sm:top-6 z-40 group">
+          <button
+            onClick={() => setIsVideoOpen(true)}
+            className={`
+              relative overflow-hidden
+              bg-gradient-to-r from-purple-600 to-blue-600 
+              text-white p-2.5 sm:p-3 rounded-full 
+              shadow-lg hover:shadow-2xl hover:shadow-purple-500/50
+              transform hover:scale-110 
+              transition-all duration-500 ease-out
+              flex items-center gap-2 
+              group-hover:pr-3 sm:group-hover:pr-5
+              ${
+                isVideoButtonAnimating
+                  ? "scale-110 shadow-2xl shadow-purple-500/50 from-purple-700 to-blue-700 animate-pulse"
+                  : ""
+              }
+            `}
+          >
+            {/* Animated gradient overlay for periodic animation */}
+            <div
+              className={`
+                absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 
+                opacity-0 transition-opacity duration-500
+                ${isVideoButtonAnimating ? "opacity-30" : ""}
+              `}
+            />
 
-        {/* Tooltip */}
-        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
-          {t("howToUseAI")}
-          <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
+            {/* Ripple effect for animation */}
+            <div
+              className={`
+                absolute inset-0 rounded-full border-2 border-white/30
+                transition-all duration-1000 ease-out
+                ${isVideoButtonAnimating ? "scale-150 opacity-0 border-white/10" : "scale-100 opacity-0"}
+              `}
+            />
+
+            <Play
+              className={`
+                relative z-10 w-4 h-4 sm:w-5 sm:h-5 
+                transition-all duration-300
+                ${isVideoButtonAnimating ? "animate-bounce scale-110" : ""}
+              `}
+              fill="currentColor"
+            />
+
+            <span
+              className={`
+                relative z-10 hidden group-hover:block text-xs sm:text-sm font-medium 
+                whitespace-nowrap overflow-hidden transition-all duration-300 
+                max-w-0 group-hover:max-w-32
+                ${isVideoButtonAnimating ? "text-white font-bold" : ""}
+              `}
+            >
+              {t("watchDemo")}
+            </span>
+          </button>
+
+          {/* Enhanced Tooltip with animation */}
+          <div
+            className={`
+              absolute left-full ml-3 top-1/2 -translate-y-1/2 
+              bg-gray-900/95 backdrop-blur-sm text-white px-3 py-2 rounded-lg 
+              text-xs sm:text-sm opacity-0 group-hover:opacity-100 
+              transition-all duration-300 pointer-events-none whitespace-nowrap 
+              shadow-xl border border-white/10
+              ${isVideoButtonAnimating ? "opacity-100 scale-105" : ""}
+            `}
+          >
+            {t("howToUseAI")}
+            <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900/95"></div>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Video Modal */}
+      {/* Enhanced Video Modal */}
       {isVideoOpen && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
           {/* Close Button */}
           <button
             onClick={() => setIsVideoOpen(false)}
-            className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors duration-200 z-10"
+            className="absolute top-4 sm:top-6 right-4 sm:right-6 bg-white/10 hover:bg-white/20 text-white p-2 sm:p-3 rounded-full transition-all duration-200 z-10 backdrop-blur-sm border border-white/20"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           {/* Video Player */}
-          <div className="w-full max-w-sm mx-auto">
-            <div className="bg-black rounded-2xl overflow-hidden shadow-2xl">
+          <div className="w-full max-w-sm sm:max-w-md mx-auto">
+            <div className="bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
               {/* Video Container - 9:16 format */}
               <div className="aspect-[9/16]">
                 <iframe

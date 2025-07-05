@@ -185,6 +185,11 @@
     }
   },
   "header": {
+    "logout": "Se déconnecter",
+    "logging-out": "Déconnexion en cours...",
+    "downloadStarted": "Téléchargement commencé",
+    "downloadInProgress": "Votre téléchargement est en cours",
+    "cannotDownloadImage": "Impossible de télécharger l'image pour le moment",
     "daily-target":"daily-target",
     "dashboard-description": "Gérez facilement vos messages et améliorez votre service de livraison avec Colitack.",
 
@@ -1331,8 +1336,38 @@
     "confirmedOrders": "Commandes confirmées"
   },
   
-    "creativeAi": {
-      "welcomeTitle": "Bienvenue dans la Suite IA Colitrack",
+   "creativeAi": {
+     
+      "createNew": "Créer Nouveau",
+      "imageCost": "Image (100 TKN)",
+      "reelCost": "Reel (500 TKN)",
+    
+      "review": "Révision",
+     
+      "refrenceImageReels": "Image de Référence pour les Reels",
+      "uploadImageReel": "Téléchargez une image à utiliser comme référence pour votre génération de reel (optionnel)",
+     
+      "promptPlaceholder": "Décrivez ce que vous voulez créer...",
+    
+      "picture": "image",
+    
+      "describeDesiredMotion": "Décrivez le Mouvement Désiré",
+      "reelPromptPlaceholder": "Décrivez le mouvement et les effets que vous voulez...",
+     
+      "detailedAdConcept": "Entrez votre concept publicitaire détaillé...",
+      "length": "Longueur :",
+      "characters": "caractères",
+     
+      "noAdConceptProvided": "Aucun concept publicitaire fourni",
+     
+      "aiCreatedBrief": "L'IA a créé votre brief publicitaire",
+     
+      "couldNotConnect": "Impossible de se connecter au service IA",
+      "copyCutNotAllowed": "Les opérations copier/couper ne sont pas autorisées sur ce contenu",
+      "describeVisionHelperText": "Dites-nous ce que vous voulez créer en termes simples",
+      "upgradePlan": "Veuillez mettre à niveau votre plan pour continuer",
+
+      "welcomeTitle": "Bienvenue dans la Suite IA Creative",
       "welcomeDescription": "Libérez votre créativité. Générez des images époustouflantes ou des reels dynamiques avec la puissance de l'IA.",
       "imageGenerator": "Générateur d'Images",
       "imageGeneratorDescription": "Créez des visuels statiques accrocheurs, des concepts artistiques aux scènes photoréalistes.",
@@ -1496,6 +1531,8 @@
     "howToUseAI": "Comment utiliser la Suite IA Créative",
     "aiCreativeDemo": "Démo de la Suite IA Créative"
     },
+ 
+
     "creativeAii": {
       "availableNow": "Disponible maintenant !",
       "aiPowered": "Alimenté par l'IA",

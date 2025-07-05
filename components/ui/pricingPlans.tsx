@@ -1,415 +1,228 @@
 "use client"
-
-import type React from "react"
-
-import { CheckCircle2, Info } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import { CheckCircle2, Sparkles, Crown, Zap, Star } from "lucide-react"
 import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { useShop } from "@/app/context/ShopContext"
 import { collection, addDoc, onSnapshot } from "firebase/firestore"
-import { db, functions } from "@/firebase/firebase"
+import { db } from "@/firebase/firebase"
 import { LoadingButton } from "@/components/ui/LoadingButton"
-import { httpsCallable } from "firebase/functions"
 import { toast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-// Calculate the final price with tax using the formula (Y+0.3)/0.956
-const calculateTaxedPrice = (price: number) => {
-  return ((price + 0.3) / 0.956).toFixed(2)
-}
-
-// Define the price tiers with token amounts based on $10 = 2,400 tokens
+// Define the 3 simple price tiers
 const priceTiers = [
   {
     id: "price_1RBKk5DIpjCcuDeHpQhOI8gB",
+    name: "Starter",
     price: 10,
-    tokens: "2,400", // 10/10 * 2,400 = 2,400
-    hasSenderId: false,
+    tokens: "2,400",
+    icon: Sparkles,
+    color: "blue",
+    features: ["2,400 tokens included", "24 AI generations", "Basic enhancement", "Email support"],
   },
   {
-    id: "price_1RBKkfDIpjCcuDeHby0rkBPL",
-    price: 20,
-    tokens: "4,800", // 20/10 * 2,400 = 4,800
-    hasSenderId: false,
-  },
-  {
-    id: "price_1RBKlCDIpjCcuDeHx5EDlppd",
-    price: 50,
-    tokens: "12,000", // 50/10 * 2,400 = 12,000
-    hasSenderId: false,
+    id: "price_1ffffVZG89v",
+    name: "Pro",
+    price: 30,
+    tokens: "7,200",
+    icon: Crown,
+    color: "purple",
+    popular: true,
+    features: ["7,200 tokens included", "72 AI generations", "Advanced tools", "Priority support"],
   },
   {
     id: "price_1RBKlXDIpjCcuDeHZJVZG89v",
+    name: "Enterprise",
     price: 80,
-    tokens: "19,200", // 80/10 * 2,400 = 19,200
-    hasSenderId: false,
-  },
-  {
-    id: "price_1RBKlpDIpjCcuDeH9zOCEJg9",
-    price: 100,
-    tokens: "24,000", // 100/10 * 2,400 = 24,000
-    hasSenderId: true,
-    popular: true,
-  },
-  {
-    id: "price_1RBKm9DIpjCcuDeHEo0V59o5",
-    price: 150,
-    tokens: "36,000", // 150/10 * 2,400 = 36,000
-    hasSenderId: true,
-  },
-  {
-    id: "price_1RBKmNDIpjCcuDeHmZidIG6t",
-    price: 200,
-    tokens: "48,000", // 200/10 * 2,400 = 48,000
-    hasSenderId: true,
-  },
-  {
-    id: "price_1RBKmeDIpjCcuDeHwO4FQA4N",
-    price: 300,
-    tokens: "72,000", // 300/10 * 2,400 = 72,000
-    hasSenderId: true,
+    tokens: "19,200",
+    icon: Zap,
+    color: "green",
+    features: ["19,200 tokens included", "192 AI generations", "All premium features", "24/7 support"],
   },
 ]
 
-// Define the sender ID plan
-const senderIdPlan = {
-  id: "senderId",
-  name: "sender-id",
-  pricet: 10000,
-  features: ["custom-sender-id", "improved-brand-recognition", "higher-open-rates", "priority-support", "per-year"],
-  customInput: true,
-  special: true,
-}
-
 export function PricingPlans({ className }: { className?: string }) {
-  const [senderID, setSenderID] = useState("")
-  const [selectedTierIndex, setSelectedTierIndex] = useState(4) // Default to the 100 tier (index 4)
-  const [customSenderID, setCustomSenderID] = useState("")
+  const [selectedTierIndex, setSelectedTierIndex] = useState(1) // Default to Pro plan (index 1)
+  const [hoveredTier, setHoveredTier] = useState<number | null>(null)
   const t = useTranslations("billing")
-  const { shopData, setShopData } = useShop()
+  const { shopData } = useShop()
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
 
-  const handleSenderIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSenderID(e.target.value.slice(0, 11))
-  }
+  const createCheckoutSession = async (planId: string) => {
+    const selectedTier = priceTiers.find((tier) => tier.id === planId)
+    if (!selectedTier) return
 
-  const handleCustomSenderIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCustomSenderID(e.target.value.slice(0, 11))
-  }
+    setLoadingStates((prev) => ({ ...prev, [planId]: true }))
 
-  const createCheckoutSession = async (id: string) => {
-    if (id === "senderId") {
-      try {
-        setLoadingStates((prev) => ({ ...prev, [id]: true }))
-        const requestSenderId = httpsCallable(functions, "requestSenderId")
-        const result = await requestSenderId({ senderId: senderID })
-        const response = result.data as any
+    try {
+      const checkoutSessionRef = collection(db, "Customers", shopData.id, "checkout_sessions")
+      const docRef = await addDoc(checkoutSessionRef, {
+        mode: "payment",
+        price: selectedTier.id,
+        success_url: window.location.href,
+        cancel_url: window.location.href,
+        allow_promotion_codes: true,
+        client_reference_id: `${shopData.id}-${selectedTier.id}`,
+      })
 
-        if (response.status === "success") {
-          setShopData((prev) => ({
-            ...prev,
-            tokens: response.data.newTokens,
-            senderIdRequest: {
-              status: "pending",
-              requestDate: new Date(),
-              expectedDeliveryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
-              senderId: senderID,
-            },
-          }))
+      // Listen for the checkout session URL
+      const unsubscribe = onSnapshot(docRef, (snap) => {
+        const { error, url } = snap.data() || {}
+        if (error) {
           toast({
-            title: "success",
-            description: response.message,
-            variant: "default",
-          })
-        } else {
-          toast({
-            title: "error",
-            description: response.message,
+            title: "Error",
+            description: `An error occurred: ${error.message}`,
             variant: "destructive",
           })
+          setLoadingStates((prev) => ({ ...prev, [planId]: false }))
+          unsubscribe()
         }
-      } catch (error) {
-        toast({
-          title: "error",
-          description: t("something-went-wrong"),
-          variant: "destructive",
-        })
-      } finally {
-        setLoadingStates((prev) => ({ ...prev, [id]: false }))
-      }
-    } else {
-      // Handle price tier checkout
-      const selectedTier = priceTiers[selectedTierIndex]
-
-      // Validate sender ID if needed
-      if (selectedTier.hasSenderId && !shopData.senderId && !customSenderID.trim()) {
-        toast({
-          title: "error",
-          description: t("sender-id-required"),
-          variant: "destructive",
-        })
-        return
-      }
-
-      setLoadingStates((prev) => ({ ...prev, [id]: true }))
-
-      try {
-        const checkoutSessionRef = collection(db, "Customers",shopData.id, "checkout_sessions")
-        const docRef = await addDoc(checkoutSessionRef, {
-          mode: "payment",
-          price: selectedTier.id,
-          success_url: window.location.href,
-          cancel_url: window.location.href,
-          allow_promotion_codes: true,
-          client_reference_id: `${shopData.id}-${selectedTier.id}${customSenderID ? `-${customSenderID}` : ""}`,
-        })
-
-        onSnapshot(docRef, (snap) => {
-          const { error, url } = snap.data() || {}
-          if (error) {
-            alert(`An error occurred: ${error.message}`)
-            setLoadingStates((prev) => ({ ...prev, [id]: false }))
-          }
-          if (url) {
-            window.location.assign(url)
-            setLoadingStates((prev) => ({ ...prev, [id]: false }))
-          }
-        })
-      } catch (error) {
-        toast({
-          title: "error",
-          description: t("something-went-wrong"),
-          variant: "destructive",
-        })
-        setLoadingStates((prev) => ({ ...prev, [id]: false }))
-      }
+        if (url) {
+          window.location.assign(url)
+          setLoadingStates((prev) => ({ ...prev, [planId]: false }))
+          unsubscribe()
+        }
+      })
+    } catch (error) {
+      console.error("Checkout error:", error)
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+      setLoadingStates((prev) => ({ ...prev, [planId]: false }))
     }
   }
 
-  // Custom tooltip content for price information
-  const PriceTooltip = ({ price }: { price: number }) => (
-    <div className="p-1">
-      <div className="font-medium text-sm mb-1 text-black dark:text-white">
-        {t("final-price")}: <span className="text-primary">${calculateTaxedPrice(price)}</span>
-      </div>
-      <div className="text-xs mt-1 text-muted-foreground">{t("Additional-charges")}</div>
-    </div>
-  )
-
   return (
-    <TooltipProvider>
-      <div className={`py-2 ${className}`}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Price Tiers Selection */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 shadow-md p-5 md:col-span-2">
-            <h2 className="text-xl font-bold mb-4">{t("select-plan")}</h2>
+    <div className={`h-full flex flex-col ${className}`}>
+      {/* Compact Header */}
+      <div className="text-center mb-4">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/50 dark:to-blue-900/50 px-3 py-1 rounded-full mb-3">
+          <Star className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+          <span className="text-xs font-medium text-purple-600 dark:text-purple-400">Choose Your Plan</span>
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Unlock Your Creative Potential</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">Start creating amazing content today</p>
+      </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-              {priceTiers.map((tier, index) => (
-                <div
-                  key={tier.id}
-                  className={cn(
-                    "border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md",
-                    selectedTierIndex === index
-                      ? "border-primary bg-primary/5 dark:bg-primary/10 shadow-sm"
-                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600",
-                  )}
-                  onClick={() => setSelectedTierIndex(index)}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <div className="flex items-center gap-1">
-                      <span className="text-lg font-bold">
-                        ${tier.price} <span className="text-xs font-normal text-muted-foreground">+ VAT</span>
-                      </span>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-primary/70 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          className="bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-md text-black dark:text-white"
-                        >
-                          <PriceTooltip price={tier.price} />
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    {tier.popular && (
-                      <Badge className="bg-primary text-primary-foreground text-xs">{t("popular")}</Badge>
-                    )}
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-1">
-                    {t("tokens-amount", { amount: tier.tokens })}
-                  </div>
-                  {tier.hasSenderId && (
-                    <div className="flex items-center text-xs text-primary font-medium">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      {t("free-senderID")}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Selected Plan Details */}
-            <div className="bg-muted/30 dark:bg-gray-700/30 rounded-lg p-4 mb-4">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="text-lg font-bold">{t("selected-plan")}</h3>
-                <div className="flex items-center gap-1">
-                  <span className="text-xl font-bold">
-                    ${priceTiers[selectedTierIndex].price}{" "}
-                    <span className="text-xs font-normal text-muted-foreground">+ VAT</span>
-                  </span>
-                  <span className="text-xs text-primary cursor-help ml-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="underline">Learn more</span>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="top"
-                        className="bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-md text-black dark:text-white"
-                      >
-                        <PriceTooltip price={priceTiers[selectedTierIndex].price} />
-                      </TooltipContent>
-                    </Tooltip>
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center">
-                  <CheckCircle2 className="h-4 w-4 text-primary mr-2" />
-                  <span className="text-sm">
-                    {t("tokens-amount", { amount: priceTiers[selectedTierIndex].tokens })}
-                  </span>
-                </div>
-
-                {priceTiers[selectedTierIndex].hasSenderId ? (
-                  <>
-                    <div className="flex items-center">
-                      <CheckCircle2 className="h-4 w-4 text-primary mr-2" />
-                      <span className="text-sm">{t("free-senderID")}</span>
-                    </div>
-
-                    {!shopData.senderId ? (
-                      <div className="mt-3">
-                        <label className="text-xs font-medium mb-1 block">{t("enter-sender-id")}</label>
-                        <Input
-                          type="text"
-                          placeholder={t("enter-sender-id")}
-                          value={customSenderID}
-                          onChange={handleCustomSenderIDChange}
-                          maxLength={11}
-                          className="w-full text-sm h-9"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {t("characters-remaining", { count: 11 - customSenderID.length })}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="mt-3">
-                        <p className="text-sm font-medium">
-                          {t("already-have-sender-id")}: {shopData.senderId}
-                        </p>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex items-center text-muted-foreground"></div>
-                )}
-              </div>
-            </div>
-
-            <LoadingButton
-              className="w-full h-10 text-sm font-medium"
-              variant="default"
-              onClick={() => createCheckoutSession("price_tier")}
-              loading={loadingStates["price_tier"] || false}
-              disabled={priceTiers[selectedTierIndex].hasSenderId && !shopData.senderId && !customSenderID.trim()}
+      {/* Compact Pricing Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+        {priceTiers.map((tier, index) => {
+          const IconComponent = tier.icon
+          return (
+            <div
+              key={tier.id}
+              data-popular={tier.popular}
+              className={cn(
+                "relative bg-white dark:bg-gray-800 rounded-xl border p-4 transition-all duration-300 hover:shadow-lg transform hover:scale-105 cursor-pointer flex flex-col h-full",
+                tier.popular
+                  ? "border-purple-300 dark:border-purple-500 shadow-lg shadow-purple-500/20 ring-1 ring-purple-400/50"
+                  : "border-gray-200 dark:border-gray-700 shadow-sm hover:border-gray-300 dark:hover:border-gray-600",
+              )}
+              onClick={() => setSelectedTierIndex(index)}
+              onMouseEnter={() => setHoveredTier(index)}
+              onMouseLeave={() => setHoveredTier(null)}
             >
-              <span>{t("proceed-to-checkout")}</span>
-            </LoadingButton>
-          </div>
+              {tier.popular && (
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                  Popular
+                </div>
+              )}
 
-          {/* Sender ID Plan */}
-          <Card className="bg-gradient-to-br from-blue-600 to-purple-700 dark:from-blue-800 dark:to-purple-900 text-white h-full flex flex-col">
-            <CardHeader className="pb-2 pt-5 px-5">
-              <CardTitle className="text-xl font-bold text-white flex items-center gap-1">
-                {t(`plan-${senderIdPlan.name}`)}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-white/80 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    className="bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-md text-black dark:text-white"
+              {/* Icon and Title */}
+              <div className="text-center mb-3">
+                <div
+                  className={cn(
+                    "inline-flex items-center justify-center w-10 h-10 rounded-xl mb-2 shadow-md transition-all duration-300",
+                    tier.color === "blue" && "bg-gradient-to-br from-blue-500 to-cyan-600",
+                    tier.color === "purple" && "bg-gradient-to-br from-purple-500 to-pink-600",
+                    tier.color === "green" && "bg-gradient-to-br from-emerald-500 to-teal-600",
+                    hoveredTier === index && "scale-110",
+                  )}
+                >
+                  <IconComponent className="w-5 h-5 text-white" />
+                </div>
+
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{tier.name}</h3>
+
+                <div className="flex items-baseline justify-center gap-1 mb-2">
+                  <span
+                    className={cn(
+                      "text-2xl font-bold bg-gradient-to-br bg-clip-text text-transparent",
+                      tier.color === "blue" && "from-blue-500 to-cyan-600",
+                      tier.color === "purple" && "from-purple-500 to-pink-600",
+                      tier.color === "green" && "from-emerald-500 to-teal-600",
+                    )}
                   >
-                    <div className="p-1">
-                      <div className="font-medium text-sm mb-1 text-black dark:text-white">
-                        {t("token-cost")}: <span className="text-primary">{senderIdPlan.pricet} Tokens</span>
-                      </div>
-                      <div className="bg-muted/40 dark:bg-gray-700/40 px-2 py-1 rounded text-xs font-mono text-black dark:text-white">
-                        {t("equivalent-to")}: ${(senderIdPlan.pricet / 240).toFixed(2)}
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </CardTitle>
-              <CardDescription className="flex items-baseline gap-1 mt-2 text-white/80">
-                <span className="text-3xl font-bold">{`${senderIdPlan.pricet} Tokens`}</span>
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-5 pb-5 flex-grow flex flex-col justify-between">
-              <div>
-                <ul className="space-y-2 mb-4">
-                  {senderIdPlan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-white" />
-                      <span className="text-white/90 text-sm font-medium">{t(feature)}</span>
-                    </li>
-                  ))}
-                </ul>
+                    ${tier.price}
+                  </span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">+ VAT</span>
+                </div>
 
-                {!shopData.senderId ? (
-                  <div className="mt-4">
-                    <label className="text-xs font-medium mb-1 block text-white/90">{t("enter-sender-id")}</label>
-                    <Input
-                      type="text"
-                      placeholder={t("enter-sender-id")}
-                      value={senderID}
-                      onChange={handleSenderIDChange}
-                      maxLength={11}
-                      className="w-full bg-white/20 dark:bg-black/20 text-white placeholder-white/50 border-white/30 dark:border-white/20 text-sm h-9"
-                    />
-                    <p className="text-xs text-white/80 mt-1">
-                      {t("characters-remaining", { count: 11 - senderID.length })}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="mt-4">
-                    <p className="text-sm text-white/90 font-medium">
-                      {t("already-have-sender-id")}: {shopData.senderId}
-                    </p>
-                  </div>
-                )}
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-2 mb-3">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{tier.tokens} tokens</p>
+                </div>
               </div>
 
+              {/* Compact Features */}
+              <ul className="space-y-2 mb-4 flex-1">
+                {tier.features.map((feature, featureIndex) => (
+                  <li key={featureIndex} className="flex items-center gap-2">
+                    <div
+                      className={cn(
+                        "flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center",
+                        tier.color === "blue" && "bg-gradient-to-br from-blue-500 to-cyan-600",
+                        tier.color === "purple" && "bg-gradient-to-br from-purple-500 to-pink-600",
+                        tier.color === "green" && "bg-gradient-to-br from-emerald-500 to-teal-600",
+                      )}
+                    >
+                      <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                    </div>
+                    <span className="text-gray-700 dark:text-gray-300 text-xs">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Compact CTA Button */}
               <LoadingButton
-                className="w-full bg-white dark:bg-gray-200 text-blue-600 dark:text-blue-800 hover:bg-white/90 dark:hover:bg-gray-300 h-10 text-sm font-medium mt-6"
-                variant="secondary"
-                onClick={() => createCheckoutSession(senderIdPlan.id)}
-                loading={loadingStates[senderIdPlan.id] || false}
-                disabled={!senderID.trim() || shopData.senderId || shopData.senderIdRequest}
+                onClick={() => createCheckoutSession(tier.id)}
+                loading={loadingStates[tier.id] || false}
+                className={cn(
+                  "w-full py-2.5 px-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 text-sm",
+                  tier.popular
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
+                    : tier.color === "blue"
+                      ? "bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-md"
+                      : tier.color === "green"
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md"
+                        : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600",
+                )}
               >
-                <span>{t("proceed")}</span>
+                Get Started
               </LoadingButton>
-            </CardContent>
-          </Card>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Compact Footer */}
+      <div className="text-center mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-center gap-4 text-xs text-gray-600 dark:text-gray-400 mb-2">
+          <div className="flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-blue-600" />
+            <span>100 tokens = 1 image</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Zap className="w-3 h-3 text-purple-600" />
+            <span>1,200 tokens = 1 video</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2 text-xs text-purple-600 dark:text-purple-400">
+          <Star className="w-3 h-3" />
+          <span>30-day money-back guarantee</span>
         </div>
       </div>
-    </TooltipProvider>
+    </div>
   )
 }

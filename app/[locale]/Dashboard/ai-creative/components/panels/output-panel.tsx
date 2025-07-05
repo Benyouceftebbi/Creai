@@ -146,23 +146,23 @@ export function OutputPanel({
   // const currentBatchTimestamp = useMemo(() => { ... }) // Removed
 
   if (isGenerating) {
-    // ... (isGenerating block remains the same)
+    // Enhanced generating state with better mobile support
     return (
-      <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
+      <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 relative animate-in fade-in duration-300">
         <div className="h-full flex flex-col">
-          <div className="mb-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
-            <div className="mb-4 inline-block">
-              <ProgressRing progress={generationProgress} size={80} />
+          <div className="mb-6 sm:mb-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
+            <div className="mb-4 sm:mb-6 inline-block">
+              <ProgressRing progress={generationProgress} size={60} className="sm:w-20 sm:h-20" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-2">{t("creatingReel")}</h3>
-            <p className="text-gray-600 dark:text-slate-400">{t("aiCreatingReel")}</p>
-            <div className="mt-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-full px-4 py-2 inline-block border border-gray-200 dark:border-slate-700">
-              <span className={`text-sm font-medium ${isReel ? "text-blue-600" : "text-purple-600"}`}>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-slate-50 mb-2">{t("creatingReel")}</h3>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-slate-400">{t("aiCreatingReel")}</p>
+            <div className="mt-3 sm:mt-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-full px-3 sm:px-4 py-2 inline-block border border-gray-200 dark:border-slate-700 shadow-sm">
+              <span className={`text-xs sm:text-sm font-medium ${isReel ? "text-blue-600" : "text-purple-600"}`}>
                 {Math.round(generationProgress)}%{t("percentComplete")}
               </span>
             </div>
           </div>
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {Array.from({
               length:
                 mode === "reel"
@@ -176,20 +176,20 @@ export function OutputPanel({
                 <div
                   key={index}
                   className={cn(
-                    "aspect-video bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center border-2 border-slate-200 dark:border-slate-800 relative overflow-hidden",
+                    "aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800 rounded-xl sm:rounded-2xl flex items-center justify-center border-2 border-slate-200 dark:border-slate-800 relative overflow-hidden shadow-lg",
                     "animate-in fade-in zoom-in-95 duration-500 ease-out",
                   )}
                   style={{ animationDelay: `${200 + index * 100}ms`, animationFillMode: "both" }}
                 >
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-white/50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-3 mx-auto">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/60 dark:bg-slate-800/60 rounded-full flex items-center justify-center mb-2 sm:mb-3 mx-auto backdrop-blur-sm">
                       {isReel ? (
-                        <Play className="h-6 w-6 text-gray-400 dark:text-slate-500" />
+                        <Play className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-slate-400" />
                       ) : (
-                        <ImageIcon className="h-6 w-6 text-gray-400 dark:text-slate-500" />
+                        <ImageIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-slate-400" />
                       )}
                     </div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-400">
                       {isReel ? `Reel ${index + 1}` : `Image ${index + 1}`}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-slate-500">Processing...</p>
@@ -205,22 +205,22 @@ export function OutputPanel({
   }
 
   if (generatedImages.length > 0) {
-    // This block is for when new images/reels are generated and displayed
+    // Enhanced generated results view with better mobile support
     const currentOutputTitle = mode === "reel" ? "Generated Reels" : "Generated Creatives"
     return (
-      <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300">
+      <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 relative animate-in fade-in duration-300">
         <div className="h-full flex flex-col">
-          <div className="mb-8 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500 ease-out">
+          <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500 ease-out">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 flex items-center gap-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-slate-50 flex items-center gap-2">
                 {mode === "reel" ? (
-                  <Play className="h-6 w-6 text-blue-500" />
+                  <Play className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
                 ) : (
-                  <Sparkles className="h-6 w-6 text-purple-500" />
+                  <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500" />
                 )}
                 {t("generatedReels")}
               </h3>
-              <p className="text-gray-600 dark:text-slate-400 mt-1">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-slate-400 mt-1">
                 {generatedImages.length} {t("stunningResults")}
                 {currentBatchTimestamp && (
                   <span className="block text-xs text-gray-500 dark:text-slate-500 mt-0.5">
@@ -229,14 +229,14 @@ export function OutputPanel({
                 )}
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onNavigateBack}
-                className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105"
+                className="flex-1 sm:flex-none border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105 bg-transparent"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 {t("backToWelcome")}
               </Button>
               <Button
@@ -245,27 +245,29 @@ export function OutputPanel({
                 onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
                 className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105"
               >
-                <Grid3X3 className="h-4 w-4 mr-2" />
+                <Grid3X3 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 {t("listView")}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onDownloadAll} // Use the new prop
-                className="border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105"
+                className="flex-1 sm:flex-none border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105 bg-transparent"
               >
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                 {t("downloadAll")}
               </Button>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">
-            <div className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
+            <div
+              className={`grid gap-4 sm:gap-6 ${viewMode === "grid" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}
+            >
               {generatedImages.map((image, index) => (
                 <div
                   key={index}
                   className={cn(
-                    `group relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-2xl ${
+                    `group relative bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border-2 border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-2xl ${
                       mode === "reel" ? "hover:border-blue-300" : "hover:border-purple-300 dark:hover:border-purple-600"
                     } transition-all duration-300 transform hover:scale-[1.02] cursor-pointer`,
                     "animate-in fade-in zoom-in-95 ease-out",
@@ -281,7 +283,9 @@ export function OutputPanel({
                           Your browser does not support the video tag.
                         </video>
                         <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <Play className="h-16 w-16 text-white/80 drop-shadow-lg" />
+                          <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 sm:p-4">
+                            <Play className="h-12 w-12 sm:h-16 sm:w-16 text-white/80 drop-shadow-lg" />
+                          </div>
                         </div>
                       </div>
                     ) : (
@@ -291,63 +295,52 @@ export function OutputPanel({
                         className="w-full h-full object-cover"
                       />
                     )}
-                    <div className="absolute top-3 right-3">
+                    <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
                       <Badge
-                        className={`${mode === "reel" ? "bg-blue-500/90" : "bg-green-500/90"} text-white backdrop-blur-sm`}
+                        className={`${mode === "reel" ? "bg-blue-500/90" : "bg-green-500/90"} text-white backdrop-blur-sm text-xs`}
                       >
                         <Star className="h-3 w-3 mr-1" />
                         {mode === "reel" ? "Pro" : "HD"}
                       </Badge>
                     </div>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <div className="flex gap-3">
+                      <div className="flex gap-2 sm:gap-3">
                         <Button // This button now triggers the viewer
                           size="sm"
-                          className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
+                          className="h-8 w-8 sm:h-10 sm:w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleImageClick(index) // Open viewer
                           }}
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
-                        {/* Enhancement button removed as per previous logic, can be re-added if needed */}
-                        {/* <Button
-                            size="sm"
-                            className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // handleEnhanceClick(index); // This would need re-evaluation
-                            }}
-                          >
-                            <Edit3 className="h-4 w-4" />
-                          </Button> */}
                         <Button
                           size="sm"
-                          className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
+                          className="h-8 w-8 sm:h-10 sm:w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
                             onImageAction("download", index)
                           }}
                         >
-                          <Download className="h-4 w-4" />
+                          <Download className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                         <Button
                           size="sm"
-                          className="h-10 w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
+                          className="h-8 w-8 sm:h-10 sm:w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
                             onImageAction("favorite", index) // Assuming 'favorite' is a valid action
                           }}
                         >
-                          <Heart className="h-4 w-4" />
+                          <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </div>
                   </div>
-                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-t dark:border-slate-800">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
+                  <div className="p-3 sm:p-4 bg-white/90 dark:bg-slate-900/90 border-t border-gray-100 dark:border-t dark:border-slate-800">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                      <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                         <Badge
                           variant="secondary"
                           className={`text-xs font-medium ${
@@ -362,7 +355,7 @@ export function OutputPanel({
                         >
                           {mode === "reel" ? "1080×1920" : "1024×576"}
                         </Badge>
-                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-500">
+                        <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500 dark:text-slate-500">
                           <TrendingUp className="h-3 w-3" />
                           <span>98% quality</span>
                         </div>
@@ -371,11 +364,11 @@ export function OutputPanel({
                         <MoreHorizontal className="h-3 w-3" />
                       </Button>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-2 sm:gap-3">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className={`flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 ${
+                        className={`flex-1 h-7 sm:h-8 text-xs text-gray-600 dark:text-slate-300 ${
                           mode === "reel"
                             ? "hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50"
                             : "hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/50"
@@ -390,7 +383,7 @@ export function OutputPanel({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="flex-1 h-8 text-xs text-gray-600 dark:text-slate-300 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-all"
+                        className="flex-1 h-7 sm:h-8 text-xs text-gray-600 dark:text-slate-300 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-all"
                         onClick={(e) => {
                           e.stopPropagation()
                           onImageAction("share", index) // Assuming 'share' is a valid action
@@ -409,30 +402,30 @@ export function OutputPanel({
     )
   }
 
-  // This block is for when no new images are generated, showing history
+  // Enhanced history view with better mobile support
   return (
-    <div className="flex-1 bg-white dark:bg-slate-950 p-8 relative animate-in fade-in duration-300 h-full">
+    <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 relative animate-in fade-in duration-300 h-full">
       <div className="h-full flex flex-col max-h-screen">
-        <div className="mb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500 ease-out flex-shrink-0">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500 ease-out flex-shrink-0">
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
               size="icon"
               onClick={onNavigateBack}
-              className="h-10 w-10 transition-transform hover:scale-110"
+              className="h-9 w-9 sm:h-10 sm:w-10 transition-transform hover:scale-110 bg-transparent"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 flex items-center gap-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-slate-50 flex items-center gap-2">
                 {mode === "reel" ? (
-                  <Video className="h-6 w-6 text-blue-500" />
+                  <Video className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
                 ) : (
-                  <ImageIcon className="h-6 w-6 text-purple-500" />
+                  <ImageIcon className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500" />
                 )}
                 {panelTitle}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-slate-400">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
                 {t("reviewPast")} {mode} {t("creationsOrStartNew")}
               </p>
             </div>
@@ -440,25 +433,25 @@ export function OutputPanel({
           <Button
             size="lg"
             onClick={onInitiateNewGeneration}
-            className="font-semibold transition-transform hover:scale-105"
+            className="w-full sm:w-auto font-semibold transition-transform hover:scale-105 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           >
-            <PlusCircle className="h-5 w-5 mr-2" />
+            <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {generateButtonText}
           </Button>
         </div>
 
-        <div className="flex gap-4 mb-6 animate-in fade-in slide-in-from-top-4 delay-100 duration-500 ease-out flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6 animate-in fade-in slide-in-from-top-4 delay-100 duration-500 ease-out flex-shrink-0">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder={`${t("searchYour")} ${mode}s...`}
               value={historySearchQuery}
               onChange={(e) => setHistorySearchQuery(e.target.value)}
-              className="pl-10 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50"
+              className="pl-10 bg-white/80 border-gray-300 text-gray-900 h-10 sm:h-11 rounded-xl dark:bg-slate-900/80 dark:border-slate-700 dark:text-slate-50"
             />
           </div>
           <Select value={historySortBy} onValueChange={(value: any) => setHistorySortBy(value)}>
-            <SelectTrigger className="w-48 bg-white/70 border-gray-300 text-gray-900 h-11 rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-50">
+            <SelectTrigger className="w-full sm:w-48 bg-white/80 border-gray-300 text-gray-900 h-10 sm:h-11 rounded-xl dark:bg-slate-900/80 dark:border-slate-700 dark:text-slate-50">
               <Calendar className="h-4 w-4 mr-2" />
               <SelectValue />
             </SelectTrigger>
@@ -471,19 +464,19 @@ export function OutputPanel({
 
         <div className="flex-1 min-h-0 overflow-y-auto">
           {filteredUserHistory.length > 0 ? (
-            <div className="space-y-4 pb-4">
+            <div className="space-y-3 sm:space-y-4 pb-4">
               {filteredUserHistory.map((item, index) => (
                 <div
                   key={item.id}
                   className={cn(
-                    "bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-lg transition-all duration-300 group dark:bg-slate-900 dark:border-slate-800",
+                    "bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-lg transition-all duration-300 group shadow-sm",
                     "animate-in fade-in slide-in-from-bottom-4 ease-out",
                   )}
                   style={{ animationDelay: `${100 + index * 75}ms`, animationFillMode: "both" }}
                 >
-                  <div className="flex gap-4 items-start">
+                  <div className="flex gap-3 sm:gap-4 items-start">
                     <div className="flex-shrink-0">
-                      <div className="grid grid-cols-2 gap-1.5 w-28 h-28">
+                      <div className="grid grid-cols-2 gap-1 sm:gap-1.5 w-20 h-20 sm:w-28 sm:h-28">
                         {item.results.slice(0, 4).map((result, thumbIndex) => (
                           <div
                             key={thumbIndex}
@@ -491,7 +484,7 @@ export function OutputPanel({
                           >
                             {item.type === "reel" ? (
                               <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                <Play className="h-5 w-5 text-blue-500" />
+                                <Play className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
                               </div>
                             ) : (
                               <img
@@ -507,7 +500,7 @@ export function OutputPanel({
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                           <Badge
                             variant="secondary"
                             className={`text-xs font-medium ${
@@ -539,40 +532,40 @@ export function OutputPanel({
                             variant="ghost"
                             size="sm"
                             onClick={() => onOpenHistoryItem(item)}
-                            className="h-7 w-7 p-0 text-gray-400 hover:text-emerald-600 transition-colors"
+                            className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-gray-400 hover:text-emerald-600 transition-colors"
                             title="View Details"
                           >
-                            <ExternalLink className="h-3.5 w-3.5" />
+                            <ExternalLink className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onRegenerateFromHistory(item)}
-                            className="h-7 w-7 p-0 text-gray-400 hover:text-blue-600 transition-colors"
+                            className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-gray-400 hover:text-blue-600 transition-colors"
                             title="Regenerate"
                           >
-                            <RotateCw className="h-3.5 w-3.5" />
+                            <RotateCw className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onDeleteHistoryItem(item.id)}
-                            className="h-7 w-7 p-0 text-gray-400 hover:text-red-600 transition-colors"
+                            className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-gray-400 hover:text-red-600 transition-colors"
                             title="Delete"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                           </Button>
                         </div>
                       </div>
 
                       <h4
-                        className="font-medium text-gray-900 dark:text-slate-50 mb-1.5 line-clamp-2 hover:text-primary cursor-pointer transition-colors"
+                        className="font-medium text-sm sm:text-base text-gray-900 dark:text-slate-50 mb-1.5 line-clamp-2 hover:text-primary cursor-pointer transition-colors"
                         onClick={() => onOpenHistoryItem(item)}
                       >
                         {item.prompt}
                       </h4>
 
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-slate-400">
+                      <div className="flex flex-wrap gap-x-2 sm:gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-slate-400">
                         {item.type === "image" && item.settings?.model && (
                           <span className="flex items-center gap-1">
                             <Sparkles className="h-3 w-3" />
@@ -621,10 +614,10 @@ export function OutputPanel({
                         variant="outline"
                         size="sm"
                         onClick={() => onOpenHistoryItem(item)}
-                        className="border-gray-300 text-gray-700 hover:bg-gray-100 group-hover:border-primary group-hover:text-primary dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-all"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-100 group-hover:border-primary group-hover:text-primary dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-all text-xs sm:text-sm"
                       >
                         View
-                        <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                        <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 ml-1" />
                       </Button>
                     </div>
                   </div>
@@ -632,12 +625,14 @@ export function OutputPanel({
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 animate-in fade-in duration-500 delay-200">
-              <History className="h-16 w-16 text-gray-300 dark:text-slate-700 mx-auto mb-4 animate-bounce" />
-              <h4 className="text-xl font-semibold text-gray-700 dark:text-slate-300 mb-2">
+            <div className="text-center py-12 sm:py-16 animate-in fade-in duration-500 delay-200">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <History className="h-8 w-8 sm:h-10 sm:w-10 text-gray-300 dark:text-slate-600" />
+              </div>
+              <h4 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-slate-300 mb-2">
                 {t("no")} {mode} {t("inHistoryYet")}
               </h4>
-              <p className="text-gray-500 dark:text-slate-400">
+              <p className="text-sm sm:text-base text-gray-500 dark:text-slate-400">
                 {t("clickThe")} "{generateButtonText}" {t("buttonAboveToCreate")}
               </p>
             </div>

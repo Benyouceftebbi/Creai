@@ -29,15 +29,14 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
       >
         <Crown className="h-4 w-4 " />
         <div className="ml-1 md:inline-block hidden">
-        Upgrade
+        TopUp
         </div>
       </Button>
 
       </DialogTrigger>
       <DialogContent className="max-w-[1100px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Choose Your Plan</DialogTitle>
-          <DialogDescription>Select the plan that best fits your needs</DialogDescription>
+          <DialogTitle>Select the plan that best fits your needs</DialogTitle>
         </DialogHeader>
        
         <PricingPlans className="max-h-[calc(90vh-100px)] overflow-y-auto pr-4" />

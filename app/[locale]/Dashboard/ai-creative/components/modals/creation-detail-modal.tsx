@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react" // Added useState
-import { X, Video, ImageIcon, Heart, Wand2, Clock } from "lucide-react"
+import { X, Video, ImageIcon, Heart, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "../types"
@@ -110,17 +110,17 @@ export function CreationDetailModal({
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-background rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
           <div className="flex items-center gap-3">
             <ImageWithFallback
               src={creation.avatar || "/placeholder.svg"}
               alt={creation.user}
-              className="w-10 h-10 rounded-full"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
               fallbackText="U"
               style={{ maxWidth: 40, maxHeight: 40 }}
             />
             <div>
-              <h3 className="font-semibold">{creation.user}</h3>
+              <h3 className="font-semibold text-sm sm:text-base">{creation.user}</h3>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Badge
                   variant="secondary"
@@ -140,7 +140,7 @@ export function CreationDetailModal({
                   <span>{creation.likes}</span>
                 </div>
                 {formattedCreationDate && (
-                  <div className="flex items-center gap-1">
+                  <div className="hidden sm:flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     <span>{formattedCreationDate}</span>
                   </div>
@@ -157,77 +157,107 @@ export function CreationDetailModal({
           </div>
         </div>
 
-        <div className="flex flex-col h-[calc(90vh-120px)]">
-          {/* Before/After Images Section */}
-          <div className="flex-1 flex">
-            {creation.beforeImage ? (
-              <>
-                {/* Before Image - Left Side */}
-                <div className="flex-1 relative bg-muted flex flex-col items-center justify-center border-r border-border p-4">
-                  <div className="absolute top-4 left-4 z-10">
-                    <Badge variant="secondary" className="bg-orange-100 text-orange-700">
-                      {t("before")}
-                    </Badge>
-                  </div>
-
-                  <ImageWithFallback
-                    src={creation.beforeImage || "/placeholder.svg"}
-                    alt="Before"
-                    className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
-                    style={{ maxWidth: "400px", maxHeight: "400px" }}
-                    fallbackText="Before Image"
-                  />
+        {/* Before/After Images Section - Responsive Layout - Now takes full height */}
+        <div className="flex-1 flex flex-col sm:flex-row h-[calc(90vh-120px)]">
+          {creation.beforeImage ? (
+            <>
+              {/* Before Image - Top on mobile, Left on desktop */}
+              <div className="flex-1 relative bg-muted flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-border p-3 sm:p-4">
+                <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-700 text-xs">
+                    {t("before")}
+                  </Badge>
                 </div>
 
-                {/* After Image - Right Side */}
-                <div className="flex-1 relative bg-muted flex flex-col items-center justify-center p-4">
-                  <div className="absolute top-4 left-4 z-10">
-                    <Badge variant="secondary" className="bg-green-100 text-green-700">
-                      {t("after")}
-                    </Badge>
-                  </div>
-                  {creation.type === "reel" ? (
-                    renderReelContent(creation.image, creation.prompt) // Removed extra boolean arg
-                  ) : (
-                    <ImageWithFallback
-                      src={creation.image || "/placeholder.svg"}
-                      alt="After"
-                      className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
-                      style={{ maxWidth: "400px", maxHeight: "400px" }}
-                      fallbackText="After Image"
-                    />
-                  )}
+                <ImageWithFallback
+                  src={creation.beforeImage || "/placeholder.svg"}
+                  alt="Before"
+                  className="max-w-full max-h-full object-contain rounded-lg sm:rounded-xl shadow-lg"
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "400px", // Increased since no prompt section
+                  }}
+                  fallbackText="Before Image"
+                />
+              </div>
+
+              {/* After Image - Bottom on mobile, Right on desktop */}
+              <div className="flex-1 relative bg-muted flex flex-col items-center justify-center p-3 sm:p-4">
+                <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
+                  <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+                    {t("after")}
+                  </Badge>
                 </div>
-              </>
-            ) : (
-              /* Single Image - Full Width */
-              <div className="flex-1 relative bg-muted flex items-center justify-center p-4">
                 {creation.type === "reel" ? (
-                  renderReelContent(creation.image, creation.prompt) // Removed extra boolean arg
+                  <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg sm:rounded-xl overflow-hidden">
+                    <video
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="max-w-full max-h-full object-contain"
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "400px", // Increased since no prompt section
+                      }}
+                    >
+                      <source src={creation.image} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                    {creation.duration && (
+                      <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                        {creation.duration}
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <ImageWithFallback
                     src={creation.image || "/placeholder.svg"}
-                    alt={creation.prompt}
-                    className="max-w-full max-h-full object-contain rounded-xl shadow-lg"
-                    style={{ maxWidth: "600px", maxHeight: "600px" }}
-                    fallbackText="Image"
+                    alt="After"
+                    className="max-w-full max-h-full object-contain rounded-lg sm:rounded-xl shadow-lg"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "400px", // Increased since no prompt section
+                    }}
+                    fallbackText="After Image"
                   />
                 )}
               </div>
-            )}
-          </div>
-
-          {/* Prompt Section - Bottom */}
-          <div className="p-6 border-t border-border bg-background">
-            <h4 className="font-semibold mb-3 flex items-center gap-2">
-              <Wand2 className="h-4 w-4 text-primary" />
-              {t("promptUsed")}
-            </h4>
-            <div className="bg-muted rounded-lg p-4">
-              <p className="text-foreground leading-relaxed">{creation.prompt}</p>
+            </>
+          ) : (
+            /* Single Image - Full Width */
+            <div className="flex-1 relative bg-muted flex items-center justify-center p-3 sm:p-4">
+              {creation.type === "reel" ? (
+                <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg sm:rounded-xl overflow-hidden">
+                  <video
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="max-w-full max-h-full object-contain"
+                    style={{ maxWidth: "600px", maxHeight: "500px" }} // Increased height
+                  >
+                    <source src={creation.image} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  {creation.duration && (
+                    <div className="absolute bottom-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm">
+                      {creation.duration}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <ImageWithFallback
+                  src={creation.image || "/placeholder.svg"}
+                  alt="Community creation"
+                  className="max-w-full max-h-full object-contain rounded-lg sm:rounded-xl shadow-lg"
+                  style={{ maxWidth: "600px", maxHeight: "500px" }} // Increased height
+                  fallbackText="Image"
+                />
+              )}
             </div>
-          </div>
+          )}
         </div>
+
+        {/* Removed Prompt Section completely */}
       </div>
     </div>
   )
