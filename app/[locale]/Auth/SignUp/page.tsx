@@ -212,7 +212,7 @@ const Modal: React.FC<ModalProps> = ({ title, message, onClose, isSuccess = fals
 
 export default function SignUp() {
   const t = useTranslations("signup")
-  const { signup } = useAuth()
+  const { signup,googleSignup } = useAuth()
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -250,43 +250,14 @@ export default function SignUp() {
   }, [])
 
   const handleGoogleSignUp = async () => {
-    setGoogleLoading(true)
-    try {
-      const provider = new GoogleAuthProvider()
-      provider.addScope("email")
-      provider.addScope("profile")
-
-      const result = await signInWithPopup(auth, provider)
-
-      if (result.user) {
-        toast({
-          title: "Success!",
-          description: "Successfully signed up with Google.",
-          variant: "default",
-        })
-        router.push("/dashboard")
-      }
-    } catch (error: any) {
-      console.error("Google Sign-Up Error:", error)
-
-      let errorMessage = "An error occurred during Google sign-up."
-
-      if (error.code === "auth/popup-closed-by-user") {
-        errorMessage = "Sign-up was cancelled."
-      } else if (error.code === "auth/popup-blocked") {
-        errorMessage = "Popup was blocked. Please allow popups and try again."
-      } else if (error.code === "auth/account-exists-with-different-credential") {
-        errorMessage = "An account already exists with this email using a different sign-up method."
-      }
-
-      toast({
-        title: "Google Sign-Up Failed",
-        description: errorMessage,
-        variant: "destructive",
-      })
-    } finally {
-      setGoogleLoading(false)
+ setGoogleLoading(true);
+  const result = await googleSignup();
+     if (result === "new") {
+        router.push("/dashboard/ai-creative")
+    } else if (result === "existing") {
+       router.push("/dashboard/ai-creative")
     }
+    setGoogleLoading(false);
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -304,7 +275,8 @@ export default function SignUp() {
         title: "Account Created Successfully!",
         message: "Your account has been created. You must send a test SMS before proceeding to the dashboard.",
       })
-      setIsModalOpen(true)
+      //setIsModalOpen(true)
+      router.push("/dashboard/ai-creative")
       return
     } else {
       console.error("Sign up error:")
@@ -328,18 +300,13 @@ export default function SignUp() {
 
   const handleApplyPromoCode = () => {
     const promoCode = form.getValues("promoCode")
-    if (promoCode === "STORK") {
-      setTokenAmount(1000)
-      setValidatedPromoCode(promoCode)
-      form.setValue("tokens", 500)
-      setPromoApplied(true)
-    } else {
-      setTokenAmount(50)
+
+      setTokenAmount(200)
       setValidatedPromoCode("")
-      form.setValue("tokens", 50)
+      form.setValue("tokens", 200)
       form.setValue("promoCode", "")
       setPromoApplied(true)
-    }
+    
   }
 
   return (

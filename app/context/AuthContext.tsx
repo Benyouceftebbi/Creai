@@ -1,6 +1,6 @@
 "use client"
-import { auth } from "@/firebase/firebase";
-import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
+import { auth, provider } from "@/firebase/firebase";
+import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithPopup, getAdditionalUserInfo } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -42,6 +42,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return false;
       });
   };
+ const googleSignup = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
+    if (isNewUser) {
+      await setDoc(doc(db, "Shops", user.uid), {
+        email: user.email,
+        tokens: 200, // default
+          phoneNumber: "",
+          firstName:user.displayName,
+        countryCode: "",
+        createdAt: new Date(),
+        isProfileComplete: false,
+        terms:true,
+          promoCode:"",
+      });
+
+      console.log("🆕 New user added to Firestore");
+     
+    } 
+     setUser(user);
+    setIsAuthenticated(true);
+   return isNewUser ? "new" : "existing";
+
+
+  } catch (error: any) {
+    console.error("❌ Google sign-in error:", {
+      errorCode: error.code,
+      errorMessage: error.message,
+    });
+    setIsAuthenticated(false);
+    setUser(null);
+     return null;
+  }
+};
 
 
   const logout = async () => {
@@ -79,7 +115,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return onAuthStateChanged(auth, async (user:User | null) => {
       if (user) {
 
-        
+          console.log("useweqwewqe",user);
+          
         setUser({...user});
         setIsAuthenticated(true);
       } else {
@@ -92,7 +129,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, signup, user}}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, signup, user,googleSignup}}>
       {children}
     </AuthContext.Provider>
   );

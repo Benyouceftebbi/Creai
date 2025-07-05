@@ -7,8 +7,10 @@ import { useAuth } from "../../../context/AuthContext"
 import { useTranslations } from "next-intl"
 import { LoadingButton } from "@/components/ui/LoadingButton"
 import { toast } from "@/hooks/use-toast"
-import { sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
-import { auth } from "@/firebase/firebase"
+import { sendPasswordResetEmail, signInWithPopup,GoogleAuthProvider, getAdditionalUserInfo  } from "firebase/auth"
+import { auth, db, provider } from "@/firebase/firebase"
+import { doc, setDoc } from "firebase/firestore"
+
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -33,7 +35,7 @@ const GoogleIcon = () => (
 
 export default function SignIn() {
   const t = useTranslations("signin")
-  const { login } = useAuth()
+  const { login,googleSignup } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -74,45 +76,17 @@ export default function SignIn() {
     }
   }
 
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true)
-    try {
-      const provider = new GoogleAuthProvider()
-      provider.addScope("email")
-      provider.addScope("profile")
-
-      const result = await signInWithPopup(auth, provider)
-
-      if (result.user) {
-        toast({
-          title: "Success!",
-          description: "Successfully signed in with Google.",
-          variant: "default",
-        })
-        router.push("/dashboard")
-      }
-    } catch (error: any) {
-      console.error("Google Sign-In Error:", error)
-
-      let errorMessage = "An error occurred during Google sign-in."
-
-      if (error.code === "auth/popup-closed-by-user") {
-        errorMessage = "Sign-in was cancelled."
-      } else if (error.code === "auth/popup-blocked") {
-        errorMessage = "Popup was blocked. Please allow popups and try again."
-      } else if (error.code === "auth/account-exists-with-different-credential") {
-        errorMessage = "An account already exists with this email using a different sign-in method."
-      }
-
-      toast({
-        title: "Google Sign-In Failed",
-        description: errorMessage,
-        variant: "destructive",
-      })
-    } finally {
-      setGoogleLoading(false)
+const handleGoogleSignIn = async () => {
+  setGoogleLoading(true);
+  const result = await googleSignup();
+     if (result === "new") {
+      router.push("/dashboard");
+    } else if (result === "existing") {
+      router.push("/dashboard");
     }
-  }
+    setGoogleLoading(false);
+  
+};
 
   const handleForgotPassword = async () => {
     if (!email) {
