@@ -1,6 +1,6 @@
 "use client"
 import { auth, provider } from "@/firebase/firebase";
-import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithPopup, getAdditionalUserInfo } from "firebase/auth";
+import { User as FirebaseUser,User,signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithPopup, getAdditionalUserInfo, getRedirectResult, signInWithRedirect } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -43,42 +43,76 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
   };
  const googleSignup = async () => {
+ const isMobile =
+    typeof window !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   try {
+    // 👉 Step 1: Handle result from redirect if on mobile
+    if (isMobile) {
+      const result = await getRedirectResult(auth);
+
+      if (result?.user) {
+        const user = result.user;
+        const isNewUser = getAdditionalUserInfo(result)?.isNewUser ?? false;
+
+        if (isNewUser) {
+          await setDoc(doc(db, "Shops", user.uid), {
+            email: user.email,
+            tokens: 200,
+            phoneNumber: "",
+            firstName: user.displayName,
+            countryCode: "",
+            createdAt: new Date(),
+            isProfileComplete: false,
+            terms: true,
+            promoCode: "",
+          });
+          console.log("🆕 New mobile user saved to Firestore");
+        }
+
+        setUser(user);
+        setIsAuthenticated(true);
+        return isNewUser ? "new" : "existing";
+      }
+
+      // if not redirected yet, initiate it
+      await signInWithRedirect(auth, provider);
+      return null;
+    }
+
+    // 👉 Step 2: Desktop popup flow
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-    const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
+    const isNewUser = getAdditionalUserInfo(result)?.isNewUser ?? false;
+
     if (isNewUser) {
       await setDoc(doc(db, "Shops", user.uid), {
         email: user.email,
-        tokens: 200, // default
-          phoneNumber: "",
-          firstName:user.displayName,
+        tokens: 200,
+        phoneNumber: "",
+        firstName: user.displayName,
         countryCode: "",
         createdAt: new Date(),
         isProfileComplete: false,
-        terms:true,
-          promoCode:"",
+        terms: true,
+        promoCode: "",
       });
+      console.log("🆕 New desktop user saved to Firestore");
+    }
 
-      console.log("🆕 New user added to Firestore");
-     
-    } 
-     setUser(user);
+    setUser(user);
     setIsAuthenticated(true);
-   return isNewUser ? "new" : "existing";
-
-
+    return isNewUser ? "new" : "existing";
   } catch (error: any) {
     console.error("❌ Google sign-in error:", {
       errorCode: error.code,
       errorMessage: error.message,
     });
-    setIsAuthenticated(false);
     setUser(null);
-     return null;
+    setIsAuthenticated(false);
+    return null;
   }
 };
-
 
   const logout = async () => {
     try {
