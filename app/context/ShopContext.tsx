@@ -1,6 +1,6 @@
 "use client"
-import { ArrowUpRight, Box, CheckCircle, Clock, Package, Truck } from "lucide-react"
 
+import { ArrowUpRight, Sparkles, Zap, Wand2, Palette, Brain, Stars } from "lucide-react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { doc, getDocs, collection, onSnapshot, query, where, Timestamp } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
@@ -83,22 +83,18 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     if (timestamp && typeof timestamp.toDate === "function") {
       return timestamp.toDate()
     }
-
     // Handle Firestore timestamp object with seconds and nanoseconds
     if (timestamp && timestamp.seconds !== undefined && timestamp.nanoseconds !== undefined) {
       return new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000)
     }
-
     // If it's already a Date or a string, convert or return as is
     if (timestamp instanceof Date) {
       return timestamp
     }
-
     // If it's a string or number, convert to Date
     if (timestamp) {
       return new Date(timestamp)
     }
-
     // Default to current date if timestamp is undefined or null
     return new Date()
   }
@@ -123,7 +119,6 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         }
 
         const fetchedShops = []
-
         for (const shopDoc of shopDocs.docs) {
           const shopData = { ...shopDoc.data(), id: shopDoc.id }
           const shopRef = doc(db, "Shops", shopDoc.id)
@@ -143,13 +138,13 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
               : collection(shopRef, "SMS")
 
           const imageAiQuery =
-              fromTimestamp && toTimestamp
-                ? query(
-                    collection(shopRef, "ImageAi"),
-                    where("createdAt", ">=", fromTimestamp),
-                    where("createdAt", "<=", toTimestamp),
-                  )
-                : collection(shopRef, "ImageAi")
+            fromTimestamp && toTimestamp
+              ? query(
+                  collection(shopRef, "ImageAi"),
+                  where("createdAt", ">=", fromTimestamp),
+                  where("createdAt", "<=", toTimestamp),
+                )
+              : collection(shopRef, "ImageAi")
 
           const trackingQuery =
             fromTimestamp && toTimestamp
@@ -173,12 +168,12 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           const smsCampaignQuery = collection(shopRef, "SMScampaign")
 
           // Fetch subcollections in parallel
-          const [smsDocs, trackingDocs, smsCampaignDocs, ordersDocs,imageAiDocs] = await Promise.all([
+          const [smsDocs, trackingDocs, smsCampaignDocs, ordersDocs, imageAiDocs] = await Promise.all([
             getDocs(smsQuery),
             getDocs(trackingQuery),
             getDocs(smsCampaignQuery),
             getDocs(ordersQuery),
-            getDocs(imageAiQuery)
+            getDocs(imageAiQuery),
           ])
 
           const trackingMap = {}
@@ -190,17 +185,14 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           // Process orders data - convert timestamps to dates
           ordersDocs.docs.forEach((orderDoc) => {
             const orderData = orderDoc.data()
-
             // Convert timestamp fields to JavaScript Date objects
             if (orderData.timestamp) {
               orderData.timestamp = timestampToDate(orderData.timestamp)
             }
-
             // Handle nested timestamp fields in orderData
             if (orderData.orderData && orderData.orderData.message_time) {
               orderData.orderData.message_time.value = timestampToDate(orderData.orderData.message_time.value)
             }
-
             ordersData.push({
               ...orderData,
               id: orderDoc.id,
@@ -210,51 +202,40 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           // Process tracking data
           trackingDocs.docs.forEach((trackingDoc) => {
             const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id }
-
             // Convert timestamp fields
             if (trackingInfo.lastUpdated) {
               trackingInfo.lastUpdated = timestampToDate(trackingInfo.lastUpdated)
             }
-
             trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null
-
             // Find related SMS documents
             const relatedSmsDocs = smsDocs.docs.filter((smsDoc) => smsDoc.data().trackingId === trackingInfo.id)
             const messageTypes = relatedSmsDocs.map((smsDoc) => smsDoc.data().type)
-
             trackingInfo.messageTypes = messageTypes
             trackingInfo.phoneNumber = trackingInfo.data?.contact_phone || trackingInfo.data?.phone
             trackingInfo.deliveryType =
               trackingInfo.data?.stop_desk === 1 || trackingInfo.data?.stopdesk_id != null ? "stopdesk" : "domicile"
-
             trackingData.push(trackingInfo)
           })
 
-
-          imageAiDocs.docs.forEach((imageAiDoc)=> {
+          imageAiDocs.docs.forEach((imageAiDoc) => {
             const imageAiInfo = imageAiDoc.data()
-
             // Convert timestamp fields
             if (imageAiInfo.createdAt) {
               imageAiInfo.createdAt = timestampToDate(imageAiInfo.createdAt)
             }
-
             imageAiData.push({
               ...imageAiInfo,
               id: imageAiDoc.id,
             })
           })
 
-          
           // Process SMS data
           smsDocs.docs.forEach((smsDoc) => {
             const smsInfo = smsDoc.data()
-
             // Convert timestamp fields
             if (smsInfo.createdAt) {
               smsInfo.createdAt = timestampToDate(smsInfo.createdAt)
             }
-
             smsData.push({
               ...smsInfo,
               id: smsDoc.id,
@@ -265,12 +246,10 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           // Process SMS campaigns
           const smsCampaignData = smsCampaignDocs.docs.map((smsDoc) => {
             const campaignData = smsDoc.data()
-
             // Convert timestamp fields
             if (campaignData.createdAt) {
               campaignData.createdAt = timestampToDate(campaignData.createdAt)
             }
-
             return {
               ...campaignData,
               id: smsDoc.id,
@@ -282,10 +261,8 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           shopData.tracking = trackingData
           shopData.smsCampaign = smsCampaignData
           shopData.imageai = imageAiData
-
           // Combine both types of orders
           shopData.orders = ordersData
-
           fetchedShops.push(shopData)
         }
 
@@ -324,7 +301,6 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         }
 
         const fetchedShops = []
-
         const shopRef = doc(db, "Shops", shopData.id)
 
         // Convert dateRange to Firestore timestamps
@@ -360,11 +336,10 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
               )
             : collection(shopRef, "OrdersRetrieved")
 
-        const imageAiQuery =
-            collection(shopRef, "ImageAi")    
+        const imageAiQuery = collection(shopRef, "ImageAi")
 
         // Fetch subcollections in parallel
-        const [smsDocs, trackingDocs, ordersDocs,imageAiDocs] = await Promise.all([
+        const [smsDocs, trackingDocs, ordersDocs, imageAiDocs] = await Promise.all([
           getDocs(smsQuery),
           getDocs(trackingQuery),
           getDocs(ordersQuery),
@@ -380,17 +355,14 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         // Process orders data - convert timestamps to dates
         ordersDocs.docs.forEach((orderDoc) => {
           const orderData = orderDoc.data()
-
           // Convert timestamp fields to JavaScript Date objects
           if (orderData.timestamp) {
             orderData.timestamp = timestampToDate(orderData.timestamp)
           }
-
           // Handle nested timestamp fields in orderData
           if (orderData.orderData && orderData.orderData.message_time) {
             orderData.orderData.message_time.value = timestampToDate(orderData.orderData.message_time.value)
           }
-
           ordersData.push({
             ...orderData,
             id: orderDoc.id,
@@ -400,35 +372,28 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         // Process tracking data
         trackingDocs.docs.forEach((trackingDoc) => {
           const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id }
-
           // Convert timestamp fields
           if (trackingInfo.lastUpdated) {
             trackingInfo.lastUpdated = timestampToDate(trackingInfo.lastUpdated)
           }
-
           trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null
-
           // Find related SMS documents
           const relatedSmsDocs = smsDocs.docs.filter((smsDoc) => smsDoc.data().trackingId === trackingInfo.id)
           const messageTypes = relatedSmsDocs.map((smsDoc) => smsDoc.data().type)
-
           trackingInfo.messageTypes = messageTypes
           trackingInfo.phoneNumber = trackingInfo.data?.contact_phone || trackingInfo.data?.phone
           trackingInfo.deliveryType =
             trackingInfo.data?.stop_desk === 1 || trackingInfo.data?.stopdesk_id != null ? "stopdesk" : "domicile"
-
           trackingData.push(trackingInfo)
         })
 
         // Process SMS data
         smsDocs.docs.forEach((smsDoc) => {
           const smsInfo = smsDoc.data()
-
           // Convert timestamp fields
           if (smsInfo.createdAt) {
             smsInfo.createdAt = timestampToDate(smsInfo.createdAt)
           }
-
           smsData.push({
             ...smsInfo,
             id: smsDoc.id,
@@ -438,19 +403,23 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
         imageAiDocs.docs.forEach((imageAi) => {
           const imageAiInfo = imageAi.data()
-
           // Convert timestamp fields
           if (imageAiInfo.createdAt) {
             imageAiInfo.createdAt = timestampToDate(imageAiInfo.createdAt)
           }
-
           imageAiData.push({
             ...imageAiInfo,
             id: imageAiDocs.id,
           })
         })
 
-        setShopData((prev) => ({ ...prev, orders: ordersData, sms: smsData, tracking: trackingData ,imageAi: imageAiData }))
+        setShopData((prev) => ({
+          ...prev,
+          orders: ordersData,
+          sms: smsData,
+          tracking: trackingData,
+          imageAi: imageAiData,
+        }))
         setLoading(false)
       } catch (err) {
         console.error("Error fetching shop data when chaning time:", err)
@@ -462,27 +431,25 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
     fetchShopData()
   }, [shopData.id, dateRange])
-    useEffect(() => {
+
+  useEffect(() => {
     if (!shopData.id) return
-     
+
     const unsubscribe = onSnapshot(collection(db, "Shops", shopData.id, "SMScampaign"), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
-          console.log("sadasasdasddasdsdashihihihiihihihi");
- 
+        console.log("sadasasdasddasdsdashihihihiihihihi")
         if (change.type === "added") {
           const campaignData = change.doc.data()
- 
-          
           // Convert timestamp fields
           if (campaignData.createdAt) {
             campaignData.createdAt = timestampToDate(campaignData.createdAt)
           }
-
           const newCampaign = {
             id: change.doc.id,
             ...campaignData,
           }
-         console.log("New SMS campaign added:", change.doc.id, campaignData);
+          console.log("New SMS campaign added:", change.doc.id, campaignData)
+
           // Update shopData only if campaign doesn't already exist
           setShopData((prevShopData) => {
             const campaignExists = prevShopData.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
@@ -512,12 +479,10 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
         if (change.type === "modified") {
           const campaignData = change.doc.data()
-
           // Convert timestamp fields
           if (campaignData.createdAt) {
             campaignData.createdAt = timestampToDate(campaignData.createdAt)
           }
-
           const updatedCampaign = {
             id: change.doc.id,
             ...campaignData,
@@ -574,6 +539,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
     return () => unsubscribe()
   }, [shopData.id])
+
   // Set up real-time listener for OrdersRetrieved collection
   useEffect(() => {
     if (!shopData.id) {
@@ -582,7 +548,6 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     }
 
     console.log("Setting up OrdersRetrieved listener for shop ID:", shopData.id)
-
     const ordersRef = collection(db, "Shops", shopData.id, "OrdersRetrieved")
 
     try {
@@ -692,16 +657,17 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     }
   }, [shopData.id]) // Add shopData.id as a dependency
 
-   //creative ai 
-
-   useEffect(() => {
+  //creative ai
+  useEffect(() => {
     const fetchCreativeAiInspirations = async () => {
       setCreativeAiLoading(true)
       setCreativeAiError(null)
+
       try {
         const creativeAiCollectionRef = collection(db, "CreativeAi")
         const querySnapshot = await getDocs(creativeAiCollectionRef)
         const fetchedItems: any[] = []
+
         querySnapshot.forEach((doc) => {
           const data = doc.data()
           if (data.prompt && data.image && data.type && data.user) {
@@ -710,10 +676,9 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
               image: data.image as string,
               beforeImage: data.beforeImage as string | undefined,
               user: data.user as string,
-             // avatar:
-             //   data.avatar ||
+              // avatar:
+              //   data.avatar ||
               //  `/placeholder.svg?height=32&width=32&text=${(data.user as string)?.[0]?.toUpperCase() || "U"}`,
-              
               prompt: data.prompt as string,
               //likes: (data.likes as number) || Math.floor(Math.random() * 1500),
               type: data.type as "image" | "reel",
@@ -723,6 +688,7 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
             })
           }
         })
+
         setCreativeAiItems(fetchedItems)
       } catch (error) {
         console.error("Error fetching CreativeAI inspirations:", error)
@@ -731,25 +697,23 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
         setCreativeAiLoading(false)
       }
     }
+
     fetchCreativeAiInspirations()
-
   }, []) // Empty dependency array ensures this runs only once on mount
+
   // Set up real-time listener for SMScampaign collection
-
-
- 
   const [progress, setProgress] = useState(0)
-  const [loadingText, setLoadingText] = useState("Initializing...")
+  const [loadingText, setLoadingText] = useState("Initializing Creative AI...")
 
   useEffect(() => {
     const texts = [
-      "Initializing...",
-      "Loading delivery analytics...",
-      "Preparing optimization tools...",
-      "Setting up tracking dashboard...",
-      "Almost ready...",
+      "Initializing Creative AI...",
+      "Loading neural networks...",
+      "Preparing AI models...",
+      "Setting up creative workspace...",
+      "Optimizing generation algorithms...",
+      "Almost ready to create magic...",
     ]
-
     let interval: NodeJS.Timeout
 
     // Simulate loading progress
@@ -759,14 +723,12 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           clearInterval(interval)
           return 100
         }
-
         // Update loading text based on progress
-        const textIndex = Math.min(Math.floor(prev / 20), texts.length - 1)
+        const textIndex = Math.min(Math.floor(prev / 17), texts.length - 1)
         setLoadingText(texts[textIndex])
-
         return prev + 1
       })
-    }, 40)
+    }, 50)
 
     return () => clearInterval(interval)
   }, [])
@@ -794,62 +756,149 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
   // Show loading UI when data is not yet available
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-4">
-      <div className="w-full max-w-md">
+    <div className="flex h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-purple-950 dark:via-blue-950 dark:to-indigo-950 p-4 overflow-hidden relative">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-700 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 dark:bg-blue-700 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-300 dark:bg-indigo-700 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
         {/* Logo and Name */}
-        <div className="mb-8 flex items-center justify-center">
-          <div className="relative mr-3">
-            <div className="absolute inset-0 animate-ping rounded-full bg-indigo-400 opacity-20"></div>
-            <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white">
-              <Package className="h-6 w-6" />
+        <div className="mb-12 flex items-center justify-center">
+          <div className="relative mr-4">
+            <div className="absolute inset-0 animate-ping rounded-full bg-gradient-to-r from-purple-400 to-blue-400 opacity-30"></div>
+            <div className="absolute inset-0 animate-pulse rounded-full bg-gradient-to-r from-purple-500 to-blue-500 opacity-50"></div>
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl">
+              <Sparkles className="h-8 w-8 animate-pulse" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-800">
-            Coli<span className="text-indigo-500">track</span>
-          </h1>
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Creative<span className="text-purple-500">AI</span>
+            </h1>
+            <div className="flex items-center justify-center mt-2 space-x-1">
+              <Stars className="h-4 w-4 text-yellow-500 animate-pulse" />
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Powered by Intelligence</span>
+              <Stars className="h-4 w-4 text-yellow-500 animate-pulse" />
+            </div>
+          </div>
         </div>
 
         {/* Description */}
-        <div className="mb-8 text-center">
-          <h2 className="mb-2 text-xl font-medium text-slate-700">Elevate Your E-Commerce Delivery Performance</h2>
-          <p className="text-slate-600">
-            Comprehensive tools to optimize delivery rates, track packages, and enhance customer satisfaction
+        <div className="mb-12 text-center">
+          <h2 className="mb-4 text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+            Unleash Your Creative Potential
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+            Transform your ideas into stunning visuals with our advanced AI-powered creative tools and intelligent
+            generation algorithms
           </p>
         </div>
 
         {/* Features */}
-        <div className="mb-8 grid grid-cols-2 gap-4">
+        <div className="mb-12 grid grid-cols-2 gap-4">
           {[
-            { icon: Truck, text: "Delivery Optimization" },
-            { icon: CheckCircle, text: "Success Rate Analytics" },
-            { icon: Clock, text: "Real-time Tracking" },
-            { icon: Box, text: "Inventory Management" },
+            { icon: Brain, text: "AI Image Generation", color: "from-purple-500 to-purple-600" },
+            { icon: Wand2, text: "Smart Enhancement", color: "from-blue-500 to-blue-600" },
+            { icon: Palette, text: "Creative Tools", color: "from-indigo-500 to-indigo-600" },
+            { icon: Zap, text: "Lightning Fast", color: "from-pink-500 to-pink-600" },
           ].map((feature, index) => (
             <div
               key={index}
-              className="flex items-center rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-all hover:shadow"
+              className="group flex flex-col items-center rounded-2xl border border-white/20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:bg-white dark:hover:bg-gray-800"
             >
-              <feature.icon className="mr-2 h-5 w-5 text-indigo-500" />
-              <span className="text-sm font-medium text-slate-700">{feature.text}</span>
-              <ArrowUpRight className="ml-auto h-4 w-4 text-slate-400" />
+              <div
+                className={`mb-3 rounded-xl bg-gradient-to-r ${feature.color} p-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+              >
+                <feature.icon className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center leading-tight">
+                {feature.text}
+              </span>
+              <ArrowUpRight className="mt-2 h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
           ))}
         </div>
 
-        {/* Loading Bar */}
-        <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
-          <div
-            className="h-full rounded-full bg-indigo-500 transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
-          ></div>
+        {/* Enhanced Loading Bar */}
+        <div className="mb-4 relative">
+          <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 shadow-inner">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500 transition-all duration-300 ease-out relative overflow-hidden"
+              style={{ width: `${progress}%` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+            </div>
+          </div>
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full animate-pulse shadow-lg"></div>
         </div>
 
         {/* Loading Text */}
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-600">{loadingText}</span>
-          <span className="font-medium text-slate-700">{progress}%</span>
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-600 dark:text-gray-400 font-medium animate-pulse">{loadingText}</span>
+          <div className="flex items-center space-x-2">
+            <span className="font-bold text-purple-600 dark:text-purple-400">{progress}%</span>
+            <div className="flex space-x-1">
+              <div className="w-1 h-1 bg-purple-500 rounded-full animate-bounce"></div>
+              <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+              <div
+                className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating particles */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full opacity-60 animate-float"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${3 + Math.random() * 2}s`,
+              }}
+            ></div>
+          ))}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   )
 }

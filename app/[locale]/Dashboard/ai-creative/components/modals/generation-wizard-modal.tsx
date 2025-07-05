@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import {
   Upload,
   X,
@@ -20,6 +21,7 @@ import {
   Lightbulb,
   FileText,
   CopySlash,
+  Type,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 // import type { Settings as ImageSettingsFromApp, ReelSettings as ReelSettingsFromAppPage } from "@/app/page"
@@ -37,6 +39,7 @@ interface ImageSettings {
   model: string
   creativity: number[]
   language: string
+  includeText: boolean // New field for text inclusion
 }
 
 // Define ReelSettings based on the structure expected within this modal
@@ -56,12 +59,13 @@ const DEFAULT_IMAGE_SETTINGS: ImageSettings = {
   model: "KOLORS 1.5",
   creativity: [7],
   language: "", // Empty string signifies not selected
+  includeText: false, // Default to false (no text)
 }
 
 const DEFAULT_REEL_SETTINGS: ReelSettings = {
   aspectRatio: "",
   quality: "standard", // Can keep a default or make it mandatory too
-  outputs:1, // 0 signifies not selected
+  outputs: 1, // 0 signifies not selected
   model: "", // Empty string signifies not selected
   creativity: [5],
 }
@@ -208,7 +212,7 @@ export function GenerationWizardModal({
           adStyleImageBase64,
           type: generationType === "image" ? "image" : "video",
           shopId: shopData.id,
-          noText:true
+          noText: generationType === "image" ? !imageSettings.includeText : true, // Pass the text setting for images
         })
 
         if (result.data?.reason === "tokens") {
@@ -421,6 +425,29 @@ export function GenerationWizardModal({
                   {t("needHelpPrompt")}
                 </Button>
               </div>
+
+              {/* Text Inclusion Toggle */}
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Type className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <Label htmlFor="include-text" className="text-sm font-medium">
+                      Include Text in Image
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Allow AI to add text elements to the generated image
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="include-text"
+                  checked={imageSettings.includeText}
+                  onCheckedChange={(checked) => setImageSettings((s) => ({ ...s, includeText: checked }))}
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="language-wizard">
@@ -640,6 +667,12 @@ export function GenerationWizardModal({
               </div>
               {generationType === "image" && (
                 <>
+                  <p>
+                    <strong>Include Text:</strong>{" "}
+                    <Badge variant={imageSettings.includeText ? "default" : "secondary"}>
+                      {imageSettings.includeText ? "Yes" : "No"}
+                    </Badge>
+                  </p>
                   <p>
                     <strong>{t("language")}:</strong>{" "}
                     {languageOptions.find((l) => l.value === imageSettings.language)?.label || imageSettings.language}

@@ -229,7 +229,7 @@ export default function SignUp() {
     defaultValues: {
       firstName: "",
       email: "",
-      countryCode: "+213", // Default to Algeria
+      countryCode: "+1", // Default to USA
       phoneNumber: "",
       password: "",
       confirmPassword: "",

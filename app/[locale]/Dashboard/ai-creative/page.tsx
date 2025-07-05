@@ -26,6 +26,12 @@ import { Play, X } from "lucide-react"
 
 
 
+// Declare the getDefaultImageSettings and getDefaultReelSettings function
+
+// Declare the getDefaultImageSettings and getDefaultReelSettings functions
+
+// Declare the getDefaultImageSettings and getDefaultReelSettings functions
+
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 
 const getDefaultImageSettings = (): any => {
@@ -36,6 +42,7 @@ const getDefaultImageSettings = (): any => {
     quality: "Ultra",
     language: "en",
     outputs: 1,
+    includeText: false, // Add the new field with default value
   }
 }
 
@@ -49,6 +56,7 @@ export interface Settings {
   outputs: number
   model: string
   language: string
+  includeText?: boolean // Add the new optional field
 }
 export interface ReelSettings {
   quality: string
@@ -310,6 +318,7 @@ export default function AICreativePage() {
           size: settingsForGeneration.aspectRatio || (typeToUse === "image" ? "1024x1024" : "1024x576"),
           type: typeToUse === "image" ? "image" : "video",
           language: settingsForGeneration.language || "en",
+          includeText: typeToUse === "image" ? settingsForGeneration.includeText : undefined, // Pass the includeText setting
         })
         console.log("rrr", result.data)
 

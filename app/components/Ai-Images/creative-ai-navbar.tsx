@@ -1,6 +1,7 @@
 "use client"
+
 import { useState, useEffect } from "react"
-import { Menu, X, Sparkles } from "lucide-react"
+import { Menu, X, Sparkles } from 'lucide-react'
 import LanguageSwitcher from "../LanguageSwitcher"
 import ThemeToggle from "../ThemeToggle"
 import { useTranslations } from "next-intl"
@@ -23,7 +24,6 @@ export function CreativeAINavbar() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
-
       const sections = navItems.map((item) => document.getElementById(item.sectionId))
       const scrollPosition = window.scrollY + 100
 
@@ -31,7 +31,6 @@ export function CreativeAINavbar() {
         if (section) {
           const sectionTop = section.offsetTop
           const sectionBottom = sectionTop + section.offsetHeight
-
           if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
             setActiveSection(navItems[index].sectionId)
           }
@@ -49,9 +48,7 @@ export function CreativeAINavbar() {
       const navbarHeight = 64
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
       const offsetPosition = elementPosition - navbarHeight
-
       setIsMenuOpen(false)
-
       setTimeout(() => {
         window.scrollTo({
           top: offsetPosition,
@@ -75,7 +72,8 @@ export function CreativeAINavbar() {
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
+          {/* Logo - Left Side */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
               <Sparkles className="text-white w-5 h-5" />
             </div>
@@ -84,51 +82,64 @@ export function CreativeAINavbar() {
             </span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <button
-                key={item.sectionId}
-                onClick={() => scrollToSection(item.sectionId)}
-                className={`text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors relative font-medium ${
-                  activeSection === item.sectionId ? "text-purple-600 dark:text-purple-400" : ""
-                }`}
-              >
-                {item.label}
-                {activeSection === item.sectionId && (
-                  <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full" />
-                )}
-              </button>
-            ))}
-            <div className="flex items-center gap-4">
-              <ThemeToggle />
-              <LanguageSwitcher />
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex items-center gap-8">
+              {navItems.map((item) => (
+                <button
+                  key={item.sectionId}
+                  onClick={() => scrollToSection(item.sectionId)}
+                  className={`text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors relative font-medium ${
+                    activeSection === item.sectionId ? "text-purple-600 dark:text-purple-400" : ""
+                  }`}
+                >
+                  {item.label}
+                  {activeSection === item.sectionId && (
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full" />
+                  )}
+                </button>
+              ))}
             </div>
-            <button
-              onClick={handleGetStarted}
-              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              {t("getStarted")}
-            </button>
           </div>
 
-          <div className="md:hidden flex items-center gap-4">
-            <ThemeToggle />
-            <LanguageSwitcher />
-            <button className="p-2" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
-              {isMenuOpen ? (
-                <X className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-              ) : (
-                <Menu className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-              )}
-            </button>
+          {/* Right Side Controls */}
+          <div className="flex items-center gap-4 flex-shrink-0">
+            {/* Desktop Controls */}
+            <div className="hidden md:flex items-center gap-4">
+              <ThemeToggle />
+              <LanguageSwitcher />
+              <button
+                onClick={handleGetStarted}
+                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                {t("getStarted")}
+              </button>
+            </div>
+
+            {/* Mobile Controls */}
+            <div className="md:hidden flex items-center gap-2">
+              <ThemeToggle />
+              <LanguageSwitcher />
+              <button 
+                className="p-2" 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? (
+                  <X className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                ) : (
+                  <Menu className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-x-0 top-16 bg-white dark:bg-gray-900 shadow-lg md:hidden ${
-          isMenuOpen ? "block" : "hidden"
+        className={`fixed inset-x-0 top-16 bg-white dark:bg-gray-900 shadow-lg md:hidden transition-all duration-300 ${
+          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         style={{ zIndex: 9999 }}
       >
