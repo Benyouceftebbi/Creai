@@ -1,10 +1,8 @@
 "use client"
+
 import { useState, useEffect } from "react"
 import type React from "react"
-
 import { ChevronLeft, ChevronRight, Sparkles, Zap } from "lucide-react"
-import { collection, getDocs } from "firebase/firestore"
-import { db } from "../../../firebase/firebase"
 import { useTranslations } from "next-intl"
 
 interface BeforeAfterItem {
@@ -14,6 +12,37 @@ interface BeforeAfterItem {
   prompt: string
   user: string
   category: string
+}
+
+// Generate items based on local folder structure
+const generateLocalItems = (): BeforeAfterItem[] => {
+  const items: BeforeAfterItem[] = []
+  const categories = [
+    "Fantasy",
+    "Portrait",
+    "Sci-Fi",
+    "Nature",
+    "Architecture",
+    "Art",
+    "Photography",
+    "Digital Art",
+    "Concept Art",
+    "Illustration",
+  ]
+
+  // Generate 10 items based on the folder structure
+  for (let i = 1; i <= 10; i++) {
+    items.push({
+      id: i.toString(),
+      beforeImage: `/images/before-after/${i}b.webp`,
+      afterImage: `/images/before-after/${i}.webp`,
+      prompt: `AI transformation ${i}`,
+      user: "Creative AI",
+      category: categories[(i - 1) % categories.length],
+    })
+  }
+
+  return items
 }
 
 const fallbackItems: BeforeAfterItem[] = [
@@ -52,37 +81,34 @@ export function BeforeAfterShowcase() {
   const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
-    const fetchBeforeAfterItems = async () => {
+    const loadLocalImages = async () => {
       setIsLoading(true)
       try {
-        const creativeAiCollectionRef = collection(db, "CreativeAi")
-        const querySnapshot = await getDocs(creativeAiCollectionRef)
-        const fetchedItems: BeforeAfterItem[] = []
+        // Generate items from local folder structure
+        const localItems = generateLocalItems()
 
-        querySnapshot.forEach((doc) => {
-          const data = doc.data()
-          if (data.beforeImage && data.image && data.prompt && data.user) {
-            fetchedItems.push({
-              id: doc.id,
-              beforeImage: data.beforeImage,
-              afterImage: data.image,
-              prompt: data.prompt,
-              user: data.user,
-              category: data.category || "General",
-            })
-          }
-        })
+        // Check if images exist by trying to load the first one
+        const testImage = new Image()
+        testImage.onload = () => {
+          setItems(localItems)
+          setIsLoading(false)
+        }
+        testImage.onerror = () => {
+          console.warn("Local images not found, using fallback items")
+          setItems(fallbackItems)
+          setIsLoading(false)
+        }
 
-        setItems(fetchedItems.length > 0 ? fetchedItems : fallbackItems)
+        // Test with the first image
+        testImage.src = localItems[0].beforeImage
       } catch (error) {
-        console.error("Error fetching before/after items:", error)
+        console.error("Error loading local images:", error)
         setItems(fallbackItems)
-      } finally {
         setIsLoading(false)
       }
     }
 
-    fetchBeforeAfterItems()
+    loadLocalImages()
   }, [])
 
   const handlePrevious = () => {
@@ -217,6 +243,11 @@ export function BeforeAfterShowcase() {
                 src={currentItem.afterImage || "/placeholder.svg"}
                 alt="After transformation"
                 className="absolute inset-0 w-full h-full object-contain bg-white dark:bg-gray-900"
+                onError={(e) => {
+                  // Fallback to placeholder if image fails to load
+                  const target = e.target as HTMLImageElement
+                  target.src = "/placeholder.svg?height=1024&width=1024&text=After"
+                }}
               />
 
               {/* Before Image with Clip Path (revealed on drag) */}
@@ -228,6 +259,11 @@ export function BeforeAfterShowcase() {
                   src={currentItem.beforeImage || "/placeholder.svg"}
                   alt="Before transformation"
                   className="w-full h-full object-contain bg-white dark:bg-gray-900"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    const target = e.target as HTMLImageElement
+                    target.src = "/placeholder.svg?height=1024&width=1024&text=Before"
+                  }}
                 />
               </div>
 
