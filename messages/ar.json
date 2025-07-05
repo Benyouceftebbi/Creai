@@ -1315,8 +1315,8 @@
   "creativeAi": {
      
     "createNew": "إنشاء جديد",
-    "imageCost": "صورة (100 رمز)",
-    "reelCost": "ريل (500 رمز)",
+    "imageCost": "صورة (150 رمز)",
+    "reelCost": "ريل (1500 رمز)",
     "review": "مراجعة",
     "refrenceImageReels": "صورة مرجعية للريلز",
     "uploadImageReel": "ارفع صورة لاستخدامها كمرجع لإنشاء الريل (اختياري)",
@@ -1434,7 +1434,7 @@
     "creativity": "الإبداع",
     "outputs": "مخرج",
     "outputs_plural": "مخرجات",
-    "createNewImage": "إنشاء صورة جديدة - 100 رمز",
+    "createNewImage": "إنشاء صورة جديدة - 150 رمز",
     "createNewReel": "إنشاء ريل جديد - 1000 رمز",
     "next": "التالي",
     "generate": "إنشاء",

@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState } from "react" // Added useState
-import { X, Video, ImageIcon, Heart, Clock } from "lucide-react"
+import { X, Video, ImageIcon, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "../types"
@@ -49,6 +48,7 @@ export function CreationDetailModal({
   // Removed: onNext, onPrevious, hasNext, hasPrevious
 }: CreationDetailModalProps) {
   const t = useTranslations("creativeAi")
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -96,7 +96,6 @@ export function CreationDetailModal({
           <source src={videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-
         {creation.duration && (
           <div className="absolute bottom-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm">
             {creation.duration}
@@ -112,15 +111,7 @@ export function CreationDetailModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
           <div className="flex items-center gap-3">
-            <ImageWithFallback
-              src={creation.avatar || "/placeholder.svg"}
-              alt={creation.user}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
-              fallbackText="U"
-              style={{ maxWidth: 40, maxHeight: 40 }}
-            />
             <div>
-              <h3 className="font-semibold text-sm sm:text-base">{creation.user}</h3>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Badge
                   variant="secondary"
@@ -135,10 +126,6 @@ export function CreationDetailModal({
                   )}
                   {creation.type === "reel" ? t("reel") : t("image")}
                 </Badge>
-                <div className="flex items-center gap-1">
-                  <Heart className="h-3 w-3 text-destructive" />
-                  <span>{creation.likes}</span>
-                </div>
                 {formattedCreationDate && (
                   <div className="hidden sm:flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -148,7 +135,6 @@ export function CreationDetailModal({
               </div>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             {/* Removed navigation buttons */}
             <Button variant="ghost" size="sm" onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -168,7 +154,6 @@ export function CreationDetailModal({
                     {t("before")}
                   </Badge>
                 </div>
-
                 <ImageWithFallback
                   src={creation.beforeImage || "/placeholder.svg"}
                   alt="Before"

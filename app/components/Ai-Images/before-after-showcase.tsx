@@ -212,21 +212,21 @@ export function BeforeAfterShowcase() {
             onTouchEnd={handleTouchEnd}
           >
             <div className="relative w-full h-full rounded-xl overflow-hidden">
-              {/* Before Image */}
+              {/* After Image (Base - always visible) */}
               <img
-                src={currentItem.beforeImage || "/placeholder.svg"}
-                alt="Before transformation"
+                src={currentItem.afterImage || "/placeholder.svg"}
+                alt="After transformation"
                 className="absolute inset-0 w-full h-full object-contain bg-white dark:bg-gray-900"
               />
 
-              {/* After Image with Clip Path */}
+              {/* Before Image with Clip Path (revealed on drag) */}
               <div
                 className="absolute inset-0 overflow-hidden"
                 style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
               >
                 <img
-                  src={currentItem.afterImage || "/placeholder.svg"}
-                  alt="After transformation"
+                  src={currentItem.beforeImage || "/placeholder.svg"}
+                  alt="Before transformation"
                   className="w-full h-full object-contain bg-white dark:bg-gray-900"
                 />
               </div>

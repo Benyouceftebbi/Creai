@@ -1339,8 +1339,8 @@
    "creativeAi": {
      
       "createNew": "Créer Nouveau",
-      "imageCost": "Image (100 TKN)",
-      "reelCost": "Reel (500 TKN)",
+      "imageCost": "Image (150 TKN)",
+      "reelCost": "Reel (1000 TKN)",
     
       "review": "Révision",
      
@@ -1461,7 +1461,7 @@
       "creativity": "Créativité",
       "outputs": "sortie",
       "outputs_plural": "sorties",
-      "createNewImage": "Créer une Nouvelle Image - 100 TKN",
+      "createNewImage": "Créer une Nouvelle Image - 150 TKN",
       "createNewReel": "Créer un Nouveau Reel - 1000 TKN",
       "next": "Suivant",
       "generate": "Générer",

@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { PricingPlans } from "./pricingPlans"
-import { Crown, X } from "lucide-react"
+import { Crown, X ,TicketPlus} from "lucide-react"
 
 interface PricingModalProps {
   isOpen: boolean
@@ -27,9 +27,9 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
         size="sm"
         
       >
-        <Crown className="h-4 w-4 " />
+        <TicketPlus className="h-4 w-4 " />
         <div className="ml-1 md:inline-block hidden">
-        TopUp
+        Power Up
         </div>
       </Button>
 

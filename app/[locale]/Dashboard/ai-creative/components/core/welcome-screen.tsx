@@ -1,26 +1,11 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react" // Added useState, useEffect
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "@/components/types"
-import {
-  ImageIcon,
-  Video,
-  Sparkles,
-  Users,
-  Eye,
-  Heart,
-  Loader2,
-  Play,
-  Zap,
-  Palette,
-  Wand2,
-  Star,
-  TrendingUp,
-} from "lucide-react"
+import { ImageIcon, Video, Sparkles, Users, Eye, Loader2, Play, Zap, Palette, Wand2, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 
@@ -77,6 +62,7 @@ export function WelcomeScreen({
   isLoadingInspirations,
 }: WelcomeScreenProps) {
   const t = useTranslations("creativeAi")
+
   return (
     <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 flex flex-col overflow-y-auto">
       {/* Header Section */}
@@ -97,7 +83,6 @@ export function WelcomeScreen({
         <div className="group bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-purple-100 dark:border-purple-900/50 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:scale-[1.02] animate-in fade-in slide-in-from-left-10 delay-300 duration-500 ease-out relative overflow-hidden">
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-900/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
-
           <div className="relative z-10">
             <div className="flex items-center mb-4 sm:mb-6">
               <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl mr-3 sm:mr-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -134,7 +119,6 @@ export function WelcomeScreen({
         <div className="group bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 hover:scale-[1.02] animate-in fade-in slide-in-from-right-10 delay-400 duration-500 ease-out relative overflow-hidden">
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-900/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
-
           <div className="relative z-10">
             <div className="flex items-center mb-4 sm:mb-6">
               <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl mr-3 sm:mr-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -179,6 +163,7 @@ export function WelcomeScreen({
             {t("communityInspirations")}
           </h2>
         </div>
+
         {isLoadingInspirations ? (
           <div className="flex justify-center items-center py-16 sm:py-20">
             <div className="text-center">
@@ -277,36 +262,9 @@ export function WelcomeScreen({
 
                 {/* Enhanced Card Footer */}
                 <div className="p-4 bg-gradient-to-br from-white/95 to-white/90 dark:from-slate-800/95 dark:to-slate-800/90 backdrop-blur-sm border-t border-gray-100/50 dark:border-slate-700/50">
-                  {/* User Info */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <ImageWithFallback
-                      src={creation.avatar || "/placeholder.svg"}
-                      alt={creation.user}
-                      className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-600 shadow-md"
-                      fallbackText="U"
-                      style={{ width: 32, height: 32 }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-bold text-gray-800 dark:text-slate-200 truncate block">
-                        {creation.user}
-                      </span>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
-                          Popular
-                        </span>
-                        {creation.createdAt && <span>{new Date(creation.createdAt).toLocaleDateString()}</span>}
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Stats Row */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1.5 text-sm text-red-500 font-medium">
-                        <Heart className="h-4 w-4 fill-current" />
-                        {(creation.likes || 0).toLocaleString()}
-                      </span>
                       {creation.settings?.quality && (
                         <Badge
                           variant="outline"
@@ -316,7 +274,6 @@ export function WelcomeScreen({
                         </Badge>
                       )}
                     </div>
-
                     {/* Model Info */}
                     {creation.settings?.model && (
                       <Badge

@@ -12,7 +12,7 @@ const plans = [
     gradient: "from-blue-500 to-cyan-600",
     features: [
       "2,400 tokens included",
-      "24 AI image generations OR 2 video creations",
+      "16 AI image generations OR 2 video creations",
       "Basic image enhancement",
       "Standard resolution output",
       "Email support",
@@ -28,7 +28,7 @@ const plans = [
     popular: true,
     features: [
       "7,200 tokens included",
-      "72 AI image generations OR 7 video creations",
+      "48 AI image generations OR 7 video creations",
       "Advanced editing tools",
       "High resolution output",
       "Priority support",
@@ -45,7 +45,7 @@ const plans = [
     gradient: "from-emerald-500 to-teal-600",
     features: [
       "19,200 tokens included",
-      "192 AI image generations OR 19 video creations",
+      "128 AI image generations OR 19 video creations",
       "All premium features",
       "Ultra-high resolution",
       "24/7 dedicated support",
@@ -118,7 +118,7 @@ export function CreativeAIPricing() {
                   {plan.credits.toLocaleString()} tokens
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {Math.floor(plan.credits / 100)} images or {Math.floor(plan.credits / 1200)} videos
+                  {Math.floor(plan.credits / 150)} images or {Math.floor(plan.credits / 1000)} videos
                 </p>
               </div>
             </div>
@@ -151,38 +151,39 @@ export function CreativeAIPricing() {
       </div>
 
       <div className="text-center mt-16">
-        <div className="bg-blue-50 dark:bg-gray-800/50 rounded-2xl p-6 mb-8 max-w-4xl mx-auto">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Token Usage Guide</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">AI Image Generation</p>
-                <p className="text-gray-600 dark:text-gray-400">100 tokens per image</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">AI Video Creation</p>
-                <p className="text-gray-600 dark:text-gray-400">1,200 tokens per video</p>
-              </div>
-            </div>
-          </div>
+  <div className="bg-blue-50 dark:bg-gray-800/50 rounded-2xl p-6 mb-8 max-w-4xl mx-auto">
+    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Token Usage Guide</h3>
+    <div className="flex flex-col md:flex-row justify-between gap-6 text-sm">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
         </div>
-
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          All plans include commercial licensing and priority support
-        </p>
-        <div className="inline-flex items-center gap-2 text-sm text-purple-600 dark:text-purple-400">
-          <Sparkles className="w-4 h-4" />
-          <span>30-day money-back guarantee</span>
+        <div>
+          <p className="font-medium text-gray-900 dark:text-white">AI Image Generation</p>
+          <p className="text-gray-600 dark:text-gray-400">150 tokens per image</p>
         </div>
       </div>
+      <div className="flex items-center gap-3 md:ml-auto">
+        <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+          <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+        </div>
+        <div>
+          <p className="font-medium text-gray-900 dark:text-white">AI Video Creation</p>
+          <p className="text-gray-600 dark:text-gray-400">1,000 tokens per video</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p className="text-gray-600 dark:text-gray-400 mb-4">
+    All plans include commercial licensing and priority support
+  </p>
+  <div className="inline-flex items-center gap-2 text-sm text-purple-600 dark:text-purple-400">
+    <Sparkles className="w-4 h-4" />
+    <span>30-day money-back guarantee</span>
+  </div>
+</div>
+
     </div>
   )
 }

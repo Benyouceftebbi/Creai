@@ -1,4 +1,5 @@
 "use client"
+
 import { CheckCircle2, Sparkles, Crown, Zap, Star } from "lucide-react"
 import { useState } from "react"
 import { useTranslations } from "next-intl"
@@ -18,7 +19,7 @@ const priceTiers = [
     tokens: "2,400",
     icon: Sparkles,
     color: "blue",
-    features: ["2,400 tokens included", "24 AI generations", "Basic enhancement", "Email support"],
+    features: ["2,400 tokens included", "16 AI images or 2 videos", "Basic enhancement", "Email support"],
   },
   {
     id: "price_1ffffVZG89v",
@@ -28,7 +29,7 @@ const priceTiers = [
     icon: Crown,
     color: "purple",
     popular: true,
-    features: ["7,200 tokens included", "72 AI generations", "Advanced tools", "Priority support"],
+    features: ["7,200 tokens included", "48 AI images or 7 videos", "Advanced tools", "Priority support"],
   },
   {
     id: "price_1RBKlXDIpjCcuDeHZJVZG89v",
@@ -37,7 +38,7 @@ const priceTiers = [
     tokens: "19,200",
     icon: Zap,
     color: "green",
-    features: ["19,200 tokens included", "192 AI generations", "All premium features", "24/7 support"],
+    features: ["19,200 tokens included", "128 AI images or 19 videos", "All premium features", "24/7 support"],
   },
 ]
 
@@ -68,6 +69,7 @@ export function PricingPlans({ className }: { className?: string }) {
       // Listen for the checkout session URL
       const unsubscribe = onSnapshot(docRef, (snap) => {
         const { error, url } = snap.data() || {}
+
         if (error) {
           toast({
             title: "Error",
@@ -77,6 +79,7 @@ export function PricingPlans({ className }: { className?: string }) {
           setLoadingStates((prev) => ({ ...prev, [planId]: false }))
           unsubscribe()
         }
+
         if (url) {
           window.location.assign(url)
           setLoadingStates((prev) => ({ ...prev, [planId]: false }))
@@ -143,9 +146,7 @@ export function PricingPlans({ className }: { className?: string }) {
                 >
                   <IconComponent className="w-5 h-5 text-white" />
                 </div>
-
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{tier.name}</h3>
-
                 <div className="flex items-baseline justify-center gap-1 mb-2">
                   <span
                     className={cn(
@@ -159,7 +160,6 @@ export function PricingPlans({ className }: { className?: string }) {
                   </span>
                   <span className="text-xs text-gray-600 dark:text-gray-400">+ VAT</span>
                 </div>
-
                 <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-2 mb-3">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">{tier.tokens} tokens</p>
                 </div>
@@ -211,11 +211,11 @@ export function PricingPlans({ className }: { className?: string }) {
         <div className="flex items-center justify-center gap-4 text-xs text-gray-600 dark:text-gray-400 mb-2">
           <div className="flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-blue-600" />
-            <span>100 tokens = 1 image</span>
+            <span>150 tokens = 1 image</span>
           </div>
           <div className="flex items-center gap-1">
             <Zap className="w-3 h-3 text-purple-600" />
-            <span>1,200 tokens = 1 video</span>
+            <span>1,000 tokens = 1 video</span>
           </div>
         </div>
         <div className="flex items-center justify-center gap-2 text-xs text-purple-600 dark:text-purple-400">

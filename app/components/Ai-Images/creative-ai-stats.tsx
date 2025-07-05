@@ -1,18 +1,18 @@
 "use client"
 import { useEffect, useState } from "react"
-import { TrendingUp, Users, Zap, Star } from "lucide-react"
+import { TrendingUp, Users, Zap, Star,Target } from "lucide-react"
 
 const stats = [
   {
     icon: TrendingUp,
-    number: "2M+",
-    label: "Images Generated",
+    number: "90%",
+    label: "Cheaper",
     gradient: "from-purple-500 to-indigo-600",
   },
   {
-    icon: Users,
-    number: "50K+",
-    label: "Active Creators",
+    icon: Target,
+    number: "99%",
+    label: "Pricised",
     gradient: "from-blue-500 to-cyan-600",
   },
   {
