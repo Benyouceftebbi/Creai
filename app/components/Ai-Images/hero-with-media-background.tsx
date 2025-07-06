@@ -8,6 +8,7 @@ import { collection, getDocs } from "firebase/firestore"
 import { db } from "../../../firebase/firebase"
 import { Sparkles, Brain, Zap, Target, ArrowRight, Pause } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useRouter } from "@/i18n/routing"
 
 interface MediaItem {
   id: string
@@ -39,6 +40,12 @@ const timestampToDate = (timestamp: any): Date => {
 }
 
 export function HeroWithMediaBackground() {
+  const router = useRouter()
+
+  const handleGetStarted = () => {
+    router.push("/Auth/SignIn")
+  }
+
   const t = useTranslations("creativeAii")
   const [mediaItems, setMediaItems] = useState<MediaItem[]>(PLACEHOLDER_ITEMS)
   const [isHovered, setIsHovered] = useState(false)
@@ -259,6 +266,7 @@ export function HeroWithMediaBackground() {
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                   <Button
                     size="lg"
+                    onClick={handleGetStarted}
                     className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-xl"
                   >
                     {t("tryItNow")}
