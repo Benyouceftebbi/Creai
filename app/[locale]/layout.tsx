@@ -22,8 +22,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Colitrack - Smart SMS and AI Automation for E-commerce',
-  description: 'Automate SMS notifications, connect with customers in real-time, and streamline your operations effortlessly.',
+title: 'CreativeAI – Instantly Generate Scroll-Stopping Ads with AI',
+description: 'Turn product photos into high-converting ad images and videos in seconds. Powered by AI. No design skills needed. Just upload, prompt, and launch.'
 };
 
 export default async function RootLayout({
