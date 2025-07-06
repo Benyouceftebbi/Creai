@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import type React from "react"
+
+import { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { collection, getDocs } from "firebase/firestore"
 import { db } from "../../../firebase/firebase"
 import { Sparkles, Brain, Zap, Target, ArrowRight, Pause } from "lucide-react"
-
 import { useTranslations } from "next-intl"
 
 interface MediaItem {
@@ -19,200 +20,15 @@ interface MediaItem {
   createdAt: Date
 }
 
-const fallbackMediaItems: MediaItem[] = [
-  {
-    id: "1",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Beautiful landscape",
-    createdAt: new Date(),
-  },
-  {
-    id: "2",
-    type: "reel",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Creative video",
-    createdAt: new Date(),
-  },
-  {
-    id: "3",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Abstract art",
-    createdAt: new Date(),
-  },
-  {
-    id: "4",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Digital painting",
-    createdAt: new Date(),
-  },
-  {
-    id: "5",
-    type: "reel",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Motion graphics",
-    createdAt: new Date(),
-  },
-  {
-    id: "6",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Portrait art",
-    createdAt: new Date(),
-  },
-  {
-    id: "7",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Fantasy scene",
-    createdAt: new Date(),
-  },
-  {
-    id: "8",
-    type: "reel",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Animation loop",
-    createdAt: new Date(),
-  },
-  {
-    id: "9",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Sci-fi concept",
-    createdAt: new Date(),
-  },
-  {
-    id: "10",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Nature photography",
-    createdAt: new Date(),
-  },
-  {
-    id: "11",
-    type: "reel",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Dynamic transition",
-    createdAt: new Date(),
-  },
-  {
-    id: "12",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Minimalist design",
-    createdAt: new Date(),
-  },
-  {
-    id: "13",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Vintage style",
-    createdAt: new Date(),
-  },
-  {
-    id: "14",
-    type: "reel",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Color explosion",
-    createdAt: new Date(),
-  },
-  {
-    id: "15",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Geometric patterns",
-    createdAt: new Date(),
-  },
-  {
-    id: "16",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Watercolor effect",
-    createdAt: new Date(),
-  },
-  {
-    id: "17",
-    type: "reel",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Particle system",
-    createdAt: new Date(),
-  },
-  {
-    id: "18",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Urban architecture",
-    createdAt: new Date(),
-  },
-  {
-    id: "19",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Ocean waves",
-    createdAt: new Date(),
-  },
-  {
-    id: "20",
-    type: "reel",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Light effects",
-    createdAt: new Date(),
-  },
-  {
-    id: "21",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Space exploration",
-    createdAt: new Date(),
-  },
-  {
-    id: "22",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Food photography",
-    createdAt: new Date(),
-  },
-  {
-    id: "23",
-    type: "reel",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Morphing shapes",
-    createdAt: new Date(),
-  },
-  {
-    id: "24",
-    type: "image",
-    image: "/placeholder.svg?height=300&width=300",
-    user: "AI Studio",
-    prompt: "Character design",
-    createdAt: new Date(),
-  },
-]
+// Memoized placeholder items creation - ALL 25 are images (no videos in local files)
+const PLACEHOLDER_ITEMS: MediaItem[] = Array.from({ length: 25 }, (_, i) => ({
+  id: `placeholder-${i + 1}`,
+  type: "image", // All local files are images
+  image: `/images/before-after/${i + 1}.webp`,
+  user: "AI Studio",
+  prompt: `Creative AI Generation ${i + 1}`,
+  createdAt: new Date(),
+}))
 
 // Utility function to convert Firestore timestamp to Date
 const timestampToDate = (timestamp: any): Date => {
@@ -224,23 +40,35 @@ const timestampToDate = (timestamp: any): Date => {
 
 export function HeroWithMediaBackground() {
   const t = useTranslations("creativeAii")
-
-  const [creativeAiItems, setCreativeAiItems] = useState<MediaItem[]>([])
-  const [creativeAiLoading, setCreativeAiLoading] = useState(true)
-  const [creativeAiError, setCreativeAiError] = useState<string | null>(null)
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>(PLACEHOLDER_ITEMS)
   const [isHovered, setIsHovered] = useState(false)
-  const [scrollPosition, setScrollPosition] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number>()
+  const scrollPositionRef = useRef(0)
 
-  // Fetch data from Firebase
+  // Memoize duplicated items to avoid recreation on every render
+  const duplicatedMediaItems = useMemo(() => {
+    return [...mediaItems, ...mediaItems, ...mediaItems]
+  }, [mediaItems])
+
+  // Memoize stats calculations
+  const stats = useMemo(() => {
+    const totalImages = mediaItems.length * 10
+    const totalReels = mediaItems.filter((item) => item.type === "reel").length * 5
+    return { totalImages, totalReels }
+  }, [mediaItems])
+
+  // Optimized Firebase fetch with better error handling
   useEffect(() => {
+    let isMounted = true
+
     const fetchCreativeAiInspirations = async () => {
-      setCreativeAiLoading(true)
-      setCreativeAiError(null)
       try {
         const creativeAiCollectionRef = collection(db, "CreativeAi")
         const querySnapshot = await getDocs(creativeAiCollectionRef)
+
+        if (!isMounted) return
+
         const fetchedItems: MediaItem[] = []
         querySnapshot.forEach((doc) => {
           const data = doc.data()
@@ -251,50 +79,48 @@ export function HeroWithMediaBackground() {
               beforeImage: data.beforeImage as string | undefined,
               user: data.user as string,
               prompt: data.prompt as string,
-              type: data.type as "image" | "reel",
+              type: data.type as "image" | "reel", // Firebase data can contain both images and videos
               duration: data.duration as string | undefined,
               createdAt: data.createdAt ? timestampToDate(data.createdAt) : new Date(),
             })
           }
         })
-        setCreativeAiItems(fetchedItems)
+
+        if (fetchedItems.length > 0 && isMounted) {
+          // Use functional update to avoid stale closure
+          setMediaItems((prevItems) => [...prevItems, ...fetchedItems])
+        }
       } catch (error) {
         console.error("Error fetching CreativeAI inspirations:", error)
-        setCreativeAiError("Could not load community inspirations.")
-      } finally {
-        setCreativeAiLoading(false)
       }
     }
-    fetchCreativeAiInspirations()
+
+    // Add small delay to not block initial render
+    const timeoutId = setTimeout(fetchCreativeAiInspirations, 100)
+
+    return () => {
+      isMounted = false
+      clearTimeout(timeoutId)
+    }
   }, [])
 
-  // Use creativeAiItems if available, otherwise fallback to placeholder items
-  const mediaItems =
-    creativeAiItems && Array.isArray(creativeAiItems) && creativeAiItems.length > 0
-      ? creativeAiItems
-      : fallbackMediaItems
-
-  // Duplicate media items for infinite scroll
-  const duplicatedMediaItems = [...mediaItems, ...mediaItems, ...mediaItems]
-
+  // Optimized animation with better performance
   useEffect(() => {
+    if (!containerRef.current) return
+
+    const container = containerRef.current
+    const itemHeight = 212 // 200px + 12px gap
+    const totalOriginalHeight = Math.ceil(mediaItems.length / 3) * itemHeight
+
     const animate = () => {
-      if (!isHovered && containerRef.current) {
-        setScrollPosition((prev) => {
-          const container = containerRef.current!
-          const itemHeight = 200 + 12 // Smaller item height for mobile + gap
-          const totalOriginalHeight = Math.ceil(mediaItems.length / 3) * itemHeight // Mobile has 3 columns
-          const newPosition = prev + 1.5 // Slightly slower scroll for mobile
+      if (!isHovered && container) {
+        scrollPositionRef.current += 1.5
 
-          // Reset position when we've scrolled through one complete set
-          if (newPosition >= totalOriginalHeight) {
-            container.scrollTop = 0
-            return 0
-          }
+        if (scrollPositionRef.current >= totalOriginalHeight) {
+          scrollPositionRef.current = 0
+        }
 
-          container.scrollTop = newPosition
-          return newPosition
-        })
+        container.scrollTop = scrollPositionRef.current
       }
       animationRef.current = requestAnimationFrame(animate)
     }
@@ -308,17 +134,47 @@ export function HeroWithMediaBackground() {
     }
   }, [isHovered, mediaItems.length])
 
-  const handleMouseEnter = () => {
+  // Memoized event handlers
+  const handleMouseEnter = useCallback(() => {
     setIsHovered(true)
-  }
+  }, [])
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setIsHovered(false)
-  }
+  }, [])
+
+  // Optimized error handler for images
+  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement
+    target.src =
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%233B82F6;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%239333EA;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23grad)' /%3E%3Ctext x='50%25' y='50%25' dominantBaseline='middle' textAnchor='middle' fill='white' fontSize='12' opacity='0.5'%3EAI%3C/text%3E%3C/svg%3E"
+  }, [])
+
+  // Optimized error handler for videos
+  const handleVideoError = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const target = e.target as HTMLVideoElement
+    const container = target.parentElement
+    if (container) {
+      container.innerHTML = `
+        <div class="relative w-full h-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+          <div class="w-6 h-6 sm:w-8 sm:h-8 bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <div class="w-0 h-0 border-l-[4px] sm:border-l-[6px] border-l-white border-y-[3px] sm:border-y-[4px] border-y-transparent ml-0.5"></div>
+          </div>
+        </div>
+      `
+    }
+  }, [])
 
   return (
     <div className="relative">
-      {/* Available Now Badge - Mobile optimized */}
+      {/* Preload critical local images - these load immediately */}
+      <link rel="preload" href="/images/before-after/1.webp" as="image" />
+      <link rel="preload" href="/images/before-after/2.webp" as="image" />
+      <link rel="preload" href="/images/before-after/3.webp" as="image" />
+      <link rel="preload" href="/images/before-after/4.webp" as="image" />
+      <link rel="preload" href="/images/before-after/5.webp" as="image" />
+
+      {/* Available Now Badge */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30">
         <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium shadow-lg">
           <Sparkles size={14} className="sm:w-4 sm:h-4" />
@@ -330,46 +186,38 @@ export function HeroWithMediaBackground() {
         {/* Background Media Showcase */}
         <div
           ref={containerRef}
-          className="absolute inset-0 overflow-hidden"
+          className="absolute inset-0 overflow-hidden will-change-scroll"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          {/* Media Grid - Mobile optimized */}
+          {/* Media Grid */}
           <div className="p-2 sm:p-4">
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-4">
               {duplicatedMediaItems.map((item, index) => (
                 <div
                   key={`${item.id}-${index}`}
-                  className="aspect-square overflow-hidden rounded-md sm:rounded-lg shadow-md sm:shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="aspect-square overflow-hidden rounded-md sm:rounded-lg shadow-md sm:shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 will-change-transform"
                 >
                   {item.type === "image" ? (
                     <img
                       src={item.image || "/placeholder.svg"}
                       alt={item.prompt || t("aiGeneratedContent")}
                       className="w-full h-full object-cover"
+                      loading={index < 25 ? "eager" : "lazy"} // Load first 25 (local images) eagerly
+                      decoding="async"
+                      onError={handleImageError}
                     />
                   ) : (
+                    // Videos only appear when Firebase data loads
                     <video
                       src={item.image}
                       autoPlay
                       muted
                       loop
                       playsInline
+                      preload="metadata" // Videos from Firebase - load metadata only
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to placeholder if video fails to load
-                        const target = e.target as HTMLVideoElement
-                        target.style.display = "none"
-                        const fallbackDiv = document.createElement("div")
-                        fallbackDiv.className =
-                          "relative w-full h-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center"
-                        fallbackDiv.innerHTML = `
-                          <div class="w-6 h-6 sm:w-8 sm:h-8 bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm">
-                            <div class="w-0 h-0 border-l-[4px] sm:border-l-[6px] border-l-white border-y-[3px] sm:border-y-[4px] border-y-transparent ml-0.5"></div>
-                          </div>
-                        `
-                        target.parentNode?.appendChild(fallbackDiv)
-                      }}
+                      onError={handleVideoError}
                     />
                   )}
                 </div>
@@ -378,10 +226,10 @@ export function HeroWithMediaBackground() {
           </div>
         </div>
 
-        {/* Dark Overlay for Text Readability */}
+        {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/60 sm:bg-black/50 dark:bg-black/75 dark:sm:bg-black/70" />
 
-        {/* Pause Overlay - Mobile optimized */}
+        {/* Pause Overlay */}
         {isHovered && (
           <div className="absolute top-16 sm:top-20 left-4 sm:left-6 z-20 bg-black/80 dark:bg-white/90 text-white dark:text-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-full flex items-center gap-2 backdrop-blur-sm">
             <Pause size={14} className="sm:w-4 sm:h-4" />
@@ -389,10 +237,9 @@ export function HeroWithMediaBackground() {
           </div>
         )}
 
-        {/* Hero Content - Mobile optimized */}
+        {/* Hero Content */}
         <div className="relative z-10 h-full flex items-center justify-center px-4 sm:px-6">
           <div className="max-w-7xl mx-auto w-full">
-            {/* Main Content */}
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               {/* Left Column - Text Content */}
               <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
@@ -403,7 +250,6 @@ export function HeroWithMediaBackground() {
                       {t("creativeStudio")}
                     </span>
                   </h1>
-
                   <p className="text-base sm:text-lg lg:text-xl text-gray-200 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                     {t("description")}
                   </p>
@@ -420,17 +266,17 @@ export function HeroWithMediaBackground() {
                   </Button>
                 </div>
 
-                {/* Stats - Mobile optimized */}
+                {/* Stats - Updated to reflect the content structure */}
                 <div className="flex flex-wrap gap-4 sm:gap-8 pt-6 sm:pt-8 border-t border-white/20 dark:border-gray-300/20 justify-center lg:justify-start">
                   <div className="text-center lg:text-left">
                     <div className="text-xl sm:text-2xl font-bold text-white dark:text-gray-100">
-                      {creativeAiLoading ? "..." : `${mediaItems.length * 10}+`}
+                      {stats.totalImages}+
                     </div>
                     <div className="text-xs sm:text-sm text-gray-300 dark:text-gray-400">{t("imagesGenerated")}</div>
                   </div>
                   <div className="text-center lg:text-left">
                     <div className="text-xl sm:text-2xl font-bold text-white dark:text-gray-100">
-                      {creativeAiLoading ? "..." : `${mediaItems.filter((item) => item.type === "reel").length * 5}+`}
+                      {stats.totalReels > 0 ? `${stats.totalReels}+` : "Coming Soon"}
                     </div>
                     <div className="text-xs sm:text-sm text-gray-300 dark:text-gray-400">{t("reelPreviews")}</div>
                   </div>
@@ -441,7 +287,7 @@ export function HeroWithMediaBackground() {
                 </div>
               </div>
 
-              {/* Right Column - Features - Hidden on mobile, shown on lg+ */}
+              {/* Right Column - Features */}
               <div className="hidden lg:block space-y-6">
                 <div className="bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-2xl p-6 border border-white/20 dark:border-white/10 hover:bg-white/15 dark:hover:bg-black/30 transition-all">
                   <div className="flex items-start gap-4">
