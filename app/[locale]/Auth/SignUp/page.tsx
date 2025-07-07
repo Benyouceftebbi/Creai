@@ -235,7 +235,7 @@ export default function SignUp() {
       confirmPassword: "",
       terms: false,
       promoCode: "",
-      tokens: 50,
+      tokens: 200,
     },
   })
 
@@ -549,7 +549,7 @@ export default function SignUp() {
                 </div>
 
                 {/* Promo Code Section */}
-                <div className="bg-indigo-50 dark:bg-gray-700 p-4 rounded-lg">
+              {/* <div className="bg-indigo-50 dark:bg-gray-700 p-4 rounded-lg">
                   <h3 className="text-sm font-medium text-indigo-800 dark:text-indigo-200 mb-2">
                     {t("promoCodeSectionTitle")}
                   </h3>
@@ -601,7 +601,7 @@ export default function SignUp() {
                       </FormItem>
                     )}
                   />
-                </div>
+                </div> */} 
 
                 {/* Terms and Conditions */}
                 <FormField

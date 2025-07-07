@@ -22,7 +22,7 @@ const priceTiers = [
     features: ["2,400 tokens included", "16 AI images or 2 videos", "Basic enhancement", "Email support"],
   },
   {
-    id: "price_1ffffVZG89v",
+    id: "price_1RhcwFDIpjCcuDeHBBAjUQlq",
     name: "Pro",
     price: 30,
     tokens: "7,200",

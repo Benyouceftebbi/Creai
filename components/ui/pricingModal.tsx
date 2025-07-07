@@ -28,8 +28,8 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
         
       >
         <TicketPlus className="h-4 w-4 " />
-        <div className="ml-1 md:inline-block hidden">
-        Power Up
+        <div className="ml-1 md:inline-block ">
+       Top Up
         </div>
       </Button>
 
