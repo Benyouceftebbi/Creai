@@ -18,6 +18,7 @@ import { ImageViewerModal } from "./components/modals/image-viewer-modal"
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 import { useTranslations } from "next-intl"
 import { Play, X } from "lucide-react"
+import { ConversionModal } from "@/app/components/Conversion-modal"
 
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 
@@ -117,6 +118,7 @@ const sampleInspirationItems: CreationDetail[] = [
 
 export default function AICreativePage() {
   const { creativeAiItems, creativeAiLoading, setShopData } = useShop()
+    const [showModal, setShowModal] = useState(false)
   const [currentView, setCurrentView] = useState<"welcome" | "output">("welcome")
   const [activeMode, setActiveMode] = useState<CreativeMode>("image")
   const [currentGenerationType, setCurrentGenerationType] = useState<"image" | "reel" | null>(null)
@@ -144,7 +146,14 @@ export default function AICreativePage() {
   // Google Drive direct video link - replace with your video ID
   const videoId = "1igoCOn1TvALIcksn9nthVLbbdWk7lGiS"
   const videoUrl = `https://www.youtube.com/embed/MoUSV-pg7ow`
+useEffect(() => {
+    // Show modal immediately when dashboard loads
+    const timer = setTimeout(() => {
+      setShowModal(true)
+    }, 500) // Small delay for better UX
 
+    return () => clearTimeout(timer)
+  }, [])
   // Enhanced auto-animate video button every 5 seconds with impressive hover-like effects
   useEffect(() => {
     const interval = setInterval(() => {
@@ -748,6 +757,8 @@ export default function AICreativePage() {
         />
       )}
       {isPricingModalOpen && <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />}
+              <ConversionModal isOpen={showModal} onClose={() => setShowModal(false)} />
+
       <Toaster />
     </div>
   )
