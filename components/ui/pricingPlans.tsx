@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle2, Sparkles, Crown, Zap, Star } from "lucide-react"
+import { CheckCircle2, Sparkles, Crown, Zap, Star, Rocket } from "lucide-react"
 import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { useShop } from "@/app/context/ShopContext"
@@ -12,6 +12,15 @@ import { cn } from "@/lib/utils"
 
 // Define the 3 simple price tiers
 const priceTiers = [
+   {
+    id: "price_1RiC4CDIpjCcuDeHuXfGFxyq",
+    name:  "Launch",
+    price: 5,
+    tokens: "1,200",
+  icon: Rocket, // You can import from lucide-react
+  color: "cyan", // Stands out visually but still soft
+    features: ["1,200 tokens included", "8 AI images or 1 videos", "Basic enhancement", "Email support"],
+  },
   {
     id: "price_1RBKk5DIpjCcuDeHpQhOI8gB",
     name: "Starter",
@@ -110,7 +119,7 @@ export function PricingPlans({ className }: { className?: string }) {
       </div>
 
       {/* Compact Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
         {priceTiers.map((tier, index) => {
           const IconComponent = tier.icon
           return (
@@ -141,6 +150,7 @@ export function PricingPlans({ className }: { className?: string }) {
                     tier.color === "blue" && "bg-gradient-to-br from-blue-500 to-cyan-600",
                     tier.color === "purple" && "bg-gradient-to-br from-purple-500 to-pink-600",
                     tier.color === "green" && "bg-gradient-to-br from-emerald-500 to-teal-600",
+                    tier.color === "cyan" && "bg-gradient-to-br from-sky-400 to-cyan-600",
                     hoveredTier === index && "scale-110",
                   )}
                 >
@@ -154,6 +164,7 @@ export function PricingPlans({ className }: { className?: string }) {
                       tier.color === "blue" && "from-blue-500 to-cyan-600",
                       tier.color === "purple" && "from-purple-500 to-pink-600",
                       tier.color === "green" && "from-emerald-500 to-teal-600",
+                        tier.color === "cyan" && "from-sky-400 to-cyan-600",
                     )}
                   >
                     ${tier.price}
@@ -175,6 +186,7 @@ export function PricingPlans({ className }: { className?: string }) {
                         tier.color === "blue" && "bg-gradient-to-br from-blue-500 to-cyan-600",
                         tier.color === "purple" && "bg-gradient-to-br from-purple-500 to-pink-600",
                         tier.color === "green" && "bg-gradient-to-br from-emerald-500 to-teal-600",
+                        tier.color === "cyan" && "bg-gradient-to-br from-sky-400 to-cyan-600"
                       )}
                     >
                       <CheckCircle2 className="w-2.5 h-2.5 text-white" />
@@ -185,22 +197,24 @@ export function PricingPlans({ className }: { className?: string }) {
               </ul>
 
               {/* Compact CTA Button */}
-              <LoadingButton
-                onClick={() => createCheckoutSession(tier.id)}
-                loading={loadingStates[tier.id] || false}
-                className={cn(
-                  "w-full py-2.5 px-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 text-sm",
-                  tier.popular
-                    ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
-                    : tier.color === "blue"
-                      ? "bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-md"
-                      : tier.color === "green"
-                        ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600",
-                )}
-              >
-                Get Started
-              </LoadingButton>
+  <LoadingButton
+  onClick={() => createCheckoutSession(tier.id)}
+  loading={loadingStates[tier.id] || false}
+  className={cn(
+    "w-full py-2.5 px-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 text-sm",
+    tier.popular
+      ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
+      : tier.color === "blue"
+        ? "bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-md"
+      : tier.color === "green"
+        ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md"
+      : tier.color === "cyan"
+        ? "bg-gradient-to-r from-sky-400 to-cyan-600 hover:from-sky-500 hover:to-cyan-700 text-white shadow-md"
+      : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600",
+  )}
+>
+  Get Started
+</LoadingButton>
             </div>
           )
         })}

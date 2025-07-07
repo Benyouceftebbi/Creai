@@ -8,7 +8,7 @@ import { LoadingOverlay } from "../Auth/SignUp/page";
 import React from "react";
 import TopHeader from "@/components/ui/navigation/TopHeader";
 import { ShopProvider} from "@/app/context/ShopContext";
-import { WhatsAppSupport } from "@/app/components/WhatsappButton";
+import { AbridAIChat } from "@/app/components/WhatsappButton";
 
 export default function DashboardLayout({
   children,
@@ -44,10 +44,7 @@ export default function DashboardLayout({
       </main>
 
           {/* WhatsApp Support Button */}
-      <WhatsAppSupport
-        phoneNumber="+213561041724" // Replace with your actual WhatsApp number
-        message="Hi! I need help with your SaaS platform. Can you assist me?"
-      />
+  <AbridAIChat/>
       </ShopProvider>
 
 
