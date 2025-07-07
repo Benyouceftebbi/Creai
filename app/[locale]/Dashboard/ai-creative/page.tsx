@@ -19,13 +19,9 @@ import { ImageViewerModal } from "./components/modals/image-viewer-modal"
 import { useTranslations } from "next-intl"
 import { Play, X } from "lucide-react"
 import { ConversionModal } from "@/app/components/Conversion-modal"
+import { RatingModal } from "./components/ui/rating-modal"
 
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
-
-
-// Declare the getDefaultImageSettings and getDefaultReelSettings functions
-
-
 
 // Declare the getDefaultImageSettings and getDefaultReelSettings function
 
@@ -118,13 +114,14 @@ const sampleInspirationItems: CreationDetail[] = [
 
 export default function AICreativePage() {
   const { creativeAiItems, creativeAiLoading, setShopData } = useShop()
-    const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [currentView, setCurrentView] = useState<"welcome" | "output">("welcome")
   const [activeMode, setActiveMode] = useState<CreativeMode>("image")
   const [currentGenerationType, setCurrentGenerationType] = useState<"image" | "reel" | null>(null)
   const [pendingImageId, setPendingImageId] = useState<string | null>(null)
   const { shopData } = useShop()
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false)
 
   // Video player state
   const [isVideoOpen, setIsVideoOpen] = useState(false)
@@ -146,7 +143,8 @@ export default function AICreativePage() {
   // Google Drive direct video link - replace with your video ID
   const videoId = "1igoCOn1TvALIcksn9nthVLbbdWk7lGiS"
   const videoUrl = `https://www.youtube.com/embed/MoUSV-pg7ow`
-useEffect(() => {
+
+  useEffect(() => {
     // Show modal immediately when dashboard loads
     const timer = setTimeout(() => {
       setShowModal(true)
@@ -177,6 +175,28 @@ useEffect(() => {
     }
   }, [isVideoOpen])
 
+  // Track when image viewer is opened and show rating modal after 4 seconds
+  const [generatedItemViewerData, setGeneratedItemViewerData] = useState<{ image: string; index: number } | null>(null)
+  const [historyViewerData, setHistoryViewerData] = useState<{
+    images: string[]
+    prompt: string
+    createdAt: Date | undefined
+    type: "image" | "reel"
+    productUrl?: string
+  } | null>(null)
+  const [historyViewerIndex, setHistoryViewerIndex] = useState<number>(0)
+
+  // Show rating modal 4 seconds after opening image viewer
+  useEffect(() => {
+    if (generatedItemViewerData || historyViewerData) {
+      const timer = setTimeout(() => {
+        setIsRatingModalOpen(true)
+      }, 4000) // 4 seconds after opening image viewer
+
+      return () => clearTimeout(timer)
+    }
+  }, [generatedItemViewerData, historyViewerData])
+
   useEffect(() => {
     if (shopData.imageAi) {
       const transformedHistory = shopData.imageAi.map((item: any) => ({
@@ -203,15 +223,6 @@ useEffect(() => {
   )
 
   const [selectedInspiration, setSelectedInspiration] = useState<CreationDetail | null>(null)
-  const [generatedItemViewerData, setGeneratedItemViewerData] = useState<{ image: string; index: number } | null>(null)
-  const [historyViewerData, setHistoryViewerData] = useState<{
-    images: string[]
-    prompt: string
-    createdAt: Date | undefined
-    type: "image" | "reel"
-    productUrl?: string
-  } | null>(null)
-  const [historyViewerIndex, setHistoryViewerIndex] = useState<number>(0)
 
   const handleStartCreation = useCallback((type: "image" | "reel") => {
     setCurrentGenerationType(type)
@@ -756,9 +767,11 @@ useEffect(() => {
           onDownloadFile={downloadFile}
         />
       )}
-      {isPricingModalOpen && <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />}
-              <ConversionModal isOpen={showModal} onClose={() => setShowModal(false)} />
 
+      {isPricingModalOpen && <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />}
+
+      <RatingModal isOpen={isRatingModalOpen} onClose={() => setIsRatingModalOpen(false)} />
+      <ConversionModal isOpen={showModal} onClose={() => setShowModal(false)} />
       <Toaster />
     </div>
   )
