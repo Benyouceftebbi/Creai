@@ -8,44 +8,24 @@ export function CreativeAIFooter() {
       links: [
         { label: "Features", href: "#features" },
         { label: "Pricing", href: "#pricing" },
-        { label: "API", href: "#" },
+       
         { label: "Showcase", href: "#showcase" },
       ],
     },
-    {
-      title: "Resources",
-      links: [
-        { label: "Documentation", href: "#" },
-        { label: "Tutorials", href: "#" },
-        { label: "Blog", href: "#" },
-        { label: "Community", href: "#" },
-      ],
-    },
-    {
-      title: "Company",
-      links: [
-        { label: "About", href: "#" },
-        { label: "Careers", href: "#" },
-        { label: "Contact", href: "#" },
-        { label: "Press", href: "#" },
-      ],
-    },
+
     {
       title: "Legal",
       links: [
-        { label: "Privacy Policy", href: "#" },
-        { label: "Terms of Service", href: "#" },
-        { label: "Cookie Policy", href: "#" },
-        { label: "GDPR", href: "#" },
+        { label: "Privacy Policy", href: "https://abridai.com/en/Auth/SignUp" },
+        { label: "Terms of Service", href: "https://abridai.com/en/Auth/SignUp" },
       ],
     },
   ]
 
   const socialLinks = [
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Github, href: "#", label: "GitHub" },
-    { icon: Mail, href: "#", label: "Email" },
+
+    { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/abrid_ai/" },
+    { icon: Mail,  href: "mailto:team@abridai.com", label: "Email" },
   ]
 
   return (
