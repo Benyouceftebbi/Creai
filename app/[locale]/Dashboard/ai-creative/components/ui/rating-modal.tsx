@@ -179,9 +179,7 @@ const handleRatingSubmit = async () => {
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto shadow-lg transform -rotate-3">
               <Crown className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-sm" />
             </div>
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-md">
-              <span className="text-xs">🔥</span>
-            </div>
+
           </div>
           <div className="space-y-1">
             <h3 className="text-lg sm:text-2xl font-black text-slate-800 dark:text-white leading-tight">
@@ -192,7 +190,7 @@ const handleRatingSubmit = async () => {
               </span>
             </h3>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
-              Let's unlock <span className="font-bold text-purple-600">3 more styles</span> — just for today
+              Let's unlock <span className="font-bold text-purple-600">20 more immages</span> — just for today
             </p>
           </div>
         </div>
@@ -261,7 +259,9 @@ const handleRatingSubmit = async () => {
             </div>
           </div>
         </div>
-
+ <p className="text-center text-xs italic text-slate-500 dark:text-slate-400">
+        Offer expires when you close this popup
+          </p>
         {/* Compact CTA */}
         <div className="space-y-2">
           <LoadingButton
@@ -362,8 +362,9 @@ const handleRatingSubmit = async () => {
           </div>
         </div>
 
-
-
+ <p className="text-center text-xs italic text-slate-500 dark:text-slate-400">
+        Offer expires when you close this popup
+          </p>
         {/* Compact Guarantee */}
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-2">
           <div className="flex items-center justify-center gap-2">
