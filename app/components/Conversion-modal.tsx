@@ -14,32 +14,33 @@ interface ConversionModalProps {
 
 export function ConversionModal({ isOpen, onClose, handleStartCreation }: ConversionModalProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
-    const successStories = [
+
+  const successStories = [
     {
       id: 1,
-      productImage: "/images/image1.webp",
-      adImage: "/images/image2.webp",
+      productImage: "/images/image1.webp?height=320&width=240",
+      adImage: "/images/image2.webp?height=320&width=240",
       conversionRate: "12.4%",
       orders: 100,
-      timeSaved: "$100",
+      moneySaved: "100",
       improvement: "+340%",
     },
     {
       id: 2,
-      productImage: "/images/image4.webp",
-      adImage: "/images/image3.webp",
+      productImage: "/images/image4.webp?height=320&width=240",
+      adImage: "/images/image3.webp?height=320&width=240",
       conversionRate: "8.7%",
       orders: 80,
-     timeSaved: "$100",
+      moneySaved: "100",
       improvement: "+280%",
     },
     {
       id: 3,
-      productImage: "/images/image5.webp",
-      adImage: "/images/image6.webp",
+      productImage: "/images/image5.webp?height=320&width=240",
+      adImage: "/images/image6.webp?height=320&width=240",
       conversionRate: "15.2%",
       orders: 90,
-  timeSaved: "$100",
+      moneySaved: "100",
       improvement: "+420%",
     },
   ]
@@ -63,7 +64,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl w-[95vw] md:w-full max-h-[95vh] md:max-h-[90vh] p-0 overflow-hidden bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-purple-950 dark:via-slate-900 dark:to-blue-950 border-0 md:border">
+      <DialogContent className="max-w-6xl w-[95vw] md:w-full max-h-[90vh] md:max-h-[90vh] p-0 overflow-hidden bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-purple-950 dark:via-slate-900 dark:to-blue-950 border-0 md:border">
         <div className="relative h-full max-h-[95vh] md:max-h-[90vh] flex flex-col">
           {/* Close button */}
           <button
@@ -74,7 +75,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
           </button>
 
           {/* Header - Compact on mobile */}
-          <div className="flex-shrink-0 text-center pt-10 pb-2 md:pt-8 md:pb-6 px-4 md:px-8">
+          <div className="flex-shrink-0 text-center pt-8 pb-2 md:pt-8 md:pb-6 px-4 md:px-8">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium mb-2 md:mb-4 animate-pulse">
               <Sparkles className="h-3 w-3 md:h-4 md:w-4" />
               AI-Powered Success Stories
@@ -88,7 +89,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
           </div>
 
           {/* Main content - No scroll on mobile */}
-          <div className="flex-1 px-3 md:px-8 overflow-hidden">
+          <div className="flex-1 px-3 md:px-8 overflow-y-auto">
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-3 md:p-8 h-full">
               {/* Mobile Layout - Stacked efficiently */}
               <div className="md:hidden h-full flex flex-col">
@@ -111,7 +112,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
                           <img
                             src={successStories[currentSlide].productImage || "/placeholder.svg"}
                             alt="Original product"
-                            className="w-full h-48 object-cover rounded-lg border-2 border-slate-200 dark:border-slate-600"
+                            className="w-full h-40 object-cover rounded-lg border-2 border-slate-200 dark:border-slate-600"
                           />
                         </div>
                       </div>
@@ -124,7 +125,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
                           <img
                             src={successStories[currentSlide].adImage || "/placeholder.svg"}
                             alt="AI generated ad"
-                            className="w-full h-48 object-cover rounded-lg border-2 border-purple-200 dark:border-purple-400 shadow-lg"
+                            className="w-full h-40 object-cover rounded-lg border-2 border-purple-200 dark:border-purple-400 shadow-lg"
                           />
                           <div className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full p-0.5">
                             <TrendingUp className="h-2 w-2" />
@@ -132,8 +133,8 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
                         </div>
                       </div>
                     </div>
-                    {/* Navigation arrows */}
-             <button
+                    {/* Navigation arrows - Bigger on mobile */}
+                    <button
                       onClick={prevSlide}
                       className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white dark:bg-slate-700 rounded-full p-2 md:p-1 shadow-lg text-slate-900 dark:text-slate-100 text-lg md:text-base"
                     >
@@ -181,19 +182,19 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-2 rounded-lg border border-purple-200 dark:border-purple-700">
                       <div className="text-center">
                         <div className="text-lg font-bold text-purple-700 dark:text-purple-400">
-                          {successStories[currentSlide].timeSaved}
+                          ${successStories[currentSlide].moneySaved}
                         </div>
-                        <div className="text-xs text-purple-600 dark:text-purple-300">Money Saved</div>
+                        <div className="text-xs text-purple-600 dark:text-purple-300">$ Saved</div>
                       </div>
                     </div>
                   </div>
-                  {/* Slide indicators */}
+                  {/* Slide indicators - Bigger on mobile */}
                   <div className="flex justify-center gap-2">
                     {successStories.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentSlide(index)}
-                        className={`w-2 h-2 rounded-full transition-colors ${
+                        className={`w-3 h-3 md:w-2 md:h-2 rounded-full transition-colors ${
                           index === currentSlide ? "bg-purple-600" : "bg-slate-300 dark:bg-slate-600"
                         }`}
                       />
@@ -275,7 +276,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
 
                 {/* Right side - Stats and CTA */}
                 <div className="flex flex-col">
-                  <div className="flex-1 space-y-4">
+                  <div className="flex-1 space-y-4 overflow-y-auto">
                     <div className="text-center">
                       <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Incredible Results</h3>
                     </div>
@@ -307,7 +308,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
                       <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-xl border border-purple-200 dark:border-purple-700 col-span-2">
                         <div className="text-center">
                           <div className="text-3xl font-bold text-purple-700 dark:text-purple-400">
-                            {successStories[currentSlide].timeSaved}
+                            ${successStories[currentSlide].moneySaved} days
                           </div>
                           <div className="text-sm text-purple-600 dark:text-purple-300">Money saved</div>
                         </div>
@@ -320,7 +321,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
           </div>
 
           {/* CTA Section - Fixed at bottom */}
-          <div className="flex-shrink-0 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border-t border-slate-200 dark:border-slate-700 p-3 md:p-6 shadow-lg">
+          <div className="flex-shrink-0 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border-t border-slate-200 dark:border-slate-700 p-4 md:p-6 shadow-lg">
             <div className="max-w-md mx-auto space-y-2 md:space-y-3">
               <div className="text-center">
                 <div className="inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium mb-2">
@@ -336,14 +337,14 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
               </div>
               <Button
                 size="lg"
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 md:py-4 text-sm md:text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 md:py-4 text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 min-h-[56px] md:min-h-[48px]"
                 onClick={() => {
                   handleStartCreation("image")
                   onClose()
                 }}
                 aria-label="Start AI Ad Generation"
               >
-                <Sparkles className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+                <Sparkles className="h-5 w-5 md:h-5 md:w-5 mr-2" />
                 Try Now - Generate 2 Free Ads
               </Button>
               <p className="text-xs text-center text-slate-500 dark:text-slate-400">

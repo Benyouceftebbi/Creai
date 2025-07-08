@@ -2,7 +2,7 @@
 
 import { ArrowUpRight, Sparkles, Zap, Wand2, Palette, Brain, Stars } from "lucide-react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { doc, getDocs, collection, onSnapshot, query, where, Timestamp } from "firebase/firestore"
+import { doc, getDocs, collection, onSnapshot, query, where, Timestamp, orderBy, limit } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
 import type { DateRange } from "react-day-picker"
 
@@ -300,106 +300,19 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
           return
         }
 
-        const fetchedShops = []
         const shopRef = doc(db, "Shops", shopData.id)
 
-        // Convert dateRange to Firestore timestamps
-        const fromTimestamp = dateRange?.from ? dateToTimestamp(dateRange.from) : null
-        const toTimestamp = dateRange?.to ? dateToTimestamp(dateRange.to) : null
 
-        // Firestore query conditions for SMS and Tracking collections
-        const smsQuery =
-          fromTimestamp && toTimestamp
-            ? query(
-                collection(shopRef, "SMS"),
-                where("createdAt", ">=", fromTimestamp),
-                where("createdAt", "<=", toTimestamp),
-              )
-            : collection(shopRef, "SMS")
-
-        const trackingQuery =
-          fromTimestamp && toTimestamp
-            ? query(
-                collection(shopRef, "Tracking"),
-                where("lastUpdated", ">=", fromTimestamp),
-                where("lastUpdated", "<=", toTimestamp),
-              )
-            : collection(shopRef, "Tracking")
-
-        // Add query for OrdersRetrieved collection with timestamp handling
-        const ordersQuery =
-          fromTimestamp && toTimestamp
-            ? query(
-                collection(shopRef, "OrdersRetrieved"),
-                where("timestamp", ">=", fromTimestamp),
-                where("timestamp", "<=", toTimestamp),
-              )
-            : collection(shopRef, "OrdersRetrieved")
 
         const imageAiQuery = collection(shopRef, "ImageAi")
 
         // Fetch subcollections in parallel
-        const [smsDocs, trackingDocs, ordersDocs, imageAiDocs] = await Promise.all([
-          getDocs(smsQuery),
-          getDocs(trackingQuery),
-          getDocs(ordersQuery),
+        const [imageAiDocs] = await Promise.all([
           getDocs(imageAiQuery),
         ])
 
-        const trackingMap = {}
-        const smsData = []
-        const trackingData = []
-        const ordersData = []
+
         const imageAiData = []
-
-        // Process orders data - convert timestamps to dates
-        ordersDocs.docs.forEach((orderDoc) => {
-          const orderData = orderDoc.data()
-          // Convert timestamp fields to JavaScript Date objects
-          if (orderData.timestamp) {
-            orderData.timestamp = timestampToDate(orderData.timestamp)
-          }
-          // Handle nested timestamp fields in orderData
-          if (orderData.orderData && orderData.orderData.message_time) {
-            orderData.orderData.message_time.value = timestampToDate(orderData.orderData.message_time.value)
-          }
-          ordersData.push({
-            ...orderData,
-            id: orderDoc.id,
-          })
-        })
-
-        // Process tracking data
-        trackingDocs.docs.forEach((trackingDoc) => {
-          const trackingInfo = { ...trackingDoc.data(), id: trackingDoc.id }
-          // Convert timestamp fields
-          if (trackingInfo.lastUpdated) {
-            trackingInfo.lastUpdated = timestampToDate(trackingInfo.lastUpdated)
-          }
-          trackingMap[trackingDoc.id] = trackingInfo.lastStatus || null
-          // Find related SMS documents
-          const relatedSmsDocs = smsDocs.docs.filter((smsDoc) => smsDoc.data().trackingId === trackingInfo.id)
-          const messageTypes = relatedSmsDocs.map((smsDoc) => smsDoc.data().type)
-          trackingInfo.messageTypes = messageTypes
-          trackingInfo.phoneNumber = trackingInfo.data?.contact_phone || trackingInfo.data?.phone
-          trackingInfo.deliveryType =
-            trackingInfo.data?.stop_desk === 1 || trackingInfo.data?.stopdesk_id != null ? "stopdesk" : "domicile"
-          trackingData.push(trackingInfo)
-        })
-
-        // Process SMS data
-        smsDocs.docs.forEach((smsDoc) => {
-          const smsInfo = smsDoc.data()
-          // Convert timestamp fields
-          if (smsInfo.createdAt) {
-            smsInfo.createdAt = timestampToDate(smsInfo.createdAt)
-          }
-          smsData.push({
-            ...smsInfo,
-            id: smsDoc.id,
-            lastStatus: trackingMap[smsInfo.trackingId] || null,
-          })
-        })
 
         imageAiDocs.docs.forEach((imageAi) => {
           const imageAiInfo = imageAi.data()
@@ -415,9 +328,9 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
 
         setShopData((prev) => ({
           ...prev,
-          orders: ordersData,
-          sms: smsData,
-          tracking: trackingData,
+          orders: [],
+          sms: [],
+          tracking: [],
           imageAi: imageAiData,
         }))
         setLoading(false)
@@ -432,230 +345,9 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
     fetchShopData()
   }, [shopData.id, dateRange])
 
-  useEffect(() => {
-    if (!shopData.id) return
 
-    const unsubscribe = onSnapshot(collection(db, "Shops", shopData.id, "SMScampaign"), (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        console.log("sadasasdasddasdsdashihihihiihihihi")
-        if (change.type === "added") {
-          const campaignData = change.doc.data()
-          // Convert timestamp fields
-          if (campaignData.createdAt) {
-            campaignData.createdAt = timestampToDate(campaignData.createdAt)
-          }
-          const newCampaign = {
-            id: change.doc.id,
-            ...campaignData,
-          }
-          console.log("New SMS campaign added:", change.doc.id, campaignData)
 
-          // Update shopData only if campaign doesn't already exist
-          setShopData((prevShopData) => {
-            const campaignExists = prevShopData.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
-            if (campaignExists) return prevShopData
 
-            return {
-              ...prevShopData,
-              smsCampaign: [...(prevShopData.smsCampaign || []), newCampaign],
-            }
-          })
-
-          // Update shops array only if campaign doesn't already exist
-          setShops((prevShops) =>
-            prevShops.map((shop) => {
-              if (shop.id !== shopData.id) return shop
-
-              const campaignExists = shop.smsCampaign?.some((campaign) => campaign.id === newCampaign.id)
-              if (campaignExists) return shop
-
-              return {
-                ...shop,
-                smsCampaign: [...(shop.smsCampaign || []), newCampaign],
-              }
-            }),
-          )
-        }
-
-        if (change.type === "modified") {
-          const campaignData = change.doc.data()
-          // Convert timestamp fields
-          if (campaignData.createdAt) {
-            campaignData.createdAt = timestampToDate(campaignData.createdAt)
-          }
-          const updatedCampaign = {
-            id: change.doc.id,
-            ...campaignData,
-          }
-
-          // Update shopData
-          setShopData((prevShopData) => ({
-            ...prevShopData,
-            smsCampaign:
-              prevShopData.smsCampaign?.map((campaign) =>
-                campaign.id === updatedCampaign.id ? updatedCampaign : campaign,
-              ) || [],
-          }))
-
-          // Update shops array
-          setShops((prevShops) =>
-            prevShops.map((shop) =>
-              shop.id === shopData.id
-                ? {
-                    ...shop,
-                    smsCampaign:
-                      shop.smsCampaign?.map((campaign) =>
-                        campaign.id === updatedCampaign.id ? updatedCampaign : campaign,
-                      ) || [],
-                  }
-                : shop,
-            ),
-          )
-        }
-
-        if (change.type === "removed") {
-          const removedCampaignId = change.doc.id
-
-          // Update shopData
-          setShopData((prevShopData) => ({
-            ...prevShopData,
-            smsCampaign: prevShopData.smsCampaign?.filter((campaign) => campaign.id !== removedCampaignId) || [],
-          }))
-
-          // Update shops array
-          setShops((prevShops) =>
-            prevShops.map((shop) =>
-              shop.id === shopData.id
-                ? {
-                    ...shop,
-                    smsCampaign: shop.smsCampaign?.filter((campaign) => campaign.id !== removedCampaignId) || [],
-                  }
-                : shop,
-            ),
-          )
-        }
-      })
-    })
-
-    return () => unsubscribe()
-  }, [shopData.id])
-
-  // Set up real-time listener for OrdersRetrieved collection
-  useEffect(() => {
-    if (!shopData.id) {
-      console.log("No shop ID available for OrdersRetrieved listener")
-      return
-    }
-
-    console.log("Setting up OrdersRetrieved listener for shop ID:", shopData.id)
-    const ordersRef = collection(db, "Shops", shopData.id, "OrdersRetrieved")
-
-    try {
-      const unsubscribe = onSnapshot(
-        ordersRef,
-        (snapshot) => {
-          console.log("OrdersRetrieved snapshot received:", snapshot.docChanges().length, "changes")
-
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-              console.log("New order added:", change.doc.id)
-              const orderData = change.doc.data()
-
-              // Convert timestamp fields to JavaScript Date objects
-              if (orderData.timestamp) {
-                orderData.timestamp = timestampToDate(orderData.timestamp)
-              }
-
-              // Handle nested timestamp fields in orderData
-              if (orderData.orderData && orderData.orderData.message_time && orderData.orderData.message_time.value) {
-                // Check if it's a Firestore timestamp
-                if (
-                  typeof orderData.orderData.message_time.value === "object" &&
-                  orderData.orderData.message_time.value.seconds !== undefined
-                ) {
-                  orderData.orderData.message_time.value = timestampToDate(orderData.orderData.message_time.value)
-                }
-              }
-
-              const newOrder = {
-                id: change.doc.id,
-                ...orderData,
-              }
-
-              // Update shopData only if order doesn't already exist
-              setShopData((prevShopData) => {
-                const orderExists = prevShopData.orders?.some((order) => order.id === newOrder.id)
-                if (orderExists) {
-                  console.log("Order already exists, skipping:", newOrder.id)
-                  return prevShopData
-                }
-
-                console.log("Adding new order to state:", newOrder.id)
-                return {
-                  ...prevShopData,
-                  orders: [...(prevShopData.orders || []), newOrder],
-                }
-              })
-            }
-
-            if (change.type === "modified") {
-              console.log("Order modified:", change.doc.id)
-              const orderData = change.doc.data()
-
-              // Convert timestamp fields to JavaScript Date objects
-              if (orderData.timestamp) {
-                orderData.timestamp = timestampToDate(orderData.timestamp)
-              }
-
-              // Handle nested timestamp fields in orderData
-              if (orderData.orderData && orderData.orderData.message_time && orderData.orderData.message_time.value) {
-                // Check if it's a Firestore timestamp
-                if (
-                  typeof orderData.orderData.message_time.value === "object" &&
-                  orderData.orderData.message_time.value.seconds !== undefined
-                ) {
-                  orderData.orderData.message_time.value = timestampToDate(orderData.orderData.message_time.value)
-                }
-              }
-
-              const updatedOrder = {
-                id: change.doc.id,
-                ...orderData,
-              }
-
-              // Update shopData
-              setShopData((prevShopData) => ({
-                ...prevShopData,
-                orders:
-                  prevShopData.orders?.map((order) => (order.id === updatedOrder.id ? updatedOrder : order)) || [],
-              }))
-            }
-
-            if (change.type === "removed") {
-              console.log("Order removed:", change.doc.id)
-              const removedOrderId = change.doc.id
-
-              // Update shopData
-              setShopData((prevShopData) => ({
-                ...prevShopData,
-                orders: prevShopData.orders?.filter((order) => order.id !== removedOrderId) || [],
-              }))
-            }
-          })
-        },
-        (error) => {
-          console.error("Error in OrdersRetrieved listener:", error)
-        },
-      )
-
-      return () => {
-        console.log("Unsubscribing from OrdersRetrieved listener")
-        unsubscribe()
-      }
-    } catch (err) {
-      console.error("Failed to set up OrdersRetrieved listener:", err)
-    }
-  }, [shopData.id]) // Add shopData.id as a dependency
 
   //creative ai
   useEffect(() => {
@@ -664,8 +356,16 @@ export const ShopProvider = ({ children, userId, userEmail }: ShopProviderProps)
       setCreativeAiError(null)
 
       try {
-        const creativeAiCollectionRef = collection(db, "CreativeAi")
-        const querySnapshot = await getDocs(creativeAiCollectionRef)
+          const creativeAiCollectionRef = collection(db, "CreativeAi")
+
+  // Query the latest 20 documents ordered by createdAt
+  const creativeAiQuery = query(
+    creativeAiCollectionRef,
+    orderBy("createdAt", "desc"),
+    limit(20)
+  )
+
+  const querySnapshot = await getDocs(creativeAiQuery)
         const fetchedItems: any[] = []
 
         querySnapshot.forEach((doc) => {
