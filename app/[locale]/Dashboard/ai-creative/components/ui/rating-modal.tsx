@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Star, Heart, Gift, Shield, X, Sparkles, Crown } from "lucide-react"
+import { Star, Heart, Gift, Shield, X, Sparkles, Crown, AlertTriangle, Clock, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 import { useShop } from "@/app/context/ShopContext"
@@ -52,6 +52,8 @@ const handleRatingSubmit = async () => {
         cancel_url: window.location.href,
         allow_promotion_codes: true,
         client_reference_id: `${shopData.id}-${planId}`,
+        opened:true
+
       })
 
       // Listen for the checkout session URL
@@ -155,146 +157,238 @@ const handleRatingSubmit = async () => {
     </div>
   )
 
-  const renderLowRatingOffer = () => (
-    <div className="space-y-6 p-6">
-      <div className="text-center space-y-3">
-        <div className="w-16 h-16 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/50 dark:to-blue-900/50 rounded-full flex items-center justify-center mx-auto">
-          <Gift className="w-8 h-8 text-cyan-600 dark:text-cyan-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Thank you for your feedback!</h3>
-        <p className="text-gray-600 dark:text-gray-300">We appreciate your honesty and want to make it right</p>
+
+
+
+  const renderHighRatingOffer = () => (
+    <div className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-purple-900/20 dark:via-slate-800 dark:to-pink-900/20 rounded-xl shadow-inner border border-purple-100 dark:border-purple-800/30 m-2 sm:m-4">
+      {/* Simplified background elements for mobile */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-4 left-4 w-12 h-12 bg-purple-400 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute bottom-4 right-4 w-10 h-10 bg-pink-400 rounded-full blur-xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-2xl p-6 border border-cyan-200 dark:border-cyan-800">
-        <div className="text-center space-y-4">
+      {/* Reduced floating elements for mobile */}
+      <div className="absolute top-3 left-3 text-lg animate-bounce">🎉</div>
+      <div className="absolute top-3 right-3 text-sm animate-pulse">✨</div>
+
+      <div className="relative z-10 p-3 sm:p-6 space-y-4 sm:space-y-6">
+        {/* Compact Header Section */}
+        <div className="text-center space-y-2 sm:space-y-3">
+          <div className="relative">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto shadow-lg transform -rotate-3">
+              <Crown className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-sm" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-md">
+              <span className="text-xs">🔥</span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-800 dark:text-white leading-tight">
+              Happy you loved
+              <br />
+              <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                your ad!
+              </span>
+            </h3>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
+              Let's unlock <span className="font-bold text-purple-600">3 more styles</span> — just for today
+            </p>
+          </div>
+        </div>
+
+        {/* Compact Offer Card */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl blur-sm opacity-20"></div>
+          <div className="relative bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-4 shadow-xl border border-purple-100 dark:border-purple-800/30">
+            {/* Compact Price Badge */}
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full shadow-lg">
+                <div className="flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  <span className="font-bold text-xs">EXCLUSIVE TODAY</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 space-y-3 sm:space-y-4">
+              {/* Compact Price */}
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    $10
+                  </span>
+                  <div className="text-left">
+                    <div className="text-xs text-slate-500 line-through">$25</div>
+                    <div className="text-xs font-bold text-green-600">60% OFF</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Simplified Features */}
+              <div className="space-y-2">
+                {[
+                  { icon: "🎨", text: "20 AI Ad Images", highlight: true },
+                  { icon: "⚡", text: "2,400 Tokens" },
+                  { icon: "🎁", text: "Bonus: +5 Extra Ads", highlight: true },
+                  { icon: "🚀", text: "Instant delivery" },
+                ].map((feature, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 p-2 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg"
+                  >
+                    <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                      {feature.icon}
+                    </div>
+                    <span
+                      className={`text-xs sm:text-sm ${feature.highlight ? "font-bold text-slate-800 dark:text-white" : "text-slate-600 dark:text-slate-300"}`}
+                    >
+                      {feature.text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Compact Guarantee */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-2">
           <div className="flex items-center justify-center gap-2">
-            <Sparkles className="w-6 h-6 text-cyan-600" />
-            <h4 className="text-xl font-bold text-gray-900 dark:text-white">Special Recovery Offer</h4>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-3xl font-bold text-cyan-600">$5</span>
-         
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-2">
-              <div
-                key="low-offer-feature-1"
-                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
-              >
-                <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                <span>1,200 tokens included</span>
-              </div>
-              <div
-                key="low-offer-feature-2"
-                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
-              >
-                <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                <span className="font-semibold">10 AI images instead of 6 !</span>
-              </div>
+            <Shield className="w-4 h-4 text-green-600 flex-shrink-0" />
+            <div className="text-center">
+              <p className="font-bold text-green-800 dark:text-green-300 text-xs">100% Money-Back Guarantee</p>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Prominent money-back guarantee section */}
-      <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
-        <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
-          <Shield className="w-5 h-5 text-green-600" />
-          <p className="font-semibold text-center">
-            Not Satisfied? 100% Money Back Guarantee - This offer expires when you close this popup!
+        {/* Compact CTA */}
+        <div className="space-y-2">
+          <LoadingButton
+            onClick={() => createCheckoutSession("price_1RBKk5DIpjCcuDeHpQhOI8gB")}
+            loading={isLoading}
+            className="w-full bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 hover:from-purple-700 hover:via-purple-800 hover:to-pink-700 text-white text-sm sm:text-base py-3 px-4 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+          >
+            ✨ Yes, Unlock 20 Ads Now
+          </LoadingButton>
+          <p className="text-center text-xs italic text-slate-500 dark:text-slate-400">
+            "Generate stunning creatives in seconds"
           </p>
         </div>
-      </div>
-
-      <div className="flex gap-3">
-        <LoadingButton
-          onClick={() => createCheckoutSession("price_1RiC4CDIpjCcuDeHuXfGFxyq")}
-          loading={isLoading}
-          className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold"
-        >
-          Claim Offer
-        </LoadingButton>
       </div>
     </div>
   )
 
-  const renderHighRatingOffer = () => (
-    <div className="space-y-6 p-6">
-      <div className="text-center space-y-3">
-        <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-full flex items-center justify-center mx-auto">
-          <Crown className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Awesome! We're glad you loved it! 🎉</h3>
-        <p className="text-gray-600 dark:text-gray-300">
-          Since you're enjoying our AI tools, here's an exclusive offer just for you
-        </p>
+  const renderLowRatingOffer = () => (
+    <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-red-50 dark:from-slate-900 dark:via-slate-800 dark:to-red-900/20 rounded-xl shadow-inner border border-red-100 dark:border-red-800/30 m-2 sm:m-4">
+      {/* Simplified background for mobile */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.3),transparent_50%)]"></div>
       </div>
 
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-800 relative overflow-hidden">
-        <div className="absolute top-0 right-0 bg-gradient-to-l from-purple-600 to-pink-600 text-white px-4 py-1 text-xs font-semibold rounded-bl-lg">
-          LIMITED TIME
+      <div className="relative z-10 p-3 sm:p-6 space-y-4 sm:space-y-6">
+        {/* Compact Header Section */}
+        <div className="text-center space-y-2 sm:space-y-3">
+          <div className="relative">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-red-400 to-orange-500 rounded-xl flex items-center justify-center mx-auto shadow-lg transform rotate-3">
+              <AlertTriangle className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-sm" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-md">
+              <span className="text-xs">😕</span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-800 dark:text-white leading-tight">
+              Not fully satisfied?
+              <br />
+              <span className="text-red-500">Let's fix that.</span>
+            </h3>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
+              We'll create <span className="font-bold text-red-500">10 new ads</span> for just{" "}
+              <span className="font-bold">$5</span>
+            </p>
+          </div>
         </div>
 
-        <div className="text-center space-y-4 mt-2">
+        {/* Compact Offer Card */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl blur-sm opacity-20"></div>
+          <div className="relative bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-4 shadow-xl border border-red-100 dark:border-red-800/30">
+            {/* Compact Price Badge */}
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full shadow-lg">
+                <div className="flex items-center gap-1">
+                  <Zap className="w-3 h-3" />
+                  <span className="font-bold text-xs">RECOVERY OFFER</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 space-y-3 sm:space-y-4">
+              {/* Compact Price */}
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                    $5
+                  </span>
+                  <div className="text-left">
+                    <div className="text-xs text-slate-500 line-through">$15</div>
+                    <div className="text-xs font-bold text-green-600">67% OFF</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Simplified Features */}
+              <div className="space-y-2">
+                {[
+            { icon: "🎨", text: "10 AI Ad Images", highlight: true },
+                  { icon: "⚡", text: "Delivered instantly" },
+                  { icon: "🔒", text: "No credit card stored" },
+                  { icon: "🎯", text: "Targeted improvements" },
+                ].map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                    <div className="w-6 h-6 bg-gradient-to-br from-red-400 to-orange-500 rounded-md flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                      {feature.icon}
+                    </div>
+                    <span
+                      className={`text-xs sm:text-sm ${feature.highlight ? "font-bold text-slate-800 dark:text-white" : "text-slate-600 dark:text-slate-300"}`}
+                    >
+                      {feature.text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        {/* Compact Guarantee */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-2">
           <div className="flex items-center justify-center gap-2">
-            <Sparkles className="w-6 h-6 text-purple-600" />
-            <h4 className="text-xl font-bold text-gray-900 dark:text-white">Exclusive Upgrade Offer</h4>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-3xl font-bold text-purple-600">$10</span>
-             
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-2">
-              <div
-                key="high-offer-feature-1"
-                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
-              >
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span>2,400 tokens included</span>
-              </div>
-              <div
-                key="high-offer-feature-2"
-                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
-              >
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span className="font-semibold">20 AI images instead of 15!</span>
-              </div>
-              <div
-                key="high-offer-feature-3"
-                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
-              >
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span>Priority email support</span>
-              </div>
+            <Shield className="w-4 h-4 text-green-600 flex-shrink-0" />
+            <div className="text-center">
+              <p className="font-bold text-green-800 dark:text-green-300 text-xs">100% Money-Back Guarantee</p>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Prominent money-back guarantee section */}
-  <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
-        <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
-          <Shield className="w-5 h-5 text-green-600" />
-          <p className="font-semibold text-center">
-           Not satisfied? 100% Money Back Guarantee - This offer expires when you close this popup!
+
+
+        {/* Compact CTA */}
+        <div className="space-y-2">
+          <LoadingButton
+            onClick={() => createCheckoutSession("price_1RiC4CDIpjCcuDeHuXfGFxyq")}
+            loading={isLoading}
+            className="w-full bg-gradient-to-r from-red-500 via-red-600 to-orange-600 hover:from-red-600 hover:via-red-700 hover:to-orange-700 text-white text-sm sm:text-base py-3 px-4 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+          >
+            💪 Yes, Improve My Ad Now
+          </LoadingButton>
+          <p className="text-center text-xs italic text-slate-500 dark:text-slate-400">
+            "We'll fix your ad and help you get results"
           </p>
         </div>
-      </div>
-
-
-      <div className="flex gap-3">
-        <LoadingButton
-          onClick={() => createCheckoutSession("price_1RBKk5DIpjCcuDeHpQhOI8gB")}
-          loading={isLoading}
-          className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold"
-        >
-          Claim Exclusive Offer
-        </LoadingButton>
       </div>
     </div>
   )
@@ -322,14 +416,12 @@ const handleRatingSubmit = async () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className={`${getModalSize()} max-h-[95vh] overflow-y-auto p-0 gap-0`}>
-        <DialogHeader className="p-4 sm:p-6 pb-0">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="sr-only">Rate Your Experience</DialogTitle>
-          </div>
+      <DialogContent className="max-w-sm sm:max-w-md lg:max-w-lg max-h-[90vh] overflow-y-auto p-0 gap-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Rate Your Experience</DialogTitle>
         </DialogHeader>
 
-        <div className={getModalHeight()}>
+        <div className="max-h-[85vh] overflow-y-auto">
           {!showOffer && renderRatingScreen()}
           {showOffer && rating !== null && rating < 8 && renderLowRatingOffer()}
           {showOffer && rating !== null && rating >= 8 && renderHighRatingOffer()}
