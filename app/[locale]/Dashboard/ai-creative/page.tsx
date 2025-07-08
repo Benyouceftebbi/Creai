@@ -571,7 +571,11 @@ export default function AICreativePage() {
   }, [])
 
   return (
+    
     <div className="h-screen bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col relative overflow-hidden border-t border-border/50">
+            <ConversionModal isOpen={showModal} onClose={() => setShowModal(false)}  handleStartCreation={handleStartCreation}/>
+      <RatingModal isOpen={isRatingModalOpen} onClose={() => setIsRatingModalOpen(false)} />
+
       {/* Enhanced Floating Video Button - Only show on welcome screen */}
       {currentView === "welcome" && (
         <div className="absolute left-4 sm:left-6 top-4 sm:top-6 z-40 group">
@@ -763,8 +767,6 @@ export default function AICreativePage() {
 
       {isPricingModalOpen && <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />}
 
-      <RatingModal isOpen={isRatingModalOpen} onClose={() => setIsRatingModalOpen(false)} />
-      <ConversionModal isOpen={showModal} onClose={() => setShowModal(false)}  handleStartCreation={handleStartCreation}/>
       <Toaster />
     </div>
   )
