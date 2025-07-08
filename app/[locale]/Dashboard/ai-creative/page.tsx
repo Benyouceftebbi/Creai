@@ -21,6 +21,8 @@ import { Play, X } from "lucide-react"
 import { ConversionModal } from "@/app/components/Conversion-modal"
 import { RatingModal } from "./components/ui/rating-modal"
 
+import { PhoneNumberModal } from "./components/modals/phone-number-modal"
+
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 
 // Declare the getDefaultImageSettings and getDefaultReelSettings function
@@ -123,6 +125,11 @@ export default function AICreativePage() {
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false)
 
+  // Phone number modal state
+  const [isPhoneNumberModalOpen, setIsPhoneNumberModalOpen] = useState(false)
+  const [isUpdatingPhoneNumber, setIsUpdatingPhoneNumber] = useState(false)
+  const [pendingResults, setPendingResults] = useState<string[]>([]) // Store results until phone number is provided
+
   // Video player state
   const [isVideoOpen, setIsVideoOpen] = useState(false)
   const [isVideoButtonAnimating, setIsVideoButtonAnimating] = useState(false)
@@ -143,7 +150,6 @@ export default function AICreativePage() {
   // Google Drive direct video link - replace with your video ID
   const videoId = "1igoCOn1TvALIcksn9nthVLbbdWk7lGiS"
   const videoUrl = `https://www.youtube.com/embed/MoUSV-pg7ow`
-
 
   // Enhanced auto-animate video button every 5 seconds with impressive hover-like effects
   useEffect(() => {
@@ -373,6 +379,50 @@ export default function AICreativePage() {
     [currentGenerationType, activeMode, toast, shopData.id, pendingImageId, t],
   )
 
+  // Function to handle phone number submission
+  const handlePhoneNumberSubmit = useCallback(
+    async (phoneNumber: string) => {
+      setIsUpdatingPhoneNumber(true)
+      try {
+        const updatePhoneNumber = httpsCallable(functions, "updatePhoneNumber")
+        const result = await updatePhoneNumber({
+          shopId: shopData.id,
+          phoneNumber: phoneNumber,
+        })
+
+        if (result.data?.success) {
+          // Update local shop data
+          setShopData((prev) => ({
+            ...prev,
+            phoneNumber: phoneNumber,
+          }))
+
+          // Show the results that were pending
+          setGeneratedOutputs(pendingResults)
+          setPendingResults([])
+          setIsPhoneNumberModalOpen(false)
+
+          toast({
+            title: t("phoneNumberUpdated"),
+            description: t("phoneNumberSaved"),
+          })
+        } else {
+          throw new Error(result.data?.error || "Failed to update phone number")
+        }
+      } catch (error) {
+        console.error("Error updating phone number:", error)
+        toast({
+          title: t("error"),
+          description: t("failedToUpdatePhone"),
+          variant: "destructive",
+        })
+      } finally {
+        setIsUpdatingPhoneNumber(false)
+      }
+    },
+    [shopData.id, pendingResults, setShopData, toast, t],
+  )
+
   useEffect(() => {
     const typeToUse = currentGenerationType || (activeMode === "image" || activeMode === "reel" ? activeMode : "image")
     if (!pendingImageId || !shopData.id || !typeToUse) return
@@ -384,9 +434,22 @@ export default function AICreativePage() {
         if (docSnap.exists()) {
           const data = docSnap.data()
           if (data.imagesUrl?.length) {
-            setGeneratedOutputs(data.imagesUrl)
-            setGenerationProgress(100)
-            setIsGenerating(false)
+            const results = data.imagesUrl
+
+            // Check if phone number is missing
+            if (!shopData.phoneNumber || shopData.phoneNumber === "") {
+              // Store results and show phone number modal
+              setPendingResults(results)
+              setIsPhoneNumberModalOpen(true)
+              setGenerationProgress(100)
+              setIsGenerating(false)
+            } else {
+              // Show results immediately if phone number exists
+              setGeneratedOutputs(results)
+              setGenerationProgress(100)
+              setIsGenerating(false)
+            }
+
             setCurrentBatchTimestamp(data.createdAt?.toDate ? data.createdAt.toDate() : new Date())
             setCurrentProductUrlForOutput(data.productUrl)
 
@@ -401,7 +464,11 @@ export default function AICreativePage() {
               productUrl: data.productUrl,
             }
             setUserHistory((prev) => [newHistoryItem, ...prev.filter((item) => item.id !== newHistoryItem.id)])
-            toast({ title: t("success"), description: t("generationCompleted") })
+
+            if (shopData.phoneNumber && shopData.phoneNumber !== "") {
+              toast({ title: t("success"), description: t("generationCompleted") })
+            }
+
             setPendingImageId(null)
             unsubscribe()
           } else if (data.status === "failed" || data.error) {
@@ -431,7 +498,16 @@ export default function AICreativePage() {
       },
     )
     return () => unsubscribe()
-  }, [pendingImageId, shopData.id, currentGenerationType, activeMode, toast, currentPromptForOutput, t])
+  }, [
+    pendingImageId,
+    shopData.id,
+    shopData.phoneNumber,
+    currentGenerationType,
+    activeMode,
+    toast,
+    currentPromptForOutput,
+    t,
+  ])
 
   const handleImageAction = useCallback(
     (action: string, imageIndex: number) => {
@@ -571,10 +647,24 @@ export default function AICreativePage() {
   }, [])
 
   return (
-    
     <div className="h-screen bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col relative overflow-hidden border-t border-border/50">
-            <ConversionModal isOpen={showModal} onClose={() => setShowModal(false)}  handleStartCreation={handleStartCreation}/>
+      <ConversionModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        handleStartCreation={handleStartCreation}
+      />
       <RatingModal isOpen={isRatingModalOpen} onClose={() => setIsRatingModalOpen(false)} />
+
+      {/* Phone Number Modal */}
+      <PhoneNumberModal
+        isOpen={isPhoneNumberModalOpen}
+        onClose={() => {
+          // Don't allow closing without providing phone number
+          // User must provide phone number to see results
+        }}
+        onSubmit={handlePhoneNumberSubmit}
+        isLoading={isUpdatingPhoneNumber}
+      />
 
       {/* Enhanced Floating Video Button - Only show on welcome screen */}
       {currentView === "welcome" && (
