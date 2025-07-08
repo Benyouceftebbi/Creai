@@ -114,7 +114,7 @@ const sampleInspirationItems: CreationDetail[] = [
 
 export default function AICreativePage() {
   const { creativeAiItems, creativeAiLoading, setShopData } = useShop()
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(true)
   const [currentView, setCurrentView] = useState<"welcome" | "output">("welcome")
   const [activeMode, setActiveMode] = useState<CreativeMode>("image")
   const [currentGenerationType, setCurrentGenerationType] = useState<"image" | "reel" | null>(null)
@@ -144,14 +144,7 @@ export default function AICreativePage() {
   const videoId = "1igoCOn1TvALIcksn9nthVLbbdWk7lGiS"
   const videoUrl = `https://www.youtube.com/embed/MoUSV-pg7ow`
 
-  useEffect(() => {
-    // Show modal immediately when dashboard loads
-    const timer = setTimeout(() => {
-      setShowModal(true)
-    }, 500) // Small delay for better UX
 
-    return () => clearTimeout(timer)
-  }, [])
   // Enhanced auto-animate video button every 5 seconds with impressive hover-like effects
   useEffect(() => {
     const interval = setInterval(() => {
@@ -191,7 +184,7 @@ export default function AICreativePage() {
     if (generatedItemViewerData || historyViewerData) {
       const timer = setTimeout(() => {
         setIsRatingModalOpen(true)
-      }, 4000) // 4 seconds after opening image viewer
+      }, 3000) // 4 seconds after opening image viewer
 
       return () => clearTimeout(timer)
     }
