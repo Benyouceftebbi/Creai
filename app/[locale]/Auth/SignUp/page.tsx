@@ -236,6 +236,7 @@ export default function SignUp() {
       terms: false,
       promoCode: "",
       tokens: 200,
+    
     },
   })
 
@@ -265,6 +266,7 @@ export default function SignUp() {
     const fullPhoneNumber = values.countryCode + values.phoneNumber
     const submitData = {
       ...values,
+        createdAt: new Date(),
       phoneNumber: fullPhoneNumber,
     }
 
