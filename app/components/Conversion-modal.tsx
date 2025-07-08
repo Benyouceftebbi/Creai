@@ -133,15 +133,15 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
                       </div>
                     </div>
                     {/* Navigation arrows */}
-                    <button
+             <button
                       onClick={prevSlide}
-                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white dark:bg-slate-700 rounded-full p-1 shadow-lg text-slate-900 dark:text-slate-100"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white dark:bg-slate-700 rounded-full p-2 md:p-1 shadow-lg text-slate-900 dark:text-slate-100 text-lg md:text-base"
                     >
                       ←
                     </button>
                     <button
                       onClick={nextSlide}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white dark:bg-slate-700 rounded-full p-1 shadow-lg text-slate-900 dark:text-slate-100"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white dark:bg-slate-700 rounded-full p-2 md:p-1 shadow-lg text-slate-900 dark:text-slate-100 text-lg md:text-base"
                     >
                       →
                     </button>
