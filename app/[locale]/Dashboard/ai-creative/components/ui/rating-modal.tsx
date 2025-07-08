@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 import { useShop } from "@/app/context/ShopContext"
 import { collection, addDoc, onSnapshot } from "firebase/firestore"
-import { db } from "@/firebase/firebase"
+import { db, functions } from "@/firebase/firebase"
 import { LoadingButton } from "@/components/ui/LoadingButton"
 import { toast } from "@/hooks/use-toast"
+import { httpsCallable } from "firebase/functions"
 
 interface RatingModalProps {
   isOpen: boolean
@@ -25,11 +26,20 @@ export function RatingModal({ isOpen, onClose }: RatingModalProps) {
   const t = useTranslations("creativeAi")
   const { shopData } = useShop()
 
-  const handleRatingSubmit = () => {
-    if (rating !== null) {
-      setShowOffer(true)
+const handleRatingSubmit = async () => {
+   if (rating !== null) {
+    
+    const submitRating = httpsCallable(functions, "submitRating");
+
+    try {
+      await submitRating({ shopId:shopData.id,rating });
+      setShowOffer(true);
+    } catch (error) {
+      console.error("❌ Error submitting rating:", error);
+      // Optional: toast or UI error
     }
   }
+}
 
   const createCheckoutSession = async (planId: string) => {
     setIsLoading(true)
