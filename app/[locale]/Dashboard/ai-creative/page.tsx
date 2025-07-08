@@ -771,7 +771,7 @@ export default function AICreativePage() {
       {isPricingModalOpen && <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />}
 
       <RatingModal isOpen={isRatingModalOpen} onClose={() => setIsRatingModalOpen(false)} />
-      <ConversionModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      <ConversionModal isOpen={showModal} onClose={() => setShowModal(false)}  handleStartCreation={handleStartCreation}/>
       <Toaster />
     </div>
   )

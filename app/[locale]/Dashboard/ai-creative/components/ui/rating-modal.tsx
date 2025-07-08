@@ -165,7 +165,7 @@ export function RatingModal({ isOpen, onClose }: RatingModalProps) {
           <div className="space-y-3">
             <div className="flex items-center justify-center gap-2">
               <span className="text-3xl font-bold text-cyan-600">$5</span>
-              <span className="text-lg text-gray-600 dark:text-gray-300">+ VAT</span>
+         
             </div>
 
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-2">
@@ -181,7 +181,7 @@ export function RatingModal({ isOpen, onClose }: RatingModalProps) {
                 className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
               >
                 <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                <span className="font-semibold">12 AI images or 1 video total</span>
+                <span className="font-semibold">10 AI images instead of 6 !</span>
               </div>
             </div>
           </div>
@@ -193,15 +193,12 @@ export function RatingModal({ isOpen, onClose }: RatingModalProps) {
         <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
           <Shield className="w-5 h-5 text-green-600" />
           <p className="font-semibold text-center">
-            100% Money Back Guarantee - This offer expires when you close this popup!
+            Not Satisfied? 100% Money Back Guarantee - This offer expires when you close this popup!
           </p>
         </div>
       </div>
 
       <div className="flex gap-3">
-        <Button variant="outline" onClick={handleClose} className="flex-1 bg-transparent">
-          Maybe Later
-        </Button>
         <LoadingButton
           onClick={() => createCheckoutSession("price_1RiC4CDIpjCcuDeHuXfGFxyq")}
           loading={isLoading}
@@ -239,7 +236,7 @@ export function RatingModal({ isOpen, onClose }: RatingModalProps) {
           <div className="space-y-3">
             <div className="flex items-center justify-center gap-2">
               <span className="text-3xl font-bold text-purple-600">$10</span>
-              <span className="text-lg text-gray-600 dark:text-gray-300">+ VAT</span>
+             
             </div>
 
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-2">
@@ -255,7 +252,7 @@ export function RatingModal({ isOpen, onClose }: RatingModalProps) {
                 className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
               >
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span className="font-semibold">20 AI images or 2 videos total</span>
+                <span className="font-semibold">20 AI images instead of 15!</span>
               </div>
               <div
                 key="high-offer-feature-3"
@@ -270,19 +267,17 @@ export function RatingModal({ isOpen, onClose }: RatingModalProps) {
       </div>
 
       {/* Prominent money-back guarantee section */}
-      <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
+  <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
         <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
           <Shield className="w-5 h-5 text-green-600" />
           <p className="font-semibold text-center">
-            Not satisfied? Get your money back, no questions asked! This offer expires when you close this popup.
+           Not satisfied? 100% Money Back Guarantee - This offer expires when you close this popup!
           </p>
         </div>
       </div>
 
+
       <div className="flex gap-3">
-        <Button variant="outline" onClick={handleClose} className="flex-1 bg-transparent">
-          Not Now
-        </Button>
         <LoadingButton
           onClick={() => createCheckoutSession("price_1RBKk5DIpjCcuDeHpQhOI8gB")}
           loading={isLoading}
