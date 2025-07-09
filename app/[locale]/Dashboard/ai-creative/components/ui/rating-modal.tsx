@@ -426,6 +426,8 @@ const handleRatingSubmit = async () => {
     
           {renderLowRatingOffer()}
 
+          
+
         </div>
       </DialogContent>
     </Dialog>
