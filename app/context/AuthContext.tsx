@@ -108,7 +108,7 @@ useEffect(() => {
         if (isNewUser) {
           await setDoc(doc(db, "Shops", user.uid), {
             email: user.email,
-            tokens: 120,
+            tokens: 240,
             phoneNumber: "",
             firstName: user.displayName,
             countryCode: "",

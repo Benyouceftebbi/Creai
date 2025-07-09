@@ -235,7 +235,7 @@ export default function SignUp() {
       confirmPassword: "",
       terms: false,
       promoCode: "",
-      tokens: 120,
+      tokens: 240,
     
     },
   })
