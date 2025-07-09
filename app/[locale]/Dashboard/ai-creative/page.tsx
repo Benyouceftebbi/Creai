@@ -190,7 +190,7 @@ export default function AICreativePage() {
     if (generatedItemViewerData || historyViewerData) {
       const timer = setTimeout(() => {
         setIsRatingModalOpen(true)
-      }, 3000) // 4 seconds after opening image viewer
+      }, 4500) // 4 seconds after opening image viewer
 
       return () => clearTimeout(timer)
     }
