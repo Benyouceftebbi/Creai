@@ -55,12 +55,7 @@ export function ConversionModal({ isOpen, onClose, handleStartCreation }: Conver
 
   const wasOpen = useRef(isOpen)
 
-  useEffect(() => {
-    if (wasOpen.current && !isOpen) {
-      handleStartCreation("image")
-    }
-    wasOpen.current = isOpen
-  }, [isOpen, handleStartCreation])
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
