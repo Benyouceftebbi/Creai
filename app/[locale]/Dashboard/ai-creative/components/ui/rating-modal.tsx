@@ -423,9 +423,9 @@ const handleRatingSubmit = async () => {
         </DialogHeader>
 
         <div className="max-h-[85vh] overflow-y-auto">
-          {!showOffer && renderRatingScreen()}
-          {showOffer && rating !== null && rating < 8 && renderLowRatingOffer()}
-          {showOffer && rating !== null && rating >= 8 && renderHighRatingOffer()}
+    
+          {renderLowRatingOffer()}
+
         </div>
       </DialogContent>
     </Dialog>

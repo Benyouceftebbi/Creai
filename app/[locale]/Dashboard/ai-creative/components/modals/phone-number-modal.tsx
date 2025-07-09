@@ -19,7 +19,9 @@ interface PhoneNumberModalProps {
 }
 
 const countryCodes = [
+
   { code: "+1", country: "US/CA", flag: "🇺🇸" },
+     { code: "+212", country: "Morocco", flag: "🇲🇦" },
   { code: "+44", country: "UK", flag: "🇬🇧" },
   { code: "+33", country: "France", flag: "🇫🇷" },
   { code: "+49", country: "Germany", flag: "🇩🇪" },
@@ -98,7 +100,7 @@ const countryCodes = [
   { code: "+233", country: "Ghana", flag: "🇬🇭" },
   { code: "+225", country: "Ivory Coast", flag: "🇨🇮" },
   { code: "+221", country: "Senegal", flag: "🇸🇳" },
-  { code: "+212", country: "Morocco", flag: "🇲🇦" },
+ 
   { code: "+213", country: "Algeria", flag: "🇩🇿" },
   { code: "+216", country: "Tunisia", flag: "🇹🇳" },
   { code: "+218", country: "Libya", flag: "🇱🇾" },
