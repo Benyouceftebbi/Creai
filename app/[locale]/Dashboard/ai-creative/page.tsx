@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl"
 import { Play, X } from "lucide-react"
 import { ConversionModal } from "@/app/components/Conversion-modal"
 import { RatingModal } from "./components/ui/rating-modal"
-
+import { GenerationTypeModal } from "./components/modals/generation-type-modal" // New import
 import { PhoneNumberModal } from "./components/modals/phone-number-modal"
 import { DownloadModal } from "./components/modals/download-modal"
 
@@ -42,7 +42,7 @@ const getDefaultImageSettings = (): any => {
     quality: "Ultra",
     language: "en",
     outputs: 1,
-    includeText: false, // Add the new field with default value
+    includeText: false,
   }
 }
 
@@ -56,8 +56,9 @@ export interface Settings {
   outputs: number
   model: string
   language: string
-  includeText?: boolean // Add the new optional field
+  includeText?: boolean
 }
+
 export interface ReelSettings {
   quality: string
   creativity: number[]
@@ -126,16 +127,15 @@ export default function AICreativePage() {
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false)
 
-  // Phone number modal state
+  const [isGenerationTypeModalOpen, setIsGenerationTypeModalOpen] = useState(false)
+
   const [isPhoneNumberModalOpen, setIsPhoneNumberModalOpen] = useState(false)
   const [isUpdatingPhoneNumber, setIsUpdatingPhoneNumber] = useState(false)
-  const [pendingResults, setPendingResults] = useState<string[]>([]) // Store results until phone number is provided
+  const [pendingResults, setPendingResults] = useState<string[]>([])
 
-  // Video player state
   const [isVideoOpen, setIsVideoOpen] = useState(false)
   const [isVideoButtonAnimating, setIsVideoButtonAnimating] = useState(false)
 
-  // Simulate API call to refresh tokens
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
   const [downloadModalData, setDownloadModalData] = useState<{
     imageUrl: string
@@ -154,21 +154,18 @@ export default function AICreativePage() {
   const [userHistory, setUserHistory] = useState<HistoryItem[]>([])
   const t = useTranslations("creativeAi")
 
-  // Google Drive direct video link - replace with your video ID
   const videoId = "1igoCOn1TvALIcksn9nthVLbbdWk7lGiS"
   const videoUrl = `https://www.youtube.com/embed/MoUSV-pg7ow`
 
-  // Enhanced auto-animate video button every 5 seconds with impressive hover-like effects
   useEffect(() => {
     const interval = setInterval(() => {
       setIsVideoButtonAnimating(true)
-      setTimeout(() => setIsVideoButtonAnimating(false), 2000) // Animation lasts 2 seconds for more impact
-    }, 5000) // Every 5 seconds
+      setTimeout(() => setIsVideoButtonAnimating(false), 2000)
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [])
 
-  // Prevent body scroll when video modal is open
   useEffect(() => {
     if (isVideoOpen) {
       document.body.style.overflow = "hidden"
@@ -181,7 +178,6 @@ export default function AICreativePage() {
     }
   }, [isVideoOpen])
 
-  // Track when image viewer is opened and show rating modal after 4 seconds
   const [generatedItemViewerData, setGeneratedItemViewerData] = useState<{ image: string; index: number } | null>(null)
   const [historyViewerData, setHistoryViewerData] = useState<{
     images: string[]
@@ -192,12 +188,11 @@ export default function AICreativePage() {
   } | null>(null)
   const [historyViewerIndex, setHistoryViewerIndex] = useState<number>(0)
 
-  // Show rating modal 4 seconds after opening image viewer
   useEffect(() => {
     if (generatedItemViewerData || historyViewerData) {
       const timer = setTimeout(() => {
         setIsRatingModalOpen(true)
-      }, 3000) // 4 seconds after opening image viewer
+      }, 3000)
 
       return () => clearTimeout(timer)
     }
@@ -241,6 +236,22 @@ export default function AICreativePage() {
     else if (type === "reel") setWizardInitialReelSettings(getDefaultReelSettings())
   }, [])
 
+  const handleOpenGenerationTypeModal = useCallback(() => {
+    setIsGenerationTypeModalOpen(true)
+  }, [])
+
+  const handleGenerationTypeSelect = useCallback((type: "image" | "reel") => {
+    setCurrentGenerationType(type)
+    setActiveMode(type)
+    setGeneratedOutputs([])
+    setIsGenerating(false)
+    setCurrentView("output")
+    setWizardInitialPrompt("")
+    if (type === "image") setWizardInitialImageSettings(getDefaultImageSettings())
+    else if (type === "reel") setWizardInitialReelSettings(getDefaultReelSettings())
+    setIsWizardOpen(true)
+  }, [])
+
   const handleInitiateNewGenerationWizard = useCallback(() => {
     const typeToUse = currentGenerationType || activeMode || "image"
     setCurrentGenerationType(typeToUse as "image" | "reel")
@@ -267,13 +278,11 @@ export default function AICreativePage() {
         const result = await downloadImage({ url: imageUrl })
         const { base64, mimeType } = result.data
 
-        // Construct a Blob from the base64 string
         const response = await fetch(`data:${mimeType};base64,${base64}`)
         const blob = await response.blob()
 
         const blobUrl = URL.createObjectURL(blob)
 
-        // Create a temporary download link
         const a = document.createElement("a")
         a.href = blobUrl
         a.download = fileName
@@ -281,7 +290,6 @@ export default function AICreativePage() {
         a.click()
         a.remove()
 
-        // Revoke the blob URL to free memory
         URL.revokeObjectURL(blobUrl)
 
         toast({
@@ -311,7 +319,11 @@ export default function AICreativePage() {
       setGeneratedOutputs([])
       setGenerationProgress(0)
       setCurrentPromptForOutput(data.prompt)
-      setCurrentProductUrlForOutput(data.productImage ? URL.createObjectURL(data.productImage) : undefined)
+
+      // Handle multiple product images - use the first one for preview URL
+      const firstProductImage = data.productImages?.[0]
+      setCurrentProductUrlForOutput(firstProductImage ? URL.createObjectURL(firstProductImage) : undefined)
+
       setActiveMode(typeToUse)
       setCurrentView("output")
       setCurrentBatchTimestamp(new Date())
@@ -331,38 +343,45 @@ export default function AICreativePage() {
 
       try {
         const generateImageAd = httpsCallable(functions, "generateImageAd")
-        const productData = data.productImage ? await fileToDataUrlObject(data.productImage as File) : null
-        const adStyleData = data.inspirationImage ? await fileToDataUrlObject(data.inspirationImage as File) : null
+
+        // Convert all product images to data objects
+        const productDataArray = data.productImages
+          ? await Promise.all(data.productImages.map((file: File) => fileToDataUrlObject(file)))
+          : []
+
+        // Convert all inspiration images to data objects (for image generation)
+        const inspirationDataArray = data.inspirationImages
+          ? await Promise.all(data.inspirationImages.map((file: File) => fileToDataUrlObject(file)))
+          : []
+
         const settingsForGeneration = typeToUse === "image" ? data.settings : { ...data.settings }
 
         const result = await generateImageAd({
-          productFile: productData,
-          adInsiprationFile: adStyleData,
+          productFiles: productDataArray, // Changed to array
+          inspirationFiles: inspirationDataArray, // Changed to array
           prompt: data.prompt,
           shopId: shopData.id,
           n: settingsForGeneration.outputs || 1,
           size: settingsForGeneration.aspectRatio || (typeToUse === "image" ? "1024x1024" : "1024x576"),
           type: typeToUse === "image" ? "image" : "video",
           language: settingsForGeneration.language || "en",
-          includeText: typeToUse === "image" ? settingsForGeneration.includeText : undefined, // Pass the includeText setting
+          includeText: typeToUse === "image" ? settingsForGeneration.includeText : undefined,
         })
-        console.log("rrr", result.data)
 
         if (result.data?.reason === "tokens") {
           setIsGenerating(false)
           setGenerationProgress(0)
-          setIsPricingModalOpen(true) // ✅ Open pricing modal
+          setIsPricingModalOpen(true)
           toast({
             title: t("generationFailed"),
             description: t("notEnoughTokens"),
             variant: "destructive",
           })
-          return // 🛑 Stop here to prevent further processing
+          return
         }
         if (result.data && result.data.imageId) {
           setPendingImageId(result.data.imageId)
 
-          // ✅ Update the shop token count here
           if (result.data.tokens !== undefined) {
             setShopData((prev) => ({
               ...prev,
@@ -386,7 +405,6 @@ export default function AICreativePage() {
     [currentGenerationType, activeMode, toast, shopData.id, pendingImageId, t],
   )
 
-  // Function to handle phone number submission
   const handlePhoneNumberSubmit = useCallback(
     async (phoneNumber: string) => {
       setIsUpdatingPhoneNumber(true)
@@ -398,13 +416,11 @@ export default function AICreativePage() {
         })
 
         if (result.data?.success) {
-          // Update local shop data
           setShopData((prev) => ({
             ...prev,
             phoneNumber: phoneNumber,
           }))
 
-          // Show the results that were pending
           setGeneratedOutputs(pendingResults)
           setPendingResults([])
           setIsPhoneNumberModalOpen(false)
@@ -443,15 +459,12 @@ export default function AICreativePage() {
           if (data.imagesUrl?.length) {
             const results = data.imagesUrl
 
-            // Check if phone number is missing
             if (!shopData.phoneNumber || shopData.phoneNumber === "") {
-              // Store results and show phone number modal
               setPendingResults(results)
               setIsPhoneNumberModalOpen(true)
               setGenerationProgress(100)
               setIsGenerating(false)
             } else {
-              // Show results immediately if phone number exists
               setGeneratedOutputs(results)
               setGenerationProgress(100)
               setIsGenerating(false)
@@ -523,7 +536,6 @@ export default function AICreativePage() {
       if (!url) return
 
       if (action === "download") {
-        // Show download modal instead of direct download
         setDownloadModalData({
           imageUrl: url,
           imageIndex: imageIndex,
@@ -661,6 +673,7 @@ export default function AICreativePage() {
         onClose={() => setShowModal(false)}
         handleStartCreation={handleStartCreation}
       />
+
       {/* Enhanced Floating Video Button - Only show on welcome screen */}
       {currentView === "welcome" && (
         <div className="absolute left-4 sm:left-6 top-4 sm:top-6 z-40 group">
@@ -682,7 +695,6 @@ export default function AICreativePage() {
               }
             `}
           >
-            {/* Animated gradient overlay for periodic animation */}
             <div
               className={`
                 absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 
@@ -691,7 +703,6 @@ export default function AICreativePage() {
               `}
             />
 
-            {/* Ripple effect for animation */}
             <div
               className={`
                 absolute inset-0 rounded-full border-2 border-white/30
@@ -721,7 +732,6 @@ export default function AICreativePage() {
             </span>
           </button>
 
-          {/* Enhanced Tooltip with animation */}
           <div
             className={`
               absolute left-full ml-3 top-1/2 -translate-y-1/2 
@@ -741,7 +751,6 @@ export default function AICreativePage() {
       {/* Enhanced Video Modal */}
       {isVideoOpen && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          {/* Close Button */}
           <button
             onClick={() => setIsVideoOpen(false)}
             className="absolute top-4 sm:top-6 right-4 sm:right-6 bg-white/10 hover:bg-white/20 text-white p-2 sm:p-3 rounded-full transition-all duration-200 z-10 backdrop-blur-sm border border-white/20"
@@ -749,10 +758,8 @@ export default function AICreativePage() {
             <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
-          {/* Video Player */}
           <div className="w-full max-w-sm sm:max-w-md mx-auto">
             <div className="bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-              {/* Video Container - 9:16 format */}
               <div className="aspect-[9/16]">
                 <iframe
                   src={videoUrl}
@@ -775,6 +782,7 @@ export default function AICreativePage() {
               inspirationItems={creativeAiItems || sampleInspirationItems}
               onInspirationClick={handleInspirationClick}
               isLoadingInspirations={creativeAiLoading}
+              onOpenGenerationTypeModal={handleOpenGenerationTypeModal}
             />
           ) : (
             <OutputPanel
@@ -797,6 +805,13 @@ export default function AICreativePage() {
           )}
         </div>
       </div>
+
+      {/* Generation Type Modal */}
+      <GenerationTypeModal
+        isOpen={isGenerationTypeModalOpen}
+        onClose={() => setIsGenerationTypeModalOpen(false)}
+        onSelectType={handleGenerationTypeSelect}
+      />
 
       {isWizardOpen && (
         <GenerationWizardModal
@@ -865,6 +880,17 @@ export default function AICreativePage() {
           onDownloadWithWatermark={downloadFile}
         />
       )}
+
+      {isPhoneNumberModalOpen && (
+        <PhoneNumberModal
+          isOpen={isPhoneNumberModalOpen}
+          onClose={() => setIsPhoneNumberModalOpen(false)}
+          onSubmit={handlePhoneNumberSubmit}
+          isLoading={isUpdatingPhoneNumber}
+        />
+      )}
+
+      {isRatingModalOpen && <RatingModal isOpen={isRatingModalOpen} onClose={() => setIsRatingModalOpen(false)} />}
 
       <Toaster />
     </div>

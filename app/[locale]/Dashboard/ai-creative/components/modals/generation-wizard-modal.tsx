@@ -11,9 +11,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 
-
-
-
 import {
   Upload,
   X,
@@ -26,9 +23,9 @@ import {
   FileText,
   CopySlash,
   Type,
+  Plus,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-// import type { Settings as ImageSettingsFromApp, ReelSettings as ReelSettingsFromAppPage } from "@/app/page"
 import { PromptBuilderModal } from "./prompt-builder-modal"
 import { httpsCallable } from "firebase/functions"
 import { functions } from "@/firebase/firebase"
@@ -43,7 +40,7 @@ interface ImageSettings {
   model: string
   creativity: number[]
   language: string
-  includeText: boolean // New field for text inclusion
+  includeText: boolean
 }
 
 // Define ReelSettings based on the structure expected within this modal
@@ -52,25 +49,25 @@ interface ReelSettings {
   quality: string
   creativity: number[]
   outputs: number
-  model: "normal" | "expert" | "" // Allow empty string for "not selected"
+  model: "normal" | "expert" | ""
 }
 
 type GenerationType = "image" | "reel"
 
 const DEFAULT_IMAGE_SETTINGS: ImageSettings = {
   aspectRatio: "",
-  outputs: 1, // 0 signifies not selected
+  outputs: 1,
   model: "KOLORS 1.5",
   creativity: [7],
-  language: "", // Empty string signifies not selected
-  includeText: false, // Default to false (no text)
+  language: "",
+  includeText: false,
 }
 
 const DEFAULT_REEL_SETTINGS: ReelSettings = {
   aspectRatio: "",
-  quality: "standard", // Can keep a default or make it mandatory too
-  outputs: 1, // 0 signifies not selected
-  model: "", // Empty string signifies not selected
+  quality: "standard",
+  outputs: 1,
+  model: "",
   creativity: [5],
 }
 
@@ -125,8 +122,9 @@ export function GenerationWizardModal({
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
 
-  const [productImageFile, setProductImageFile] = useState<File | null>(null)
-  const [inspirationImageFile, setInspirationImageFile] = useState<File | null>(null)
+  // Changed to arrays for multiple files
+  const [productImageFiles, setProductImageFiles] = useState<File[]>([])
+  const [inspirationImageFiles, setInspirationImageFiles] = useState<File[]>([])
 
   const [imageSettings, setImageSettings] = useState<ImageSettings>(DEFAULT_IMAGE_SETTINGS)
   const [reelSettings, setReelSettings] = useState<ReelSettings>(DEFAULT_REEL_SETTINGS)
@@ -151,8 +149,8 @@ export function GenerationWizardModal({
       if (generationType === "reel") {
         setReelSettings({ ...DEFAULT_REEL_SETTINGS, ...(initialReelSettings || {}) })
       }
-      setProductImageFile(null)
-      setInspirationImageFile(null)
+      setProductImageFiles([])
+      setInspirationImageFiles([])
     }
   }, [isOpen, generationType, initialPrompt, initialImageSettings, initialReelSettings])
 
@@ -173,14 +171,14 @@ export function GenerationWizardModal({
           ? {
               prompt: adConcept,
               settings: imageSettings,
-              productImage: productImageFile,
-              inspirationImage: inspirationImageFile,
+              productImages: productImageFiles, // Changed to array
+              inspirationImages: inspirationImageFiles, // Changed to array
               originalUserPrompt: prompt,
             }
           : {
               prompt: adConcept,
               settings: reelSettings,
-              productImage: productImageFile,
+              productImages: productImageFiles, // Changed to array
               originalUserPrompt: prompt,
             }
       onSubmit(data)
@@ -192,9 +190,11 @@ export function GenerationWizardModal({
     if (isMovingToAdConcept) {
       setIsGeneratingBrief(true)
       try {
-        const productImageBase64 = productImageFile ? await fileToBase64(productImageFile) : null
-        // For image generation, product image is mandatory for brief generation at this stage
-        if (generationType === "image" && !productImageBase64) {
+        // Convert all product images to base64
+        const productImagesBase64 = await Promise.all(productImageFiles.map((file) => fileToBase64(file)))
+
+        // For image generation, at least one product image is mandatory for brief generation
+        if (generationType === "image" && productImagesBase64.length === 0) {
           toast({
             title: t("productImageRequired"),
             description: t("uploadProductImage"),
@@ -203,33 +203,30 @@ export function GenerationWizardModal({
           setIsGeneratingBrief(false)
           return
         }
-        // For reel generation, product image is optional for brief generation
-        // If not provided, the brief will be based on the prompt alone.
 
-        const adStyleImageBase64 = inspirationImageFile ? await fileToBase64(inspirationImageFile) : null
+        // Convert all inspiration images to base64
+        const inspirationImagesBase64 = await Promise.all(inspirationImageFiles.map((file) => fileToBase64(file)))
 
         const generateAdBrief = httpsCallable(functions, "generateImageAdBrief")
 
         const result = await generateAdBrief({
           userPrompt: prompt,
-          productImageBase64, // Can be null for reels
-          adStyleImageBase64,
+          productImagesBase64, // Send array of images
+          inspirationImagesBase64, // Send array of inspiration images
           type: generationType === "image" ? "image" : "video",
           shopId: shopData.id,
-          noText: generationType === "image" ? !imageSettings.includeText : true, // Pass the text setting for images
+          noText: generationType === "image" ? !imageSettings.includeText : true,
         })
 
         if (result.data?.reason === "tokens") {
-          setIsGeneratingBrief(false) // ✅ stop loading
-          setIsPricingModalOpen(true) // ✅ Open pricing modal
-
+          setIsGeneratingBrief(false)
+          setIsPricingModalOpen(true)
           toast({
             title: t("notEnoughTokens"),
             description: t("upgradePlan"),
             variant: "destructive",
           })
-
-          return // 🛑 Stop further processing
+          return
         }
         if (result.data.success) {
           setAdConcept(result.data.brief)
@@ -266,33 +263,36 @@ export function GenerationWizardModal({
     imageSettings,
     reelSettings,
     prompt,
-    productImageFile,
-    inspirationImageFile,
+    productImageFiles,
+    inspirationImageFiles,
     adConcept,
     onSubmit,
     toast,
     t,
   ])
 
-  const FileUploadArea = useCallback(
+  // Updated MultiFileUploadArea component
+  const MultiFileUploadArea = useCallback(
     ({
-      file,
-      onFileChange,
+      files,
+      onFilesChange,
       isDragActive,
       setIsDragActive,
       inputRef,
       title,
       isRequired,
       idPrefix,
+      maxFiles = 5,
     }: {
-      file: File | null
-      onFileChange: (file: File | null) => void
+      files: File[]
+      onFilesChange: (files: File[]) => void
       isDragActive: boolean
       setIsDragActive: (isActive: boolean) => void
       inputRef: React.RefObject<HTMLInputElement>
       title: string
       isRequired?: boolean
       idPrefix: string
+      maxFiles?: number
     }) => {
       const handleDragEvent = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault()
@@ -300,44 +300,66 @@ export function GenerationWizardModal({
         if (e.type === "dragenter" || e.type === "dragover") setIsDragActive(true)
         else if (e.type === "dragleave") setIsDragActive(false)
       }
+
       const handleDropEvent = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault()
         e.stopPropagation()
         setIsDragActive(false)
-        onFileChange(e.dataTransfer.files?.[0] || null)
+
+        const droppedFiles = Array.from(e.dataTransfer.files)
+        const newFiles = [...files, ...droppedFiles].slice(0, maxFiles)
+        onFilesChange(newFiles)
       }
+
       const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onFileChange(e.target.files?.[0] || null)
+        const selectedFiles = Array.from(e.target.files || [])
+        const newFiles = [...files, ...selectedFiles].slice(0, maxFiles)
+        onFilesChange(newFiles)
+      }
+
+      const removeFile = (index: number) => {
+        const newFiles = files.filter((_, i) => i !== index)
+        onFilesChange(newFiles)
       }
 
       return (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor={`${idPrefix}-upload`} className="text-md font-semibold">
             {t(title)} {isRequired && <span className="text-destructive">*</span>}
+            <span className="text-sm text-muted-foreground ml-2">
+              ({files.length}/{maxFiles} files)
+            </span>
           </Label>
-          {file ? (
-            <div className="bg-muted border rounded-xl p-3 relative group">
-              <div className="flex items-center gap-3">
-                <img
-                  src={URL.createObjectURL(file) || "/placeholder.svg"}
-                  alt="Preview"
-                  className="w-16 h-16 object-cover rounded-md border"
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium truncate">{file.name}</p>
+
+          {/* Display uploaded files */}
+          {files.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+              {files.map((file, index) => (
+                <div key={index} className="bg-muted border rounded-xl p-2 relative group">
+                  <div className="aspect-square relative">
+                    <img
+                      src={URL.createObjectURL(file) || "/placeholder.svg"}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeFile(index)}
+                      className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <p className="text-xs font-medium truncate mt-1">{file.name}</p>
                   <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onFileChange(null)}
-                  className="opacity-50 group-hover:opacity-100"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+              ))}
             </div>
-          ) : (
+          )}
+
+          {/* Upload area */}
+          {files.length < maxFiles && (
             <div
               onDragEnter={handleDragEvent}
               onDragLeave={handleDragEvent}
@@ -349,15 +371,24 @@ export function GenerationWizardModal({
                 isDragActive && "border-primary bg-primary/10",
               )}
             >
-              <Upload className={cn("h-8 w-8 text-muted-foreground mb-2", isDragActive && "text-primary")} />
-              <p className="text-sm font-medium mb-1">{isDragActive ? t("dropImageHere") : t("dragDropUpload")}</p>
-              <p className="text-xs text-muted-foreground">{t("pngJpgUpTo5mb")}</p>
+              <div className="flex items-center gap-2 mb-2">
+                <Upload className={cn("h-6 w-6 text-muted-foreground", isDragActive && "text-primary")} />
+                <Plus className={cn("h-4 w-4 text-muted-foreground", isDragActive && "text-primary")} />
+              </div>
+              <p className="text-sm font-medium mb-1">
+                {isDragActive ? t("dropImagesHere") : t("dragDropUploadMultiple")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("pngJpgUpTo5mb")} • Max {maxFiles} files
+              </p>
             </div>
           )}
+
           <input
             ref={inputRef}
             type="file"
             accept="image/png,image/jpeg"
+            multiple
             onChange={handleInputChange}
             className="hidden"
           />
@@ -383,24 +414,26 @@ export function GenerationWizardModal({
       case "uploadImages": // Image Generation - Step 1
         return (
           <div className="space-y-6">
-            <FileUploadArea
-              file={productImageFile}
-              onFileChange={setProductImageFile}
+            <MultiFileUploadArea
+              files={productImageFiles}
+              onFilesChange={setProductImageFiles}
               isDragActive={isDragActiveProduct}
               setIsDragActive={setIsDragActiveProduct}
               inputRef={productFileInputRef}
-              title="productPicture"
+              title="productPictures"
               isRequired // Mandatory for image brief generation
               idPrefix="product"
+              maxFiles={5}
             />
-            <FileUploadArea
-              file={inspirationImageFile}
-              onFileChange={setInspirationImageFile}
+            <MultiFileUploadArea
+              files={inspirationImageFiles}
+              onFilesChange={setInspirationImageFiles}
               isDragActive={isDragActiveInspiration}
               setIsDragActive={setIsDragActiveInspiration}
               inputRef={inspirationFileInputRef}
-              title="inspirationPicture"
+              title="inspirationPictures"
               idPrefix="inspiration"
+              maxFiles={3}
             />
           </div>
         )
@@ -566,8 +599,8 @@ export function GenerationWizardModal({
                     {t("aspectRatio")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
-                    value={reelSettings.aspectRatio} // Use reelSettings.aspectRatio
-                    onValueChange={(value) => setReelSettings((s) => ({ ...s, aspectRatio: value }))} // Update reelSettings
+                    value={reelSettings.aspectRatio}
+                    onValueChange={(value) => setReelSettings((s) => ({ ...s, aspectRatio: value }))}
                   >
                     <SelectTrigger id="aspectRatio-wizard" className="mt-1">
                       <SelectValue placeholder={t("selectRatio")} />
@@ -605,19 +638,20 @@ export function GenerationWizardModal({
             </div>
           )
         }
-      case "sourceImage": // Reel Generation - Step 1 (Source image is optional for reels)
+      case "sourceImage": // Reel Generation - Step 1
         return (
           <div className="space-y-6">
-            <FileUploadArea
-              file={productImageFile}
-              onFileChange={setProductImageFile}
+            <MultiFileUploadArea
+              files={productImageFiles}
+              onFilesChange={setProductImageFiles}
               isDragActive={isDragActiveProduct}
               setIsDragActive={setIsDragActiveProduct}
               inputRef={productFileInputRef}
-              title="refrenceImageReels"
+              title="referenceImagesReels"
               idPrefix="reel-source"
+              maxFiles={3}
             />
-            <p className="text-sm text-muted-foreground">{t("uploadImageReel")}</p>
+            <p className="text-sm text-muted-foreground">{t("uploadImagesReel")}</p>
           </div>
         )
       case "adConceptBrief":
@@ -651,17 +685,29 @@ export function GenerationWizardModal({
                 <strong>{t("type")}:</strong>{" "}
                 <Badge variant="outline">{generationType === "image" ? t("image") : t("reel")}</Badge>
               </p>
-              {productImageFile && (
-                <p>
-                  <strong>{generationType === "reel" ? t("sourcePicture") : t("productPicture")}:</strong>{" "}
-                  {productImageFile.name} ({(productImageFile.size / 1024 / 1024).toFixed(2)} MB)
-                </p>
+              {productImageFiles.length > 0 && (
+                <div>
+                  <strong>{generationType === "reel" ? t("sourcePictures") : t("productPictures")}:</strong>
+                  <div className="mt-1 space-y-1">
+                    {productImageFiles.map((file, index) => (
+                      <p key={index} className="text-xs">
+                        • {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </p>
+                    ))}
+                  </div>
+                </div>
               )}
-              {generationType === "image" && inspirationImageFile && (
-                <p>
-                  <strong>{t("inspirationPicture")}:</strong> {inspirationImageFile.name} (
-                  {(inspirationImageFile.size / 1024 / 1024).toFixed(2)} MB)
-                </p>
+              {generationType === "image" && inspirationImageFiles.length > 0 && (
+                <div>
+                  <strong>{t("inspirationPictures")}:</strong>
+                  <div className="mt-1 space-y-1">
+                    {inspirationImageFiles.map((file, index) => (
+                      <p key={index} className="text-xs">
+                        • {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </p>
+                    ))}
+                  </div>
+                </div>
               )}
               <div>
                 <strong>{t("finalAdConcept")}:</strong>
@@ -711,10 +757,10 @@ export function GenerationWizardModal({
   }, [
     steps,
     currentStepIndex,
-    FileUploadArea,
-    productImageFile,
+    MultiFileUploadArea,
+    productImageFiles,
     isDragActiveProduct,
-    inspirationImageFile,
+    inspirationImageFiles,
     isDragActiveInspiration,
     generationType,
     prompt,
@@ -727,7 +773,7 @@ export function GenerationWizardModal({
   const isNextDisabled = useMemo(() => {
     const stepId = steps[currentStepIndex].id
     if (generationType === "image") {
-      if (stepId === "uploadImages" && !productImageFile) return true
+      if (stepId === "uploadImages" && productImageFiles.length === 0) return true
       if (
         stepId === "detailsSettings" &&
         (!prompt.trim() || !imageSettings.language || !imageSettings.aspectRatio || imageSettings.outputs === 0)
@@ -736,21 +782,17 @@ export function GenerationWizardModal({
       }
       if (stepId === "adConceptBrief" && !adConcept.trim()) return true
     } else {
-      // Reel generation
-      // Source image is optional for reels, so no check in 'sourceImage' step.
+      // Reel generation - source images are optional
       if (
         stepId === "detailsSettings" &&
-        (!prompt.trim() ||
-          !reelSettings.model || // Check for empty string
-          !reelSettings.aspectRatio || // Check for aspect ratio
-          reelSettings.outputs === 0) // Check for 0
+        (!prompt.trim() || !reelSettings.model || !reelSettings.aspectRatio || reelSettings.outputs === 0)
       ) {
         return true
       }
       if (stepId === "adConceptBrief" && !adConcept.trim()) return true
     }
     return false
-  }, [steps, currentStepIndex, generationType, productImageFile, prompt, adConcept, imageSettings, reelSettings])
+  }, [steps, currentStepIndex, generationType, productImageFiles, prompt, adConcept, imageSettings, reelSettings])
 
   return (
     <>

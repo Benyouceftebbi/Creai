@@ -1,15 +1,15 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react" // Added useState, useEffect
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "@/components/types"
-import { ImageIcon, Video, Sparkles, Users, Eye, Loader2, Play, Zap, Palette, Wand2, Star, ArrowRight } from "lucide-react"
+import { Users, Eye, Loader2, Sparkles, ArrowRight, Wand2, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 
-// Helper to handle image errors and switch to placeholder (can be in a shared utils file)
+// Helper to handle image errors and switch to placeholder
 const ImageWithFallback = ({
   src,
   alt,
@@ -20,9 +20,9 @@ const ImageWithFallback = ({
 }: {
   src: string | undefined
   alt: string
-  className?: string // Class for the wrapper div
-  style?: React.CSSProperties // Style for the wrapper div
-  imgClassName?: string // Class for the img element itself
+  className?: string
+  style?: React.CSSProperties
+  imgClassName?: string
   fallbackText: string
 }) => {
   const [imgSrc, setImgSrc] = useState(src)
@@ -38,12 +38,7 @@ const ImageWithFallback = ({
 
   return (
     <div className={className} style={style}>
-      <img
-        src={imgSrc || placeholderUrl}
-        alt={alt}
-        className={imgClassName} // Apply specific image classes here
-        onError={handleError}
-      />
+      <img src={imgSrc || placeholderUrl} alt={alt} className={imgClassName} onError={handleError} />
     </div>
   )
 }
@@ -53,6 +48,7 @@ interface WelcomeScreenProps {
   inspirationItems: CreationDetail[]
   onInspirationClick: (creation: CreationDetail) => void
   isLoadingInspirations: boolean
+  onOpenGenerationTypeModal: () => void // New prop for opening the modal
 }
 
 export function WelcomeScreen({
@@ -60,6 +56,7 @@ export function WelcomeScreen({
   inspirationItems,
   onInspirationClick,
   isLoadingInspirations,
+  onOpenGenerationTypeModal,
 }: WelcomeScreenProps) {
   const t = useTranslations("creativeAi")
   const [isVisible, setIsVisible] = useState(false)
@@ -67,6 +64,7 @@ export function WelcomeScreen({
   useEffect(() => {
     setIsVisible(true)
   }, [])
+
   return (
     <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 flex flex-col overflow-y-auto">
       {/* Header Section */}
@@ -77,88 +75,29 @@ export function WelcomeScreen({
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-blue-800 dark:from-slate-50 dark:via-purple-300 dark:to-blue-300 bg-clip-text text-transparent mb-3 sm:mb-4 animate-in fade-in slide-in-from-bottom-4 delay-100 duration-500">
           {t("welcomeTitle")}
         </h1>
-        <p className="text-base sm:text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-200 duration-500">
+        <p className="text-base sm:text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-200 duration-500 mb-8">
           {t("welcomeDescription")}
         </p>
+
+        {/* Single Create Button */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 delay-300 duration-500">
+          <Button
+            size="lg"
+            onClick={onOpenGenerationTypeModal}
+            className="bg-gradient-to-r from-purple-600 via-blue-600 to-teal-500 hover:from-purple-700 hover:via-blue-700 hover:to-teal-600 text-white font-bold px-8 py-4 text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 rounded-2xl"
+          >
+            <Plus className="h-6 w-6 mr-3" />
+            Create Amazing Content
+            <Wand2 className="h-5 w-5 ml-3" />
+          </Button>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-3">
+            Choose between images or reels • Powered by AI
+          </p>
+        </div>
       </div>
 
-      {/* Enhanced Creation Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-10 sm:mb-16 max-w-5xl mx-auto w-full">
-        <div className="group bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-purple-100 dark:border-purple-900/50 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:scale-[1.02] animate-in fade-in slide-in-from-left-10 delay-300 duration-500 ease-out relative overflow-hidden">
- 
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-900/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
-          <div className="relative z-10">
-            <div className="flex items-center mb-4 sm:mb-6">
-              <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl mr-3 sm:mr-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <ImageIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-200">
-                  {t("imageGenerator")}
-                </h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge
-                    variant="secondary"
-                    className="text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300"
-                  >
-                    <Zap className="h-3 w-3 mr-1" />
-                    AI Powered
-                  </Badge>
-                </div>
-              </div>
-            </div>
-            <p className="text-gray-600 dark:text-slate-400 mb-6 sm:mb-8 leading-relaxed">
-              {t("imageGeneratorDescription")}
-            </p>
-            <Button
-              size="lg"
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl font-semibold py-3 sm:py-4"
-              onClick={() => onStartCreation("image")}
-            >
-              <Palette className="h-4 w-4 sm:h-5 sm:w-5 mr-2" /> {t("createImage")}
-            </Button>
-          </div>
-        </div>
-        
-        <div className="group bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 hover:scale-[1.02] animate-in fade-in slide-in-from-right-10 delay-400 duration-500 ease-out relative overflow-hidden">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-900/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
-          <div className="relative z-10">
-            <div className="flex items-center mb-4 sm:mb-6">
-              <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl mr-3 sm:mr-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Video className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-200">
-                  {t("reelGenerator")}
-                </h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge
-                    variant="secondary"
-                    className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
-                  >
-                    <Wand2 className="h-3 w-3 mr-1" />
-                    Advanced AI
-                  </Badge>
-                </div>
-              </div>
-            </div>
-            <p className="text-gray-600 dark:text-slate-400 mb-6 sm:mb-8 leading-relaxed">
-              {t("reelGeneratorDescription")}
-            </p>
-            <Button
-              size="lg"
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl font-semibold py-3 sm:py-4"
-              onClick={() => onStartCreation("reel")}
-            >
-              <Play className="h-4 w-4 sm:h-5 sm:w-5 mr-2" /> {t("createReel")}
-            </Button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Enhanced Inspirations Section */}
-      <div className="mt-8 border-t border-border/50 pt-8 sm:pt-12 animate-in fade-in slide-in-from-bottom-8 delay-500 duration-500 ease-out">
+      {/* Enhanced Inspirations Section - Moved Up */}
+      <div className="animate-in fade-in slide-in-from-bottom-8 delay-400 duration-500 ease-out">
         <div className="flex items-center gap-3 mb-6 sm:mb-8">
           <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-lg">
             <Users className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
@@ -186,58 +125,58 @@ export function WelcomeScreen({
                   "hover:shadow-2xl hover:shadow-primary/25 hover:border-primary/40 hover:-translate-y-2 hover:scale-[1.03]",
                   "animate-in fade-in zoom-in-95 ease-out",
                 )}
-                style={{ animationDelay: `${500 + index * 100}ms`, animationFillMode: "both" }}
+                style={{ animationDelay: `${400 + index * 100}ms`, animationFillMode: "both" }}
               >
                 {/* Enhanced Image Container */}
                 <div className="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-  <div className="w-full h-full flex">
-    {/* Left: Before Image */}
-    <div className="w-1/2 h-full relative">
-      <ImageWithFallback
-        src={creation.beforeImage || "/placeholder.svg"}
-        alt="Before"
-        imgClassName="w-full h-full object-cover transition-transform duration-700"
-        fallbackText="Before"
-        style={{ width: "100%", height: "100%" }}
-      />
-      <Badge
-        variant="secondary"
-        className="absolute top-3 left-3 bg-yellow-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
-      >
-        Before
-      </Badge>
-    </div>
+                  <div className="w-full h-full flex">
+                    {/* Left: Before Image */}
+                    <div className="w-1/2 h-full relative">
+                      <ImageWithFallback
+                        src={creation.beforeImage || "/placeholder.svg"}
+                        alt="Before"
+                        imgClassName="w-full h-full object-cover transition-transform duration-700"
+                        fallbackText="Before"
+                        style={{ width: "100%", height: "100%" }}
+                      />
+                      <Badge
+                        variant="secondary"
+                        className="absolute top-3 left-3 bg-yellow-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
+                      >
+                        Before
+                      </Badge>
+                    </div>
 
-    {/* Right: After Image */}
-    <div className="w-1/2 h-full relative">
-      <ImageWithFallback
-        src={creation.image || "/placeholder.svg"}
-        alt="After"
-        imgClassName="w-full h-full object-cover transition-transform duration-700"
-        fallbackText="After"
-        style={{ width: "100%", height: "100%" }}
-      />
-      <Badge
-        variant="secondary"
-        className="absolute top-3 left-3 bg-green-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
-      >
-        After
-      </Badge>
-    </div>
-  </div>
+                    {/* Right: After Image */}
+                    <div className="w-1/2 h-full relative">
+                      <ImageWithFallback
+                        src={creation.image || "/placeholder.svg"}
+                        alt="After"
+                        imgClassName="w-full h-full object-cover transition-transform duration-700"
+                        fallbackText="After"
+                        style={{ width: "100%", height: "100%" }}
+                      />
+                      <Badge
+                        variant="secondary"
+                        className="absolute top-3 left-3 bg-green-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
+                      >
+                        After
+                      </Badge>
+                    </div>
+                  </div>
 
-  {/* Hover Overlay */}
-  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-4">
-    <Button
-      size="sm"
-      variant="secondary"
-      className="w-full bg-white/95 hover:bg-white text-gray-800 dark:bg-slate-100/95 dark:hover:bg-slate-100 dark:text-slate-800 backdrop-blur-sm shadow-xl font-semibold border border-white/50 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
-    >
-      <Eye className="h-4 w-4 mr-2" />
-      View Details
-    </Button>
-  </div>
-</div>
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-4">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full bg-white/95 hover:bg-white text-gray-800 dark:bg-slate-100/95 dark:hover:bg-slate-100 dark:text-slate-800 backdrop-blur-sm shadow-xl font-semibold border border-white/50 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </Button>
+                  </div>
+                </div>
 
                 {/* Enhanced Card Footer */}
                 <div className="p-4 bg-gradient-to-br from-white/95 to-white/90 dark:from-slate-800/95 dark:to-slate-800/90 backdrop-blur-sm border-t border-gray-100/50 dark:border-slate-700/50">
@@ -282,6 +221,8 @@ export function WelcomeScreen({
           </div>
         )}
       </div>
+
+      {/* Bottom CTA Banner */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-600 via-blue-600 to-teal-500 shadow-2xl">
         {/* Background Pattern */}
         <div
@@ -327,6 +268,7 @@ export function WelcomeScreen({
             <div className="flex-shrink-0">
               <Button
                 size="lg"
+                onClick={onOpenGenerationTypeModal}
                 className="group relative overflow-hidden bg-white text-purple-600 hover:bg-gray-100 font-bold px-4 py-2 md:px-6 md:py-3 rounded-full shadow-xl transform hover:scale-105 transition-all duration-300 text-sm md:text-base"
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -355,6 +297,5 @@ export function WelcomeScreen({
       {/* Add bottom padding to main content to prevent overlap */}
       <div className="h-20 md:h-24" />
     </div>
-    
   )
 }
