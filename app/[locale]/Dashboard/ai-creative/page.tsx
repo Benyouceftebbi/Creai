@@ -661,19 +661,6 @@ export default function AICreativePage() {
         onClose={() => setShowModal(false)}
         handleStartCreation={handleStartCreation}
       />
-      <RatingModal isOpen={isRatingModalOpen} onClose={() => setIsRatingModalOpen(false)} />
-
-      {/* Phone Number Modal */}
-      <PhoneNumberModal
-        isOpen={isPhoneNumberModalOpen}
-        onClose={() => {
-          // Don't allow closing without providing phone number
-          // User must provide phone number to see results
-        }}
-        onSubmit={handlePhoneNumberSubmit}
-        isLoading={isUpdatingPhoneNumber}
-      />
-
       {/* Enhanced Floating Video Button - Only show on welcome screen */}
       {currentView === "welcome" && (
         <div className="absolute left-4 sm:left-6 top-4 sm:top-6 z-40 group">

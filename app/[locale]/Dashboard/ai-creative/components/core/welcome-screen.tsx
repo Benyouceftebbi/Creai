@@ -5,7 +5,7 @@ import { useState, useEffect } from "react" // Added useState, useEffect
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "@/components/types"
-import { ImageIcon, Video, Sparkles, Users, Eye, Loader2, Play, Zap, Palette, Wand2, Star } from "lucide-react"
+import { ImageIcon, Video, Sparkles, Users, Eye, Loader2, Play, Zap, Palette, Wand2, Star, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 
@@ -62,7 +62,11 @@ export function WelcomeScreen({
   isLoadingInspirations,
 }: WelcomeScreenProps) {
   const t = useTranslations("creativeAi")
+  const [isVisible, setIsVisible] = useState(false)
 
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
   return (
     <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 flex flex-col overflow-y-auto">
       {/* Header Section */}
@@ -81,7 +85,7 @@ export function WelcomeScreen({
       {/* Enhanced Creation Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-10 sm:mb-16 max-w-5xl mx-auto w-full">
         <div className="group bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-purple-100 dark:border-purple-900/50 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:scale-[1.02] animate-in fade-in slide-in-from-left-10 delay-300 duration-500 ease-out relative overflow-hidden">
-          {/* Gradient overlay */}
+ 
           <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-900/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
           <div className="relative z-10">
             <div className="flex items-center mb-4 sm:mb-6">
@@ -115,7 +119,7 @@ export function WelcomeScreen({
             </Button>
           </div>
         </div>
-
+        
         <div className="group bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 hover:scale-[1.02] animate-in fade-in slide-in-from-right-10 delay-400 duration-500 ease-out relative overflow-hidden">
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-900/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
@@ -152,7 +156,7 @@ export function WelcomeScreen({
           </div>
         </div>
       </div>
-
+      
       {/* Enhanced Inspirations Section */}
       <div className="mt-8 border-t border-border/50 pt-8 sm:pt-12 animate-in fade-in slide-in-from-bottom-8 delay-500 duration-500 ease-out">
         <div className="flex items-center gap-3 mb-6 sm:mb-8">
@@ -186,79 +190,54 @@ export function WelcomeScreen({
               >
                 {/* Enhanced Image Container */}
                 <div className="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-                  {creation.type === "reel" ? (
-                    <div className="w-full h-full relative">
-                      <ImageWithFallback
-                        src={creation.beforeImage || creation.image || "/placeholder.svg"}
-                        alt={`${creation.user}'s reel`}
-                        imgClassName="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        fallbackText="Reel"
-                        style={{ width: "100%", height: "100%" }}
-                      />
-                      {/* Enhanced Play Button Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-center justify-center">
-                        <div className="bg-white/25 backdrop-blur-md rounded-full p-4 group-hover:scale-125 group-hover:bg-white/35 transition-all duration-500 shadow-2xl border border-white/20">
-                          <Play className="h-8 w-8 sm:h-10 sm:w-10 text-white drop-shadow-2xl" fill="currentColor" />
-                        </div>
-                      </div>
-                      {/* Duration Badge */}
-                      {creation.duration && (
-                        <Badge
-                          variant="secondary"
-                          className="absolute top-3 right-3 bg-black/80 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
-                        >
-                          {creation.duration}
-                        </Badge>
-                      )}
-                      {/* Type Badge */}
-                      <Badge
-                        variant="secondary"
-                        className="absolute top-3 left-3 bg-blue-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
-                      >
-                        <Video className="h-3 w-3 mr-1" />
-                        Reel
-                      </Badge>
-                    </div>
-                  ) : (
-                    <div className="w-full h-full relative">
-                      <ImageWithFallback
-                        src={creation.image || "/placeholder.svg"}
-                        alt={`${creation.user}'s creation`}
-                        imgClassName="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        fallbackText="Image"
-                        style={{ width: "100%", height: "100%" }}
-                      />
-                      {/* Type Badge */}
-                      <Badge
-                        variant="secondary"
-                        className="absolute top-3 left-3 bg-purple-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
-                      >
-                        <ImageIcon className="h-3 w-3 mr-1" />
-                        Image
-                      </Badge>
-                      {/* Quality Badge */}
-                      <Badge
-                        variant="secondary"
-                        className="absolute top-3 right-3 bg-emerald-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
-                      >
-                        <Star className="h-3 w-3 mr-1" />
-                        HD
-                      </Badge>
-                    </div>
-                  )}
+  <div className="w-full h-full flex">
+    {/* Left: Before Image */}
+    <div className="w-1/2 h-full relative">
+      <ImageWithFallback
+        src={creation.beforeImage || "/placeholder.svg"}
+        alt="Before"
+        imgClassName="w-full h-full object-cover transition-transform duration-700"
+        fallbackText="Before"
+        style={{ width: "100%", height: "100%" }}
+      />
+      <Badge
+        variant="secondary"
+        className="absolute top-3 left-3 bg-yellow-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
+      >
+        Before
+      </Badge>
+    </div>
 
-                  {/* Enhanced Hover Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-4">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="w-full bg-white/95 hover:bg-white text-gray-800 dark:bg-slate-100/95 dark:hover:bg-slate-100 dark:text-slate-800 backdrop-blur-sm shadow-xl font-semibold border border-white/50 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                  </div>
-                </div>
+    {/* Right: After Image */}
+    <div className="w-1/2 h-full relative">
+      <ImageWithFallback
+        src={creation.image || "/placeholder.svg"}
+        alt="After"
+        imgClassName="w-full h-full object-cover transition-transform duration-700"
+        fallbackText="After"
+        style={{ width: "100%", height: "100%" }}
+      />
+      <Badge
+        variant="secondary"
+        className="absolute top-3 left-3 bg-green-500/90 text-white text-xs px-2.5 py-1 backdrop-blur-sm border border-white/20 shadow-lg"
+      >
+        After
+      </Badge>
+    </div>
+  </div>
+
+  {/* Hover Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-4">
+    <Button
+      size="sm"
+      variant="secondary"
+      className="w-full bg-white/95 hover:bg-white text-gray-800 dark:bg-slate-100/95 dark:hover:bg-slate-100 dark:text-slate-800 backdrop-blur-sm shadow-xl font-semibold border border-white/50 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
+    >
+      <Eye className="h-4 w-4 mr-2" />
+      View Details
+    </Button>
+  </div>
+</div>
 
                 {/* Enhanced Card Footer */}
                 <div className="p-4 bg-gradient-to-br from-white/95 to-white/90 dark:from-slate-800/95 dark:to-slate-800/90 backdrop-blur-sm border-t border-gray-100/50 dark:border-slate-700/50">
@@ -303,6 +282,79 @@ export function WelcomeScreen({
           </div>
         )}
       </div>
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-600 via-blue-600 to-teal-500 shadow-2xl">
+        {/* Background Pattern */}
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg%20width='30'%20height='30'%20viewBox='0%200%2030%2030'%20xmlns='http://www.w3.org/2000/svg'%3E%3Cg%20fill='%23ffffff'%20fillOpacity='0.3'%3E%3Ccircle%20cx='15'%20cy='15'%20r='1'/%3E%3C/g%3E%3C/svg%3E\")",
+          }}
+        />
+
+        {/* Floating Elements */}
+        <div
+          className="absolute top-1 left-4 w-3 h-3 bg-white/20 rounded-full animate-bounce"
+          style={{ animationDuration: "2s" }}
+        />
+        <div
+          className="absolute top-2 right-8 w-2 h-2 bg-white/20 rounded-full animate-bounce"
+          style={{ animationDelay: "0.5s", animationDuration: "3s" }}
+        />
+
+        <div className="relative px-4 py-3 md:py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 max-w-6xl mx-auto">
+            {/* Left Content */}
+            <div className="flex items-center gap-3 text-center sm:text-left">
+              <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
+                <Sparkles
+                  className="w-4 h-4 md:w-5 md:h-5 text-white animate-spin"
+                  style={{ animationDuration: "3s" }}
+                />
+              </div>
+              <div>
+                <h3 className="text-white font-bold text-sm md:text-lg leading-tight">
+                  Want your product to look{" "}
+                  <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent animate-pulse">
+                    this good?
+                  </span>
+                </h3>
+                <p className="text-white/80 text-xs md:text-sm hidden sm:block">Transform with AI • Free trial</p>
+              </div>
+            </div>
+
+            {/* Right CTA Button */}
+            <div className="flex-shrink-0">
+              <Button
+                size="lg"
+                className="group relative overflow-hidden bg-white text-purple-600 hover:bg-gray-100 font-bold px-4 py-2 md:px-6 md:py-3 rounded-full shadow-xl transform hover:scale-105 transition-all duration-300 text-sm md:text-base"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Create Ad Now!
+                  <ArrowRight className="w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-10 transition-opacity" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile-only stats */}
+          <div className="sm:hidden mt-2 flex justify-center gap-4 text-white/70 text-xs">
+            <span>10k+ Enhanced</span>
+            <span>•</span>
+            <span>98% Satisfaction</span>
+            <span>•</span>
+            <span>2min Process</span>
+          </div>
+        </div>
+
+        {/* Top border glow */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent animate-pulse" />
+      </div>
+
+      {/* Add bottom padding to main content to prevent overlap */}
+      <div className="h-20 md:h-24" />
     </div>
+    
   )
 }
