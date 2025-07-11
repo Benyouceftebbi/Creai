@@ -22,6 +22,7 @@ import { ConversionModal } from "@/app/components/Conversion-modal"
 import { RatingModal } from "./components/ui/rating-modal"
 
 import { PhoneNumberModal } from "./components/modals/phone-number-modal"
+import { DownloadModal } from "./components/modals/download-modal"
 
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 
@@ -135,6 +136,12 @@ export default function AICreativePage() {
   const [isVideoButtonAnimating, setIsVideoButtonAnimating] = useState(false)
 
   // Simulate API call to refresh tokens
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
+  const [downloadModalData, setDownloadModalData] = useState<{
+    imageUrl: string
+    imageIndex: number
+    totalImages: number
+  } | null>(null)
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(0)
@@ -190,7 +197,7 @@ export default function AICreativePage() {
     if (generatedItemViewerData || historyViewerData) {
       const timer = setTimeout(() => {
         setIsRatingModalOpen(true)
-      }, 4500) // 4 seconds after opening image viewer
+      }, 3000) // 4 seconds after opening image viewer
 
       return () => clearTimeout(timer)
     }
@@ -516,17 +523,18 @@ export default function AICreativePage() {
       if (!url) return
 
       if (action === "download") {
-        let extension = typeForAction === "reel" ? ".mp4" : ".png"
-        if (url.includes(".svg")) extension = ".svg"
-        else if (url.includes(".jpg") || url.includes(".jpeg")) extension = ".jpg"
-        else if (url.includes(".mp4")) extension = ".mp4"
-        const filename = `${typeForAction}_${Date.now()}_${imageIndex + 1}${extension}`
-        downloadFile(url, filename)
+        // Show download modal instead of direct download
+        setDownloadModalData({
+          imageUrl: url,
+          imageIndex: imageIndex,
+          totalImages: generatedOutputs.length,
+        })
+        setIsDownloadModalOpen(true)
       } else if (action === "view") {
         setGeneratedItemViewerData({ image: url, index: imageIndex })
       }
     },
-    [generatedOutputs, currentGenerationType, activeMode, downloadFile, toast],
+    [generatedOutputs, currentGenerationType, activeMode],
   )
 
   const handleDownloadAllGenerated = useCallback(() => {
@@ -856,6 +864,20 @@ export default function AICreativePage() {
       )}
 
       {isPricingModalOpen && <PricingModal isOpen={isPricingModalOpen} onClose={() => setIsPricingModalOpen(false)} />}
+
+      {isDownloadModalOpen && downloadModalData && (
+        <DownloadModal
+          isOpen={isDownloadModalOpen}
+          onClose={() => {
+            setIsDownloadModalOpen(false)
+            setDownloadModalData(null)
+          }}
+          imageUrl={downloadModalData.imageUrl}
+          imageIndex={downloadModalData.imageIndex}
+          totalImages={downloadModalData.totalImages}
+          onDownloadWithWatermark={downloadFile}
+        />
+      )}
 
       <Toaster />
     </div>

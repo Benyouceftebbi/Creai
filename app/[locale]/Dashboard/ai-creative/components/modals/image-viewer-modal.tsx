@@ -5,6 +5,7 @@ import { X, ArrowLeft, ArrowRight, Clock, ImageIcon as ImageIconLucide, Info, Do
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils" // Ensure cn is imported
 import { useTranslations } from "next-intl"
+import { DownloadModal } from "./download-modal"
 
 interface ImageViewerModalProps {
   image: string
@@ -38,6 +39,7 @@ export function ImageViewerModal({
   const hasPrevious = onPrevious ? imageIndex > 0 : false
   const [isPromptTooltipVisible, setIsPromptTooltipVisible] = useState(false)
   const [isProductImageTooltipVisible, setIsProductImageTooltipVisible] = useState(false)
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -132,7 +134,7 @@ export function ImageViewerModal({
           <Button
             variant="outline"
             size="sm"
-            onClick={handleDownloadClick}
+            onClick={() => setIsDownloadModalOpen(true)} // Changed this line
             className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
           >
             <Download className="h-4 w-4 mr-2" />
@@ -216,6 +218,16 @@ export function ImageViewerModal({
             </div>
           </div>
         </div>
+        {isDownloadModalOpen && (
+          <DownloadModal
+            isOpen={isDownloadModalOpen}
+            onClose={() => setIsDownloadModalOpen(false)}
+            imageUrl={image}
+            imageIndex={imageIndex}
+            totalImages={images.length}
+            onDownloadWithWatermark={onDownloadFile}
+          />
+        )}
       </div>
     </div>
   )

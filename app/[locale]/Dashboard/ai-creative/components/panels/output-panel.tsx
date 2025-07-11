@@ -36,6 +36,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
+import { DownloadModal } from "../modals/download-modal"
 
 interface OutputPanelProps {
   generatedImages: string[]
@@ -82,6 +83,13 @@ export function OutputPanel({
   const [historySearchQuery, setHistorySearchQuery] = useState("")
   const [historySortBy, setHistorySortBy] = useState<"newest" | "oldest">("newest")
   // Removed historyFilterType state
+
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
+  const [downloadModalData, setDownloadModalData] = useState<{
+    imageUrl: string
+    imageIndex: number
+    totalImages: number
+  } | null>(null)
 
   const isReel = mode === "reel"
   // The panelTitle will now correctly reflect the current mode for history view
@@ -320,7 +328,13 @@ export function OutputPanel({
                           className="h-8 w-8 sm:h-10 sm:w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
-                            onImageAction("download", index)
+                            // Show download modal instead of direct download
+                            setDownloadModalData({
+                              imageUrl: image,
+                              imageIndex: index,
+                              totalImages: generatedImages.length,
+                            })
+                            setIsDownloadModalOpen(true)
                           }}
                         >
                           <Download className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -398,6 +412,22 @@ export function OutputPanel({
             </div>
           </div>
         </div>
+        {isDownloadModalOpen && downloadModalData && (
+          <DownloadModal
+            isOpen={isDownloadModalOpen}
+            onClose={() => {
+              setIsDownloadModalOpen(false)
+              setDownloadModalData(null)
+            }}
+            imageUrl={downloadModalData.imageUrl}
+            imageIndex={downloadModalData.imageIndex}
+            totalImages={downloadModalData.totalImages}
+            onDownloadWithWatermark={(url, filename) => {
+              // This will be handled by the parent component
+              onImageAction("download", downloadModalData.imageIndex)
+            }}
+          />
+        )}
       </div>
     )
   }
