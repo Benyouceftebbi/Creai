@@ -151,6 +151,9 @@ export default function AICreativePage() {
   const [currentBatchTimestamp, setCurrentBatchTimestamp] = useState<Date | undefined>(undefined)
   const [currentProductUrlForOutput, setCurrentProductUrlForOutput] = useState<string | undefined>(undefined)
 
+  // Remove currentDocumentData state as it's no longer needed for manual change detection
+  // const [currentDocumentData, setCurrentDocumentData] = useState<any>(null)
+
   const { toast } = useToast()
   const [userHistory, setUserHistory] = useState<HistoryItem[]>([])
   const t = useTranslations("creativeAi")
@@ -451,67 +454,72 @@ export default function AICreativePage() {
     const typeToUse = currentGenerationType || (activeMode === "image" || activeMode === "reel" ? activeMode : "image")
     if (!pendingImageId || !shopData.id || !typeToUse) return
 
-    const imageDocRef = doc(db, "Shops", shopData.id, "ImageAi", pendingImageId)
+    // Listen to the collection to get change.type
+    const collectionRef = collection(db, "Shops", shopData.id, "ImageAi")
     const unsubscribe = onSnapshot(
-      imageDocRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data()
-          if (data.imagesUrl?.length) {
-            const results = data.imagesUrl
-            const results2 = data.imagesUrl2 || [] // Get high-quality images if available
-            const imageType = data.imageType || "added" // Get image type (added/modified)
+      collectionRef,
+      (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.doc.id === pendingImageId) {
+            const data = change.doc.data()
+            const docType = change.type // "added", "modified", "removed"
 
-            // Use high-quality images if available and type is "modified", otherwise use regular images
-            const imagesToUse = imageType === "modified" && results2.length > 0 ? results2 : results
+            if (docType === "added" || docType === "modified") {
+              // Use high-quality images (imagesUrl2) if available and it's a 'modified' event,
+              // otherwise use the initial images (imagesUrl) for 'added' or if imagesUrl2 is not present yet.
+              const imagesToUse =
+                docType === "modified" && data.imagesUrl2?.length > 0 ? data.imagesUrl2 : data.imagesUrl
 
-            if (!shopData.phoneNumber || shopData.phoneNumber === "") {
-              setPendingResults(imagesToUse)
-              setIsPhoneNumberModalOpen(true)
-              setGenerationProgress(100)
+              if (imagesToUse?.length) {
+                if (!shopData.phoneNumber || shopData.phoneNumber === "") {
+                  setPendingResults(imagesToUse)
+                  setIsPhoneNumberModalOpen(true)
+                  setGenerationProgress(100)
+                  setIsGenerating(false)
+                } else {
+                  setGeneratedOutputs(imagesToUse)
+                  setGenerationProgress(100)
+                  setIsGenerating(false)
+                }
+
+                setCurrentBatchTimestamp(data.createdAt?.toDate ? data.createdAt.toDate() : new Date())
+                setCurrentProductUrlForOutput(data.productUrl)
+
+                const newHistoryItem: HistoryItem = {
+                  id: pendingImageId,
+                  type: typeToUse,
+                  prompt: data.prompt || currentPromptForOutput,
+                  results: Array.isArray(data.imagesUrl) ? data.imagesUrl : [],
+                  results2: Array.isArray(data.imagesUrl2) ? data.imagesUrl2 : [],
+                  settings: typeof data.settings === "object" && data.settings !== null ? data.settings : {},
+                  createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+                  status: "completed",
+                  productUrl: data.productUrl,
+                }
+                setUserHistory((prev) => [newHistoryItem, ...prev.filter((item) => item.id !== newHistoryItem.id)])
+
+                if (shopData.phoneNumber && shopData.phoneNumber !== "") {
+                  toast({ title: t("success"), description: t("generationCompleted") })
+                }
+
+                // Once the final images (either initial or high-quality) are received,
+                // we can stop listening for this specific pendingImageId.
+                // Setting pendingImageId to null will trigger the useEffect cleanup.
+                setPendingImageId(null)
+              }
+            } else if (docType === "removed" || data.status === "failed" || data.error) {
+              console.error("Generation failed or removed in Firestore:", data.error || "Unknown error")
+              toast({
+                title: t("generationFailed"),
+                description: data.error || `The ${typeToUse} could not be generated.`,
+                variant: "destructive",
+              })
               setIsGenerating(false)
-            } else {
-              setGeneratedOutputs(imagesToUse)
-              setGenerationProgress(100)
-              setIsGenerating(false)
+              setGenerationProgress(0)
+              setPendingImageId(null) // Mark as completed/failed
             }
-
-            setCurrentBatchTimestamp(data.createdAt?.toDate ? data.createdAt.toDate() : new Date())
-            setCurrentProductUrlForOutput(data.productUrl)
-
-            const newHistoryItem: HistoryItem = {
-              id: pendingImageId,
-              type: typeToUse,
-              prompt: data.prompt || currentPromptForOutput,
-              results: Array.isArray(data.imagesUrl) ? data.imagesUrl : [],
-              results2: Array.isArray(data.imagesUrl2) ? data.imagesUrl2 : [], // Store high-quality images
-              settings: typeof data.settings === "object" && data.settings !== null ? data.settings : {},
-              createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
-              status: "completed",
-              productUrl: data.productUrl,
-              imageType: data.imageType || "added", // Store image type
-            }
-            setUserHistory((prev) => [newHistoryItem, ...prev.filter((item) => item.id !== newHistoryItem.id)])
-
-            if (shopData.phoneNumber && shopData.phoneNumber !== "") {
-              toast({ title: t("success"), description: t("generationCompleted") })
-            }
-
-            setPendingImageId(null)
-            unsubscribe()
-          } else if (data.status === "failed" || data.error) {
-            console.error("Generation failed in Firestore:", data.error || "Unknown error")
-            toast({
-              title: t("generationFailed"),
-              description: data.error || `The ${typeToUse} could not be generated.`,
-              variant: "destructive",
-            })
-            setIsGenerating(false)
-            setGenerationProgress(0)
-            setPendingImageId(null)
-            unsubscribe()
           }
-        }
+        })
       },
       (error) => {
         console.error("Error in Firestore snapshot listener:", error)
@@ -525,7 +533,21 @@ export default function AICreativePage() {
         setPendingImageId(null)
       },
     )
-    return () => unsubscribe()
+
+    // Clean up after 5 minutes to avoid infinite listening if something goes wrong
+    // This timeout will unsubscribe the *entire* collection listener.
+    const timeoutId = setTimeout(
+      () => {
+        unsubscribe()
+        setPendingImageId(null)
+      },
+      5 * 60 * 1000, // 5 minutes
+    )
+
+    return () => {
+      unsubscribe()
+      clearTimeout(timeoutId)
+    }
   }, [
     pendingImageId,
     shopData.id,
@@ -535,6 +557,7 @@ export default function AICreativePage() {
     toast,
     currentPromptForOutput,
     t,
+    setShopData, // Added setShopData to dependencies as it's used in handlePhoneNumberSubmit
   ])
 
   const handleImageAction = useCallback(
@@ -576,8 +599,8 @@ export default function AICreativePage() {
   }, [generatedOutputs, currentGenerationType, activeMode, downloadFile, toast, t])
 
   const handleOpenHistoryItemDetail = useCallback((item: HistoryItem) => {
-    // Use high-quality images if available and type is "modified", otherwise use regular images
-    const imagesToUse = item.imageType === "modified" && item.results2?.length ? item.results2 : item.results
+    // Use high-quality images if available, otherwise use regular images
+    const imagesToUse = item.results2?.length ? item.results2 : item.results
 
     setHistoryViewerData({
       images: imagesToUse,

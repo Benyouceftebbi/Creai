@@ -12,7 +12,6 @@ export interface HistoryItem {
   settings: Settings | ReelSettings // Use specific types
   createdAt: Date // Use createdAt consistently
   status: "completed" | "failed"
-  imageType?: "added" | "modified" // Add image type field
 }
 
 export interface ChatMessage {
