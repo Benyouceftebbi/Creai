@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react" // Added useState
-import { X, Video, ImageIcon, Clock } from 'lucide-react'
+import { X, Video, ImageIcon, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { CreationDetail } from "../types"
@@ -11,7 +11,6 @@ import { useTranslations } from "next-intl"
 interface CreationDetailModalProps {
   creation: CreationDetail
   onClose: () => void
-  // Removed: onNext, onPrevious, hasNext, hasPrevious
 }
 
 // Helper to handle image errors and switch to placeholder
@@ -42,11 +41,7 @@ const ImageWithFallback = ({
   return <img src={imgSrc || placeholderUrl} alt={alt} className={className} style={style} onError={handleError} />
 }
 
-export function CreationDetailModal({
-  creation,
-  onClose,
-  // Removed: onNext, onPrevious, hasNext, hasPrevious
-}: CreationDetailModalProps) {
+export function CreationDetailModal({ creation, onClose }: CreationDetailModalProps) {
   const t = useTranslations("creativeAi")
 
   useEffect(() => {
@@ -54,12 +49,11 @@ export function CreationDetailModal({
       if (e.key === "Escape") {
         onClose()
       }
-      // Removed keyboard navigation for next/previous as it's for single item
     }
 
     document.addEventListener("keydown", handleEscape)
     return () => document.removeEventListener("keydown", handleEscape)
-  }, [onClose]) // Dependency array updated
+  }, [onClose])
 
   const formattedCreationDate = creation.createdAt
     ? new Date(creation.createdAt).toLocaleString(undefined, {
@@ -136,7 +130,6 @@ export function CreationDetailModal({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* Removed navigation buttons */}
             <Button variant="ghost" size="sm" onClick={onClose} className="text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
             </Button>
@@ -156,7 +149,7 @@ export function CreationDetailModal({
                 </div>
                 <div className="w-full h-full flex items-center justify-center">
                   <ImageWithFallback
-                    src={creation.beforeImage || "/placeholder.svg"}
+                    src={creation.beforeImage || "/placeholder.svg"} // Now just a string
                     alt="Before"
                     className="max-w-full max-h-full object-contain rounded-lg sm:rounded-xl shadow-lg"
                     style={{
@@ -247,8 +240,6 @@ export function CreationDetailModal({
             </div>
           )}
         </div>
-
-        {/* Removed Prompt Section completely */}
       </div>
     </div>
   )

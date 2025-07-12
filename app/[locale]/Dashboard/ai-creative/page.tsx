@@ -71,7 +71,7 @@ const sampleInspirationItems: CreationDetail[] = [
   {
     id: "101",
     image: "/placeholder.svg?height=400&width=300",
-    beforeImage: "/placeholder.svg?height=400&width=300",
+    beforeImage: "/placeholder.svg?height=400&width=300", // Changed back to string
     user: "ArtisanAI",
     avatar: "/placeholder.svg?height=32&width=32&text=AI",
     prompt: "A majestic fantasy landscape with floating islands and glowing waterfalls, digital painting style.",
@@ -94,7 +94,7 @@ const sampleInspirationItems: CreationDetail[] = [
   {
     id: "103",
     image: "/placeholder.svg?height=400&width=300",
-    beforeImage: "/placeholder.svg?height=400&width=300",
+    beforeImage: "/placeholder.svg?height=400&width=300", // Changed back to string
     user: "MotionMagic",
     avatar: "/placeholder.svg?height=32&width=32&text=MM",
     prompt: "A character running through a forest, smooth animation, dynamic camera angle.",
@@ -187,6 +187,16 @@ export default function AICreativePage() {
     productUrl?: string
   } | null>(null)
   const [historyViewerIndex, setHistoryViewerIndex] = useState<number>(0)
+
+  useEffect(() => {
+    if (generatedItemViewerData || historyViewerData) {
+      const timer = setTimeout(() => {
+        setIsRatingModalOpen(true)
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [generatedItemViewerData, historyViewerData])
 
   useEffect(() => {
     if (shopData.imageAi) {
@@ -332,23 +342,21 @@ export default function AICreativePage() {
       }, INTERVAL_MS)
 
       try {
-        const generateImageAd = httpsCallable(functions, "generateImageAdTest")
+        const generateImageAd = httpsCallable(functions, "generateImageAd")
 
         // Convert all product images to data objects
         const productDataArray = data.productImages
           ? await Promise.all(data.productImages.map((file: File) => fileToDataUrlObject(file)))
           : []
 
-        // Convert all inspiration images to data objects (for image generation)
-        const inspirationDataArray = data.inspirationImages
-          ? await Promise.all(data.inspirationImages.map((file: File) => fileToDataUrlObject(file)))
-          : []
+        // Convert single inspiration image to data object (for image generation)
+        const inspirationData = data.inspirationImage ? await fileToDataUrlObject(data.inspirationImage) : null
 
         const settingsForGeneration = typeToUse === "image" ? data.settings : { ...data.settings }
 
         const result = await generateImageAd({
-          productFile: productDataArray, // Changed to array
-          adInsiprationFile: inspirationDataArray[0], // Changed to array
+          productFiles: productDataArray, // Array of product images
+          inspirationFile: inspirationData, // Single inspiration image
           prompt: data.prompt,
           shopId: shopData.id,
           n: settingsForGeneration.outputs || 1,
@@ -658,6 +666,86 @@ export default function AICreativePage() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col relative overflow-hidden border-t border-border/50">
+      <ConversionModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        handleStartCreation={handleStartCreation}
+      />
+
+      {/* Enhanced Floating Video Button - Only show on welcome screen */}
+      {currentView === "welcome" && (
+        <div className="absolute left-4 sm:left-6 top-4 sm:top-6 z-40 group">
+          <button
+            onClick={() => setIsVideoOpen(true)}
+            className={`
+              relative overflow-hidden
+              bg-gradient-to-r from-purple-600 to-blue-600 
+              text-white p-2.5 sm:p-3 rounded-full 
+              shadow-lg hover:shadow-2xl hover:shadow-purple-500/50
+              transform hover:scale-110 
+              transition-all duration-500 ease-out
+              flex items-center gap-2 
+              group-hover:pr-3 sm:group-hover:pr-5
+              ${
+                isVideoButtonAnimating
+                  ? "scale-110 shadow-2xl shadow-purple-500/50 from-purple-700 to-blue-700 animate-pulse"
+                  : ""
+              }
+            `}
+          >
+            <div
+              className={`
+                absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 
+                opacity-0 transition-opacity duration-500
+                ${isVideoButtonAnimating ? "opacity-30" : ""}
+              `}
+            />
+
+            <div
+              className={`
+                absolute inset-0 rounded-full border-2 border-white/30
+                transition-all duration-1000 ease-out
+                ${isVideoButtonAnimating ? "scale-150 opacity-0 border-white/10" : "scale-100 opacity-0"}
+              `}
+            />
+
+            <Play
+              className={`
+                relative z-10 w-4 h-4 sm:w-5 sm:h-5 
+                transition-all duration-300
+                ${isVideoButtonAnimating ? "animate-bounce scale-110" : ""}
+              `}
+              fill="currentColor"
+            />
+
+            <span
+              className={`
+                relative z-10 hidden group-hover:block text-xs sm:text-sm font-medium 
+                whitespace-nowrap overflow-hidden transition-all duration-300 
+                max-w-0 group-hover:max-w-32
+                ${isVideoButtonAnimating ? "text-white font-bold" : ""}
+              `}
+            >
+              {t("watchDemo")}
+            </span>
+          </button>
+
+          <div
+            className={`
+              absolute left-full ml-3 top-1/2 -translate-y-1/2 
+              bg-gray-900/95 backdrop-blur-sm text-white px-3 py-2 rounded-lg 
+              text-xs sm:text-sm opacity-0 group-hover:opacity-100 
+              transition-all duration-300 pointer-events-none whitespace-nowrap 
+              shadow-xl border border-white/10
+              ${isVideoButtonAnimating ? "opacity-100 scale-105" : ""}
+            `}
+          >
+            {t("howToUseAI")}
+            <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900/95"></div>
+          </div>
+        </div>
+      )}
+
       {/* Enhanced Video Modal */}
       {isVideoOpen && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
@@ -800,7 +888,7 @@ export default function AICreativePage() {
         />
       )}
 
-    
+      {isRatingModalOpen && <RatingModal isOpen={isRatingModalOpen} onClose={() => setIsRatingModalOpen(false)} />}
 
       <Toaster />
     </div>

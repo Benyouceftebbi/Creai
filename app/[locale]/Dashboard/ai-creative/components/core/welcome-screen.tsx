@@ -69,16 +69,43 @@ export function WelcomeScreen({
     <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 flex flex-col overflow-y-auto">
       {/* Header Section */}
       <div className="text-center mb-8 sm:mb-12 animate-in fade-in slide-in-from-bottom-8 duration-500 ease-out">
+        <div className="inline-block p-3 sm:p-4 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-2xl mb-4 sm:mb-6 animate-in fade-in zoom-in-90 delay-200 duration-500 shadow-lg">
+          <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 text-gradient bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text" />
+        </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-blue-800 dark:from-slate-50 dark:via-purple-300 dark:to-blue-300 bg-clip-text text-transparent mb-3 sm:mb-4 animate-in fade-in slide-in-from-bottom-4 delay-100 duration-500">
           {t("welcomeTitle")}
         </h1>
         <p className="text-base sm:text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-200 duration-500 mb-8">
           {t("welcomeDescription")}
         </p>
+
+        {/* Single Create Button - Hidden on mobile */}
+        <div className="hidden md:block animate-in fade-in slide-in-from-bottom-4 delay-300 duration-500">
+          <Button
+            size="lg"
+            onClick={onOpenGenerationTypeModal}
+            className="bg-gradient-to-r from-purple-600 via-blue-600 to-teal-500 hover:from-purple-700 hover:via-blue-700 hover:to-teal-600 text-white font-bold px-8 py-4 text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 rounded-2xl"
+          >
+            <Plus className="h-6 w-6 mr-3" />
+            Create Amazing Content
+            <Wand2 className="h-5 w-5 ml-3" />
+          </Button>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-3">
+            Choose between images or reels • Powered by AI
+          </p>
+        </div>
       </div>
 
-      {/* Enhanced Inspirations Section - Moved Up */}
+      {/* Enhanced Inspirations Section - Title hidden on mobile */}
       <div className="animate-in fade-in slide-in-from-bottom-8 delay-400 duration-500 ease-out">
+        <div className="hidden md:flex items-center gap-3 mb-6 sm:mb-8">
+          <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-lg">
+            <Users className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-200">
+            {t("communityInspirations")}
+          </h2>
+        </div>
 
         {isLoadingInspirations ? (
           <div className="flex justify-center items-center py-16 sm:py-20">
@@ -106,7 +133,7 @@ export function WelcomeScreen({
                     {/* Left: Before Image */}
                     <div className="w-1/2 h-full relative">
                       <ImageWithFallback
-                        src={creation.beforeImage || "/placeholder.svg"}
+                        src={creation.beforeImage || "/placeholder.svg"} // Now just a string
                         alt="Before"
                         imgClassName="w-full h-full object-cover transition-transform duration-700"
                         fallbackText="Before"

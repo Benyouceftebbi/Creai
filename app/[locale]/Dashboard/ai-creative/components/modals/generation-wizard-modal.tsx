@@ -122,9 +122,9 @@ export function GenerationWizardModal({
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
 
-  // Changed to arrays for multiple files
+  // Product images as array, inspiration as single file
   const [productImageFiles, setProductImageFiles] = useState<File[]>([])
-  const [inspirationImageFiles, setInspirationImageFiles] = useState<File[]>([])
+  const [inspirationImageFile, setInspirationImageFile] = useState<File | null>(null)
 
   const [imageSettings, setImageSettings] = useState<ImageSettings>(DEFAULT_IMAGE_SETTINGS)
   const [reelSettings, setReelSettings] = useState<ReelSettings>(DEFAULT_REEL_SETTINGS)
@@ -150,7 +150,7 @@ export function GenerationWizardModal({
         setReelSettings({ ...DEFAULT_REEL_SETTINGS, ...(initialReelSettings || {}) })
       }
       setProductImageFiles([])
-      setInspirationImageFiles([])
+      setInspirationImageFile(null)
     }
   }, [isOpen, generationType, initialPrompt, initialImageSettings, initialReelSettings])
 
@@ -171,14 +171,14 @@ export function GenerationWizardModal({
           ? {
               prompt: adConcept,
               settings: imageSettings,
-              productImages: productImageFiles, // Changed to array
-              inspirationImages: inspirationImageFiles, // Changed to array
+              productImages: productImageFiles, // Array
+              inspirationImage: inspirationImageFile, // Single file
               originalUserPrompt: prompt,
             }
           : {
               prompt: adConcept,
               settings: reelSettings,
-              productImages: productImageFiles, // Changed to array
+              productImages: productImageFiles, // Array
               originalUserPrompt: prompt,
             }
       onSubmit(data)
@@ -192,8 +192,7 @@ export function GenerationWizardModal({
       try {
         // Convert all product images to base64
         const productImagesBase64 = await Promise.all(productImageFiles.map((file) => fileToBase64(file)))
-        console.log(productImagesBase64);
-        
+
         // For image generation, at least one product image is mandatory for brief generation
         if (generationType === "image" && productImagesBase64.length === 0) {
           toast({
@@ -205,15 +204,15 @@ export function GenerationWizardModal({
           return
         }
 
-        // Convert all inspiration images to base64
-        const inspirationImagesBase64 = await Promise.all(inspirationImageFiles.map((file) => fileToBase64(file)))
+        // Convert single inspiration image to base64
+        const inspirationImageBase64 = inspirationImageFile ? await fileToBase64(inspirationImageFile) : null
 
-        const generateAdBrief = httpsCallable(functions, "generateImageAdBriefTest")
+        const generateAdBrief = httpsCallable(functions, "generateImageAdBrief")
 
         const result = await generateAdBrief({
           userPrompt: prompt,
           productImagesBase64, // Send array of images
-          adStyleImageBase64:'', // Send array of inspiration images
+          inspirationImageBase64, // Send single inspiration image
           type: generationType === "image" ? "image" : "video",
           shopId: shopData.id,
           noText: generationType === "image" ? !imageSettings.includeText : true,
@@ -265,14 +264,14 @@ export function GenerationWizardModal({
     reelSettings,
     prompt,
     productImageFiles,
-    inspirationImageFiles,
+    inspirationImageFile,
     adConcept,
     onSubmit,
     toast,
     t,
   ])
 
-  // Updated MultiFileUploadArea component
+  // Multi-file upload component for product images
   const MultiFileUploadArea = useCallback(
     ({
       files,
@@ -399,6 +398,100 @@ export function GenerationWizardModal({
     [t],
   )
 
+  // Single file upload component for inspiration
+  const FileUploadArea = useCallback(
+    ({
+      file,
+      onFileChange,
+      isDragActive,
+      setIsDragActive,
+      inputRef,
+      title,
+      isRequired,
+      idPrefix,
+    }: {
+      file: File | null
+      onFileChange: (file: File | null) => void
+      isDragActive: boolean
+      setIsDragActive: (isActive: boolean) => void
+      inputRef: React.RefObject<HTMLInputElement>
+      title: string
+      isRequired?: boolean
+      idPrefix: string
+    }) => {
+      const handleDragEvent = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (e.type === "dragenter" || e.type === "dragover") setIsDragActive(true)
+        else if (e.type === "dragleave") setIsDragActive(false)
+      }
+      const handleDropEvent = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDragActive(false)
+        onFileChange(e.dataTransfer.files?.[0] || null)
+      }
+      const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onFileChange(e.target.files?.[0] || null)
+      }
+
+      return (
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}-upload`} className="text-md font-semibold">
+            {t(title)} {isRequired && <span className="text-destructive">*</span>}
+          </Label>
+          {file ? (
+            <div className="bg-muted border rounded-xl p-3 relative group">
+              <div className="flex items-center gap-3">
+                <img
+                  src={URL.createObjectURL(file) || "/placeholder.svg"}
+                  alt="Preview"
+                  className="w-16 h-16 object-cover rounded-md border"
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-medium truncate">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onFileChange(null)}
+                  className="opacity-50 group-hover:opacity-100"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div
+              onDragEnter={handleDragEvent}
+              onDragLeave={handleDragEvent}
+              onDragOver={handleDragEvent}
+              onDrop={handleDropEvent}
+              onClick={() => inputRef.current?.click()}
+              className={cn(
+                "h-36 bg-muted/50 border-2 border-dashed border-border rounded-xl p-4 text-center hover:border-primary transition-all cursor-pointer flex flex-col items-center justify-center",
+                isDragActive && "border-primary bg-primary/10",
+              )}
+            >
+              <Upload className={cn("h-8 w-8 text-muted-foreground mb-2", isDragActive && "text-primary")} />
+              <p className="text-sm font-medium mb-1">{isDragActive ? t("dropImageHere") : t("dragDropUpload")}</p>
+              <p className="text-xs text-muted-foreground">{t("pngJpgUpTo5mb")}</p>
+            </div>
+          )}
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg"
+            onChange={handleInputChange}
+            className="hidden"
+          />
+        </div>
+      )
+    },
+    [t],
+  )
+
   const handleAdConceptInteraction = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault()
     toast({
@@ -426,15 +519,14 @@ export function GenerationWizardModal({
               idPrefix="product"
               maxFiles={5}
             />
-            <MultiFileUploadArea
-              files={inspirationImageFiles}
-              onFilesChange={setInspirationImageFiles}
+            <FileUploadArea
+              file={inspirationImageFile}
+              onFileChange={setInspirationImageFile}
               isDragActive={isDragActiveInspiration}
               setIsDragActive={setIsDragActiveInspiration}
               inputRef={inspirationFileInputRef}
-              title="inspirationPictures"
+              title="inspirationPicture"
               idPrefix="inspiration"
-              maxFiles={3}
             />
           </div>
         )
@@ -698,17 +790,11 @@ export function GenerationWizardModal({
                   </div>
                 </div>
               )}
-              {generationType === "image" && inspirationImageFiles.length > 0 && (
-                <div>
-                  <strong>{t("inspirationPictures")}:</strong>
-                  <div className="mt-1 space-y-1">
-                    {inspirationImageFiles.map((file, index) => (
-                      <p key={index} className="text-xs">
-                        • {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                      </p>
-                    ))}
-                  </div>
-                </div>
+              {generationType === "image" && inspirationImageFile && (
+                <p>
+                  <strong>{t("inspirationPicture")}:</strong> {inspirationImageFile.name} (
+                  {(inspirationImageFile.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
               )}
               <div>
                 <strong>{t("finalAdConcept")}:</strong>
@@ -759,9 +845,10 @@ export function GenerationWizardModal({
     steps,
     currentStepIndex,
     MultiFileUploadArea,
+    FileUploadArea,
     productImageFiles,
     isDragActiveProduct,
-    inspirationImageFiles,
+    inspirationImageFile,
     isDragActiveInspiration,
     generationType,
     prompt,

@@ -26,7 +26,7 @@ export interface ChatMessage {
 export interface CreationDetail {
   id: string
   image: string
-  beforeImage?: string
+  beforeImage?: string // Changed back to string
   user: string
   avatar?: string
   prompt: string
