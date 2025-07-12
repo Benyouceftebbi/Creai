@@ -192,7 +192,8 @@ export function GenerationWizardModal({
       try {
         // Convert all product images to base64
         const productImagesBase64 = await Promise.all(productImageFiles.map((file) => fileToBase64(file)))
-
+        console.log(productImagesBase64);
+        
         // For image generation, at least one product image is mandatory for brief generation
         if (generationType === "image" && productImagesBase64.length === 0) {
           toast({
@@ -207,12 +208,12 @@ export function GenerationWizardModal({
         // Convert all inspiration images to base64
         const inspirationImagesBase64 = await Promise.all(inspirationImageFiles.map((file) => fileToBase64(file)))
 
-        const generateAdBrief = httpsCallable(functions, "generateImageAdBrief")
+        const generateAdBrief = httpsCallable(functions, "generateImageAdBriefTest")
 
         const result = await generateAdBrief({
           userPrompt: prompt,
           productImagesBase64, // Send array of images
-          inspirationImagesBase64, // Send array of inspiration images
+          adStyleImageBase64:'', // Send array of inspiration images
           type: generationType === "image" ? "image" : "video",
           shopId: shopData.id,
           noText: generationType === "image" ? !imageSettings.includeText : true,
