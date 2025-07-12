@@ -75,12 +75,12 @@ export function WelcomeScreen({
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-blue-800 dark:from-slate-50 dark:via-purple-300 dark:to-blue-300 bg-clip-text text-transparent mb-3 sm:mb-4 animate-in fade-in slide-in-from-bottom-4 delay-100 duration-500">
           {t("welcomeTitle")}
         </h1>
-        <p className="text-base sm:text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-200 duration-500 mb-8">
+        <p className=" hidden md:block text-base sm:text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-200 duration-500 mb-8">
           {t("welcomeDescription")}
         </p>
 
         {/* Single Create Button - Hidden on mobile */}
-        <div className="hidden md:block animate-in fade-in slide-in-from-bottom-4 delay-300 duration-500">
+        <div className=" animate-in fade-in slide-in-from-bottom-4 delay-300 duration-500">
           <Button
             size="lg"
             onClick={onOpenGenerationTypeModal}

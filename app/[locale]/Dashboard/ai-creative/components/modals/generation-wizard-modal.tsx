@@ -207,12 +207,12 @@ export function GenerationWizardModal({
         // Convert single inspiration image to base64
         const inspirationImageBase64 = inspirationImageFile ? await fileToBase64(inspirationImageFile) : null
 
-        const generateAdBrief = httpsCallable(functions, "generateImageAdBrief")
+        const generateAdBrief = httpsCallable(functions, "generateImageAdBriefTest")
 
         const result = await generateAdBrief({
           userPrompt: prompt,
           productImagesBase64, // Send array of images
-          inspirationImageBase64, // Send single inspiration image
+          adStyleImageBase64:inspirationImageBase64, // Send single inspiration image
           type: generationType === "image" ? "image" : "video",
           shopId: shopData.id,
           noText: generationType === "image" ? !imageSettings.includeText : true,

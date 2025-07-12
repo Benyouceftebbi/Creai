@@ -124,22 +124,14 @@ export function DownloadModal({
   const handleFreeDownload = async () => {
     setIsLoading(true)
     try {
-      const addWatermark = httpsCallable(functions, "addWatermarkToImage")
-      const result = await addWatermark({
-        imageUrl: imageUrl,
-        shopId: shopData.id,
-      })
-      if (result.data?.success && result.data?.watermarkedUrl) {
         const filename = `watermarked_image_${Date.now()}.png`
-        onDownloadWithWatermark(result.data.watermarkedUrl, filename)
+        onDownloadWithWatermark(imageUrl, filename)
         toast({
           title: "Download Started",
           description: "Your watermarked image is downloading...",
         })
         onClose()
-      } else {
-        throw new Error("Failed to add watermark")
-      }
+
     } catch (error) {
       console.error("Error adding watermark:", error)
       toast({
@@ -159,7 +151,7 @@ export function DownloadModal({
       const docRef = await addDoc(checkoutSessionRef, {
         mode: "payment",
         price: priceId,
-        success_url: window.location.href,
+        success_url: `${window.location.origin}/payment-success?imgUrl=${encodeURIComponent(imageUrl)}`,
         cancel_url: window.location.href,
         allow_promotion_codes: true,
         client_reference_id: `${shopData.id}-${priceId}`,
