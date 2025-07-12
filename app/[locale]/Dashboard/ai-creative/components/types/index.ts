@@ -8,9 +8,11 @@ export interface HistoryItem {
   type: "image" | "reel"
   prompt: string
   results: string[]
+  results2?: string[] // Add support for high-quality images
   settings: Settings | ReelSettings // Use specific types
   createdAt: Date // Use createdAt consistently
   status: "completed" | "failed"
+  imageType?: "added" | "modified" // Add image type field
 }
 
 export interface ChatMessage {

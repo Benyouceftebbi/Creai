@@ -182,6 +182,7 @@ export default function AICreativePage() {
   const [generatedItemViewerData, setGeneratedItemViewerData] = useState<{ image: string; index: number } | null>(null)
   const [historyViewerData, setHistoryViewerData] = useState<{
     images: string[]
+    images2?: string[] // Add the new field for high-quality images
     prompt: string
     createdAt: Date | undefined
     type: "image" | "reel"
@@ -206,6 +207,7 @@ export default function AICreativePage() {
         type: item.type || "image",
         prompt: item.prompt || "",
         results: Array.isArray(item.imagesUrl) ? item.imagesUrl : Array.isArray(item.results) ? item.results : [],
+        results2: Array.isArray(item.imagesUrl2) ? item.imagesUrl2 : [], // Add support for high-quality images
         settings: typeof item.settings === "object" && item.settings !== null ? item.settings : {},
         createdAt: item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt || Date.now()),
         status: item.status || "completed",
@@ -457,14 +459,19 @@ export default function AICreativePage() {
           const data = docSnap.data()
           if (data.imagesUrl?.length) {
             const results = data.imagesUrl
+            const results2 = data.imagesUrl2 || [] // Get high-quality images if available
+            const imageType = data.imageType || "added" // Get image type (added/modified)
+
+            // Use high-quality images if available and type is "modified", otherwise use regular images
+            const imagesToUse = imageType === "modified" && results2.length > 0 ? results2 : results
 
             if (!shopData.phoneNumber || shopData.phoneNumber === "") {
-              setPendingResults(results)
+              setPendingResults(imagesToUse)
               setIsPhoneNumberModalOpen(true)
               setGenerationProgress(100)
               setIsGenerating(false)
             } else {
-              setGeneratedOutputs(results)
+              setGeneratedOutputs(imagesToUse)
               setGenerationProgress(100)
               setIsGenerating(false)
             }
@@ -477,10 +484,12 @@ export default function AICreativePage() {
               type: typeToUse,
               prompt: data.prompt || currentPromptForOutput,
               results: Array.isArray(data.imagesUrl) ? data.imagesUrl : [],
+              results2: Array.isArray(data.imagesUrl2) ? data.imagesUrl2 : [], // Store high-quality images
               settings: typeof data.settings === "object" && data.settings !== null ? data.settings : {},
               createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
               status: "completed",
               productUrl: data.productUrl,
+              imageType: data.imageType || "added", // Store image type
             }
             setUserHistory((prev) => [newHistoryItem, ...prev.filter((item) => item.id !== newHistoryItem.id)])
 
@@ -567,8 +576,12 @@ export default function AICreativePage() {
   }, [generatedOutputs, currentGenerationType, activeMode, downloadFile, toast, t])
 
   const handleOpenHistoryItemDetail = useCallback((item: HistoryItem) => {
+    // Use high-quality images if available and type is "modified", otherwise use regular images
+    const imagesToUse = item.imageType === "modified" && item.results2?.length ? item.results2 : item.results
+
     setHistoryViewerData({
-      images: item.results,
+      images: imagesToUse,
+      images2: item.results2, // Pass high-quality images separately
       prompt: item.prompt,
       createdAt: item.createdAt,
       type: item.type,
@@ -667,8 +680,6 @@ export default function AICreativePage() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col relative overflow-hidden border-t border-border/50">
-
-
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 flex flex-col overflow-hidden">
           {currentView === "welcome" ? (
@@ -784,7 +795,7 @@ export default function AICreativePage() {
           isLoading={isUpdatingPhoneNumber}
         />
       )}
-  <PaymentSuccessModal/>
+      <PaymentSuccessModal />
 
       <Toaster />
     </div>
