@@ -1313,7 +1313,8 @@
     "confirmedOrders": "الطلبات المؤكدة"
   },
   "creativeAi": {
-     
+    "productImageUploadGuidance": "قم بتحميل عدة صور من زوايا مختلفة لعرض تفاصيل المنتج بوضوح.",
+    "productPictures": "صور المنتج",
     "createNew": "إنشاء جديد",
     "imageCost": "صورة (150 رمز)",
     "reelCost": "ريل (1500 رمز)",

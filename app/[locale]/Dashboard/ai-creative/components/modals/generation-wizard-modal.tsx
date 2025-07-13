@@ -212,7 +212,7 @@ export function GenerationWizardModal({
         const result = await generateAdBrief({
           userPrompt: prompt,
           productImagesBase64, // Send array of images
-          adStyleImageBase64:inspirationImageBase64, // Send single inspiration image
+          adStyleImageBase64: inspirationImageBase64, // Send single inspiration image
           type: generationType === "image" ? "image" : "video",
           shopId: shopData.id,
           noText: generationType === "image" ? !imageSettings.includeText : true,
@@ -269,6 +269,7 @@ export function GenerationWizardModal({
     onSubmit,
     toast,
     t,
+    shopData.id,
   ])
 
   // Multi-file upload component for product images
@@ -330,6 +331,9 @@ export function GenerationWizardModal({
               ({files.length}/{maxFiles} files)
             </span>
           </Label>
+          {idPrefix === "product" && (
+            <p className="text-sm text-muted-foreground mt-1">{t("productImageUploadGuidance")}</p>
+          )}
 
           {/* Display uploaded files */}
           {files.length > 0 && (

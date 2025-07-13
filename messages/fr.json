@@ -1337,7 +1337,9 @@
   },
   
    "creativeAi": {
-     
+    "productImageUploadGuidance": "Téléchargez plusieurs photos sous différents angles pour bien montrer les détails du produit.",
+    "productPictures": "Photos du produit",
+    "pngJpgUpTo5mb": "Format PNG ou JPG – jusqu'à 5 Mo par image.",
       "createNew": "Créer Nouveau",
       "imageCost": "Image (150 TKN)",
       "reelCost": "Reel (1000 TKN)",

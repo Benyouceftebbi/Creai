@@ -1318,7 +1318,8 @@
     },
     
     "creativeAi": {
-       
+      "productImageUploadGuidance": "Upload multiple pictures from different angles to show product details clearly.",
+      "productPictures": "Product Pictures",
       "createNew": "Create New",
       "imageCost": "Image (150 TKN)",
       "reelCost": "Reel (1000 TKN)",

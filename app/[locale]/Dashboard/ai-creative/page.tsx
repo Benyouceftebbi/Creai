@@ -9,7 +9,7 @@ import { GenerationWizardModal } from "./components/modals/generation-wizard-mod
 import { WelcomeScreen } from "./components/core/welcome-screen"
 import { CreationDetailModal } from "./components/modals/creation-detail-modal"
 import { useShop } from "@/app/context/ShopContext"
-import { doc, onSnapshot } from "firebase/firestore"
+import { doc, onSnapshot ,collection} from "firebase/firestore"
 import { db, functions } from "@/firebase/firebase"
 import { httpsCallable } from "firebase/functions"
 import { PricingModal } from "@/components/ui/pricingModal"
