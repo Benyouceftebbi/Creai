@@ -29,7 +29,8 @@ import { toast } from "@/hooks/use-toast"
 interface DownloadModalProps {
   isOpen: boolean
   onClose: () => void
-  imageUrl: string
+  imageUrl: string // This will be the standard quality image for preview/free download
+  highQualityImageUrl: string // New prop for the high quality image
   imageIndex?: number
   totalImages?: number
   onDownloadWithWatermark: (imageUrl: string, filename: string) => void // This prop is now explicitly for watermarked/free downloads
@@ -110,6 +111,7 @@ export function DownloadModal({
   isOpen,
   onClose,
   imageUrl,
+  highQualityImageUrl, // Destructure new prop
   imageIndex = 0,
   totalImages = 1,
   onDownloadWithWatermark, // This prop is now explicitly for watermarked/free downloads
@@ -129,7 +131,7 @@ export function DownloadModal({
       await updateDoc(doc(db, "Shops", shopData.id), {
         freeDownload: true,
       })
-      // Call the provided onDownloadWithWatermark prop
+      // Call the provided onDownloadWithWatermark prop with the standard quality imageUrl
       onDownloadWithWatermark(imageUrl, filename)
       toast({
         title: "Download Started",
@@ -155,8 +157,8 @@ export function DownloadModal({
       const docRef = await addDoc(checkoutSessionRef, {
         mode: "payment",
         price: priceId,
-        // Pass imageUrl (the original, non-watermarked one) and imageIndex to the success_url
-        success_url: `${window.location.origin}/payment-success?imgUrl=${encodeURIComponent(imageUrl)}&index=${imageIndex}`,
+        // Pass highQualityImageUrl to the success_url
+        success_url: `${window.location.origin}/payment-success?imgUrl=${encodeURIComponent(highQualityImageUrl)}`,
         cancel_url: window.location.href,
         allow_promotion_codes: true,
         client_reference_id: `${shopData.id}-${priceId}`,

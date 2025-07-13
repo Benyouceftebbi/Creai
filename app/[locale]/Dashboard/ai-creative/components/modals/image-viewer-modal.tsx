@@ -5,12 +5,12 @@ import { X, ArrowLeft, ArrowRight, Clock, ImageIcon as ImageIconLucide, Info, Do
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
-import { DownloadModal } from "./download-modal"
 
 interface ImageViewerModalProps {
-  image: string
+  image: string // This will be the URL of the image currently displayed in the viewer
   imageIndex: number
-  images: string[]
+  images: string[] // Array of all image URLs (standard quality)
+  images2?: string[] // Optional: Array of all high-quality image URLs
   onClose: () => void
   onNext?: () => void
   onPrevious?: () => void
@@ -18,14 +18,15 @@ interface ImageViewerModalProps {
   createdAt?: Date
   isReel?: boolean
   productUrl?: string
-  onDownloadFile: (url: string, filename: string) => void
   imageId: string // Added imageId
+  onOpenDownloadModal: (imageUrl: string, highQualityImageUrl: string, imageIndex: number, imageId: string) => void // Updated prop
 }
 
 export function ImageViewerModal({
   image,
   imageIndex,
   images,
+  images2, // Destructure images2
   onClose,
   onNext,
   onPrevious,
@@ -33,15 +34,14 @@ export function ImageViewerModal({
   createdAt,
   isReel,
   productUrl,
-  onDownloadFile,
   imageId, // Destructure imageId
+  onOpenDownloadModal, // Destructure new prop
 }: ImageViewerModalProps) {
   const t = useTranslations("creativeAi")
   const hasNext = onNext ? imageIndex < images.length - 1 : false
   const hasPrevious = onPrevious ? imageIndex > 0 : false
   const [isPromptTooltipVisible, setIsPromptTooltipVisible] = useState(false)
   const [isProductImageTooltipVisible, setIsProductImageTooltipVisible] = useState(false)
-  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -79,13 +79,10 @@ export function ImageViewerModal({
   const currentIsVideo = isReel || isVideoUrl(image)
 
   const handleDownloadClick = useCallback(() => {
-    let extension = currentIsVideo ? ".mp4" : ".png"
-    if (image.includes(".svg")) extension = ".svg"
-    else if (image.includes(".jpg") || image.includes(".jpeg")) extension = ".jpg"
-
-    const filename = `${currentIsVideo ? "reel" : "image"}_view_${Date.now()}${extension}`
-    onDownloadFile(image, filename)
-  }, [image, currentIsVideo, onDownloadFile])
+    const standardQualityUrl = images[imageIndex]
+    const highQualityUrl = images2?.[imageIndex] || standardQualityUrl // Use HQ if available, else standard
+    onOpenDownloadModal(standardQualityUrl, highQualityUrl, imageIndex, imageId)
+  }, [images, images2, imageIndex, imageId, onOpenDownloadModal])
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -136,7 +133,7 @@ export function ImageViewerModal({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsDownloadModalOpen(true)}
+            onClick={handleDownloadClick} // Use the new handler
             className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
           >
             <Download className="h-4 w-4 mr-2" />
@@ -220,17 +217,6 @@ export function ImageViewerModal({
             </div>
           </div>
         </div>
-        {isDownloadModalOpen && (
-          <DownloadModal
-            isOpen={isDownloadModalOpen}
-            onClose={() => setIsDownloadModalOpen(false)}
-            imageUrl={image}
-            imageIndex={imageIndex}
-            totalImages={images.length}
-            onDownloadWithWatermark={onDownloadFile}
-            imageId={imageId} // Pass the imageId
-          />
-        )}
       </div>
     </div>
   )
