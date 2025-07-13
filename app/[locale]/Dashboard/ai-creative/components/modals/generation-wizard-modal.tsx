@@ -207,7 +207,7 @@ export function GenerationWizardModal({
         // Convert single inspiration image to base64
         const inspirationImageBase64 = inspirationImageFile ? await fileToBase64(inspirationImageFile) : null
 
-        const generateAdBrief = httpsCallable(functions, "generateImageAdBriefTest")
+        const generateAdBrief = httpsCallable(functions, "generateImageAdBrief")
 
         const result = await generateAdBrief({
           userPrompt: prompt,

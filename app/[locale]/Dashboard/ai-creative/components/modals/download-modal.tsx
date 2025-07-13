@@ -128,9 +128,7 @@ export function DownloadModal({
     setIsLoading(true)
     try {
       const filename = `watermarked_image_${Date.now()}.png`
-      await updateDoc(doc(db, "Shops", shopData.id), {
-        freeDownload: true,
-      })
+
       // Call the provided onDownloadWithWatermark prop with the standard quality imageUrl
       onDownloadWithWatermark(imageUrl, filename)
       toast({

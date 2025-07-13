@@ -353,7 +353,7 @@ export default function AICreativePage() {
       }, INTERVAL_MS)
 
       try {
-        const generateImageAd = httpsCallable(functions, "generateImageAdTest")
+        const generateImageAd = httpsCallable(functions, "generateImageAd")
 
         // Convert all product images to data objects
         const productDataArray = data.productImages
