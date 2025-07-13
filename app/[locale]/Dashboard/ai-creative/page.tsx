@@ -524,17 +524,9 @@ export default function AICreativePage() {
       },
     )
 
-    const timeoutId = setTimeout(
-      () => {
-        unsubscribe()
-        setPendingImageId(null)
-      },
-      5 * 60 * 1000, // 5 minutes
-    )
 
     return () => {
       unsubscribe()
-      clearTimeout(timeoutId)
     }
   }, [
     pendingImageId,
