@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { X, ArrowLeft, ArrowRight, Clock, ImageIcon as ImageIconLucide, Info, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils" // Ensure cn is imported
+import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 import { DownloadModal } from "./download-modal"
 
@@ -19,6 +19,7 @@ interface ImageViewerModalProps {
   isReel?: boolean
   productUrl?: string
   onDownloadFile: (url: string, filename: string) => void
+  imageId: string // Added imageId
 }
 
 export function ImageViewerModal({
@@ -33,6 +34,7 @@ export function ImageViewerModal({
   isReel,
   productUrl,
   onDownloadFile,
+  imageId, // Destructure imageId
 }: ImageViewerModalProps) {
   const t = useTranslations("creativeAi")
   const hasNext = onNext ? imageIndex < images.length - 1 : false
@@ -134,7 +136,7 @@ export function ImageViewerModal({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsDownloadModalOpen(true)} // Changed this line
+            onClick={() => setIsDownloadModalOpen(true)}
             className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm"
           >
             <Download className="h-4 w-4 mr-2" />
@@ -194,7 +196,7 @@ export function ImageViewerModal({
               </div>
             )}
             <div
-              className="relative group flex-1 min-w-0" // This is the trigger area
+              className="relative group flex-1 min-w-0"
               onMouseEnter={() => setIsPromptTooltipVisible(true)}
               onMouseLeave={() => setIsPromptTooltipVisible(false)}
             >
@@ -204,7 +206,7 @@ export function ImageViewerModal({
                   className={cn(
                     "absolute bottom-full left-0 mb-2 p-3 bg-black/80 text-slate-100 rounded-lg shadow-2xl",
                     "max-w-md w-max text-xs sm:text-sm z-[70]",
-                    "max-h-48 overflow-y-auto", // Added for scrolling
+                    "max-h-48 overflow-y-auto",
                   )}
                 >
                   <p className="whitespace-pre-wrap">{originalPrompt}</p>
@@ -226,6 +228,7 @@ export function ImageViewerModal({
             imageIndex={imageIndex}
             totalImages={images.length}
             onDownloadWithWatermark={onDownloadFile}
+            imageId={imageId} // Pass the imageId
           />
         )}
       </div>

@@ -31,7 +31,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ProgressRing } from "@/components/ui/progress-ring"
-import type { HistoryItem } from "@/components/types" // Corrected import path
+import type { HistoryItem } from "@/components/types"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
@@ -39,12 +39,12 @@ import { useTranslations } from "next-intl"
 import { DownloadModal } from "../modals/download-modal"
 
 interface OutputPanelProps {
-  generatedImages: string[]
+  generatedImages: { url: string; id: string }[] // Updated type
   isGenerating: boolean
   onImageAction: (action: string, imageIndex: number) => void
   onRegenerateVariation: (imageIndex: number) => void
   generationProgress: number
-  mode: "image" | "reel" // This prop determines the context (image or reel)
+  mode: "image" | "reel"
   originalPrompt: string
   userHistory: HistoryItem[]
   onOpenHistoryItem: (item: HistoryItem) => void
@@ -52,8 +52,8 @@ interface OutputPanelProps {
   onRegenerateFromHistory: (item: HistoryItem) => void
   onInitiateNewGeneration: () => void
   onNavigateBack: () => void
-  onDownloadAll: () => void // New prop for downloading all
-  currentBatchTimestamp?: Date // New prop for timestamp
+  onDownloadAll: () => void
+  currentBatchTimestamp?: Date
 }
 
 export function OutputPanel({
@@ -62,7 +62,7 @@ export function OutputPanel({
   onImageAction,
   onRegenerateVariation,
   generationProgress,
-  mode, // Use this 'mode' prop to filter history
+  mode,
   originalPrompt,
   userHistory,
   onOpenHistoryItem,
@@ -70,44 +70,33 @@ export function OutputPanel({
   onRegenerateFromHistory,
   onInitiateNewGeneration,
   onNavigateBack,
-  onDownloadAll, // Destructure new prop
-  currentBatchTimestamp, // Destructure new prop
+  onDownloadAll,
+  currentBatchTimestamp,
 }: OutputPanelProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  // viewerImage and enhancementModal states are removed as ImageViewerModal will be used directly from page.tsx
-  // const [viewerImage, setViewerImage] = useState<{ image: string; index: number } | null>(null);
-  // const [enhancementModal, setEnhancementModal] = useState<{ image: string; index: number } | null>(null);
-  // const [isEnhancing, setIsEnhancing] = useState(false);
   const t = useTranslations("creativeAi")
 
   const [historySearchQuery, setHistorySearchQuery] = useState("")
   const [historySortBy, setHistorySortBy] = useState<"newest" | "oldest">("newest")
-  // Removed historyFilterType state
 
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
   const [downloadModalData, setDownloadModalData] = useState<{
     imageUrl: string
     imageIndex: number
     totalImages: number
+    imageId: string // Added imageId
   } | null>(null)
 
   const isReel = mode === "reel"
-  // The panelTitle will now correctly reflect the current mode for history view
   const panelTitle = isReel ? "Reel History" : "Image History"
   const generateButtonText = isReel ? "Generate New Reel" : "Generate New Image"
 
-  // handleImageClick will now call onImageAction with "view"
   const handleImageClick = useCallback(
     (imageIndex: number) => {
       onImageAction("view", imageIndex)
     },
     [onImageAction],
   )
-
-  // handleEnhanceClick and handleEnhanceImage are removed as enhancement modal is separate
-  // and not directly triggered from this panel's state in the same way.
-
-  // handleNextImage and handlePreviousImage are removed as this logic is now in page.tsx for the generatedItemViewerData
 
   const formatDate = useCallback((date: Date | string) => {
     const d = new Date(date)
@@ -136,7 +125,7 @@ export function OutputPanel({
       userHistory
         .filter((item) => {
           const matchesSearch = item.prompt.toLowerCase().includes(historySearchQuery.toLowerCase())
-          const matchesType = item.type === mode // Filter by the current mode
+          const matchesType = item.type === mode
           return matchesSearch && matchesType
         })
         .sort((a, b) => {
@@ -147,14 +136,10 @@ export function OutputPanel({
           }
           return dateA.getTime() - dateB.getTime()
         }),
-    [userHistory, historySearchQuery, historySortBy, mode], // Added mode to dependency array
+    [userHistory, historySearchQuery, historySortBy, mode],
   )
 
-  // currentBatchTimestamp is now passed as a prop
-  // const currentBatchTimestamp = useMemo(() => { ... }) // Removed
-
   if (isGenerating) {
-    // Enhanced generating state with better mobile support
     return (
       <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 relative animate-in fade-in duration-300">
         <div className="h-full flex flex-col">
@@ -176,36 +161,31 @@ export function OutputPanel({
                 mode === "reel"
                   ? 1
                   : userHistory.find((item) => item.prompt === originalPrompt)?.settings?.outputs || 4,
-            }).map(
-              (
-                _,
-                index, // Adjust length based on outputs
-              ) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800 rounded-xl sm:rounded-2xl flex items-center justify-center border-2 border-slate-200 dark:border-slate-800 relative overflow-hidden shadow-lg",
-                    "animate-in fade-in zoom-in-95 duration-500 ease-out",
-                  )}
-                  style={{ animationDelay: `${200 + index * 100}ms`, animationFillMode: "both" }}
-                >
-                  <div className="text-center">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/60 dark:bg-slate-800/60 rounded-full flex items-center justify-center mb-2 sm:mb-3 mx-auto backdrop-blur-sm">
-                      {isReel ? (
-                        <Play className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-slate-400" />
-                      ) : (
-                        <ImageIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-slate-400" />
-                      )}
-                    </div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-400">
-                      {isReel ? `Reel ${index + 1}` : `Image ${index + 1}`}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-slate-500">Processing...</p>
+            }).map((_, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "aspect-video bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800 rounded-xl sm:rounded-2xl flex items-center justify-center border-2 border-slate-200 dark:border-slate-800 relative overflow-hidden shadow-lg",
+                  "animate-in fade-in zoom-in-95 duration-500 ease-out",
+                )}
+                style={{ animationDelay: `${200 + index * 100}ms`, animationFillMode: "both" }}
+              >
+                <div className="text-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/60 dark:bg-slate-800/60 rounded-full flex items-center justify-center mb-2 sm:mb-3 mx-auto backdrop-blur-sm">
+                    {isReel ? (
+                      <Play className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-slate-400" />
+                    ) : (
+                      <ImageIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 dark:text-slate-400" />
+                    )}
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-slate-700/10 to-transparent shimmer-animation" />
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-400">
+                    {isReel ? `Reel ${index + 1}` : `Image ${index + 1}`}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-slate-500">Processing...</p>
                 </div>
-              ),
-            )}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-slate-700/10 to-transparent shimmer-animation" />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -213,7 +193,6 @@ export function OutputPanel({
   }
 
   if (generatedImages.length > 0) {
-    // Enhanced generated results view with better mobile support
     const currentOutputTitle = mode === "reel" ? "Generated Reels" : "Generated Creatives"
     return (
       <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 relative animate-in fade-in duration-300">
@@ -259,7 +238,7 @@ export function OutputPanel({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onDownloadAll} // Use the new prop
+                onClick={onDownloadAll}
                 className="flex-1 sm:flex-none border-gray-300 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-gray-700 hover:bg-gray-100 transition-all hover:scale-105 bg-transparent"
               >
                 <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
@@ -271,9 +250,9 @@ export function OutputPanel({
             <div
               className={`grid gap-4 sm:gap-6 ${viewMode === "grid" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}
             >
-              {generatedImages.map((image, index) => (
+              {generatedImages.map((item, index) => (
                 <div
-                  key={index}
+                  key={item.id} // Use item.id as key
                   className={cn(
                     `group relative bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border-2 border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-2xl ${
                       mode === "reel" ? "hover:border-blue-300" : "hover:border-purple-300 dark:hover:border-purple-600"
@@ -281,13 +260,13 @@ export function OutputPanel({
                     "animate-in fade-in zoom-in-95 ease-out",
                   )}
                   style={{ animationDelay: `${index * 100}ms`, animationFillMode: "both" }}
-                  onClick={() => handleImageClick(index)} // Pass index to new handler
+                  onClick={() => handleImageClick(index)}
                 >
                   <div className="aspect-video bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
                     {mode === "reel" ? (
                       <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
-                        <video key={image} className="w-full h-full object-cover" autoPlay loop muted playsInline>
-                          <source src={image} type="video/mp4" />
+                        <video key={item.url} className="w-full h-full object-cover" autoPlay loop muted playsInline>
+                          <source src={item.url} type="video/mp4" />
                           Your browser does not support the video tag.
                         </video>
                         <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -298,7 +277,7 @@ export function OutputPanel({
                       </div>
                     ) : (
                       <img
-                        src={image || "/placeholder.svg"}
+                        src={item.url || "/placeholder.svg"}
                         alt={`Generated creative ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
@@ -313,12 +292,12 @@ export function OutputPanel({
                     </div>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                       <div className="flex gap-2 sm:gap-3">
-                        <Button // This button now triggers the viewer
+                        <Button
                           size="sm"
                           className="h-8 w-8 sm:h-10 sm:w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
-                            handleImageClick(index) // Open viewer
+                            handleImageClick(index)
                           }}
                         >
                           <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -328,11 +307,11 @@ export function OutputPanel({
                           className="h-8 w-8 sm:h-10 sm:w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
-                            // Show download modal instead of direct download
                             setDownloadModalData({
-                              imageUrl: image,
+                              imageUrl: item.url,
                               imageIndex: index,
                               totalImages: generatedImages.length,
+                              imageId: item.id, // Pass the imageId
                             })
                             setIsDownloadModalOpen(true)
                           }}
@@ -344,7 +323,7 @@ export function OutputPanel({
                           className="h-8 w-8 sm:h-10 sm:w-10 p-0 bg-white/90 hover:bg-white text-gray-700 shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                           onClick={(e) => {
                             e.stopPropagation()
-                            onImageAction("favorite", index) // Assuming 'favorite' is a valid action
+                            onImageAction("favorite", index)
                           }}
                         >
                           <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -400,7 +379,7 @@ export function OutputPanel({
                         className="flex-1 h-7 sm:h-8 text-xs text-gray-600 dark:text-slate-300 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-all"
                         onClick={(e) => {
                           e.stopPropagation()
-                          onImageAction("share", index) // Assuming 'share' is a valid action
+                          onImageAction("share", index)
                         }}
                       >
                         <Share2 className="h-3 w-3 mr-1" /> Share
@@ -423,16 +402,15 @@ export function OutputPanel({
             imageIndex={downloadModalData.imageIndex}
             totalImages={downloadModalData.totalImages}
             onDownloadWithWatermark={(url, filename) => {
-              // This will be handled by the parent component
               onImageAction("download", downloadModalData.imageIndex)
             }}
+            imageId={downloadModalData.imageId} // Pass the imageId
           />
         )}
       </div>
     )
   }
 
-  // Enhanced history view with better mobile support
   return (
     <div className="flex-1 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 p-4 sm:p-6 lg:p-8 relative animate-in fade-in duration-300 h-full">
       <div className="h-full flex flex-col max-h-screen">

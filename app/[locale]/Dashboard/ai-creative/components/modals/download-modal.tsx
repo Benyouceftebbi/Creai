@@ -22,10 +22,9 @@ import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 import { LoadingButton } from "@/components/ui/LoadingButton"
 import { collection, addDoc, onSnapshot } from "firebase/firestore"
-import { db, functions } from "@/firebase/firebase"
+import { db } from "@/firebase/firebase"
 import { useShop } from "@/app/context/ShopContext"
 import { toast } from "@/hooks/use-toast"
-import { httpsCallable } from "firebase/functions"
 
 interface DownloadModalProps {
   isOpen: boolean
@@ -34,6 +33,7 @@ interface DownloadModalProps {
   imageIndex?: number
   totalImages?: number
   onDownloadWithWatermark: (imageUrl: string, filename: string) => void
+  imageId: string // Added imageId prop
 }
 
 const pricingPlans = [
@@ -113,10 +113,11 @@ export function DownloadModal({
   imageIndex = 0,
   totalImages = 1,
   onDownloadWithWatermark,
+  imageId, // Destructure imageId
 }: DownloadModalProps) {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>("pack3") // Default to popular
+  const [selectedPlan, setSelectedPlan] = useState<string | null>("pack3")
   const [isLoading, setIsLoading] = useState(false)
-  const [currentPlanIndex, setCurrentPlanIndex] = useState(2) // Start with popular plan
+  const [currentPlanIndex, setCurrentPlanIndex] = useState(2)
 
   const { shopData } = useShop()
   const t = useTranslations("creativeAi")
@@ -124,14 +125,13 @@ export function DownloadModal({
   const handleFreeDownload = async () => {
     setIsLoading(true)
     try {
-        const filename = `watermarked_image_${Date.now()}.png`
-        onDownloadWithWatermark(imageUrl, filename)
-        toast({
-          title: "Download Started",
-          description: "Your watermarked image is downloading...",
-        })
-        onClose()
-
+      const filename = `watermarked_image_${Date.now()}.png`
+      onDownloadWithWatermark(imageUrl, filename)
+      toast({
+        title: "Download Started",
+        description: "Your watermarked image is downloading...",
+      })
+      onClose()
     } catch (error) {
       console.error("Error adding watermark:", error)
       toast({
@@ -151,12 +151,14 @@ export function DownloadModal({
       const docRef = await addDoc(checkoutSessionRef, {
         mode: "payment",
         price: priceId,
-        success_url: `${window.location.origin}/payment-success?imgUrl=${encodeURIComponent(imageUrl)}`,
+        // Pass imageId and imageIndex to the success_url
+        success_url: `${window.location.origin}/payment-success?imageId=${imageId}&imageIndex=${imageIndex}`,
         cancel_url: window.location.href,
         allow_promotion_codes: true,
         client_reference_id: `${shopData.id}-${priceId}`,
         metadata: {
-          imageUrl: imageUrl,
+          // Also include imageId and imageIndex in metadata for server-side processing if needed
+          imageId: imageId,
           imageIndex: imageIndex.toString(),
           downloadType: "premium",
         },

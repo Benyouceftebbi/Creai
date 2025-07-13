@@ -72,7 +72,7 @@ const sampleInspirationItems: CreationDetail[] = [
   {
     id: "101",
     image: "/placeholder.svg?height=400&width=300",
-    beforeImage: "/placeholder.svg?height=400&width=300", // Changed back to string
+    beforeImage: "/placeholder.svg?height=400&width=300",
     user: "ArtisanAI",
     avatar: "/placeholder.svg?height=32&width=32&text=AI",
     prompt: "A majestic fantasy landscape with floating islands and glowing waterfalls, digital painting style.",
@@ -95,7 +95,7 @@ const sampleInspirationItems: CreationDetail[] = [
   {
     id: "103",
     image: "/placeholder.svg?height=400&width=300",
-    beforeImage: "/placeholder.svg?height=400&width=300", // Changed back to string
+    beforeImage: "/placeholder.svg?height=400&width=300",
     user: "MotionMagic",
     avatar: "/placeholder.svg?height=32&width=32&text=MM",
     prompt: "A character running through a forest, smooth animation, dynamic camera angle.",
@@ -118,13 +118,12 @@ const sampleInspirationItems: CreationDetail[] = [
 ]
 
 export default function AICreativePage() {
-  const { creativeAiItems, creativeAiLoading, setShopData } = useShop()
+  const { creativeAiItems, creativeAiLoading, setShopData, shopData } = useShop() // Ensure shopData is destructured
   const [showModal, setShowModal] = useState(true)
   const [currentView, setCurrentView] = useState<"welcome" | "output">("welcome")
   const [activeMode, setActiveMode] = useState<CreativeMode>("image")
   const [currentGenerationType, setCurrentGenerationType] = useState<"image" | "reel" | null>(null)
   const [pendingImageId, setPendingImageId] = useState<string | null>(null)
-  const { shopData } = useShop()
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false)
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false)
 
@@ -132,7 +131,8 @@ export default function AICreativePage() {
 
   const [isPhoneNumberModalOpen, setIsPhoneNumberModalOpen] = useState(false)
   const [isUpdatingPhoneNumber, setIsUpdatingPhoneNumber] = useState(false)
-  const [pendingResults, setPendingResults] = useState<string[]>([])
+  // Updated pendingResults to store objects with url and id
+  const [pendingResults, setPendingResults] = useState<{ url: string; id: string }[]>([])
 
   const [isVideoOpen, setIsVideoOpen] = useState(false)
   const [isVideoButtonAnimating, setIsVideoButtonAnimating] = useState(false)
@@ -142,17 +142,16 @@ export default function AICreativePage() {
     imageUrl: string
     imageIndex: number
     totalImages: number
+    imageId: string // Added imageId
   } | null>(null)
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(0)
-  const [generatedOutputs, setGeneratedOutputs] = useState<string[]>([])
+  // Updated generatedOutputs to store objects with url and id
+  const [generatedOutputs, setGeneratedOutputs] = useState<{ url: string; id: string }[]>([])
   const [currentPromptForOutput, setCurrentPromptForOutput] = useState("")
   const [currentBatchTimestamp, setCurrentBatchTimestamp] = useState<Date | undefined>(undefined)
   const [currentProductUrlForOutput, setCurrentProductUrlForOutput] = useState<string | undefined>(undefined)
-
-  // Remove currentDocumentData state as it's no longer needed for manual change detection
-  // const [currentDocumentData, setCurrentDocumentData] = useState<any>(null)
 
   const { toast } = useToast()
   const [userHistory, setUserHistory] = useState<HistoryItem[]>([])
@@ -182,14 +181,20 @@ export default function AICreativePage() {
     }
   }, [isVideoOpen])
 
-  const [generatedItemViewerData, setGeneratedItemViewerData] = useState<{ image: string; index: number } | null>(null)
+  // Updated generatedItemViewerData to store objects with url, id, and index
+  const [generatedItemViewerData, setGeneratedItemViewerData] = useState<{
+    url: string
+    id: string
+    index: number
+  } | null>(null)
   const [historyViewerData, setHistoryViewerData] = useState<{
     images: string[]
-    images2?: string[] // Add the new field for high-quality images
+    images2?: string[]
     prompt: string
     createdAt: Date | undefined
     type: "image" | "reel"
     productUrl?: string
+    id: string // Added id for history items
   } | null>(null)
   const [historyViewerIndex, setHistoryViewerIndex] = useState<number>(0)
 
@@ -210,7 +215,7 @@ export default function AICreativePage() {
         type: item.type || "image",
         prompt: item.prompt || "",
         results: Array.isArray(item.imagesUrl) ? item.imagesUrl : Array.isArray(item.results) ? item.results : [],
-        results2: Array.isArray(item.imagesUrl2) ? item.imagesUrl2 : [], // Add support for high-quality images
+        results2: Array.isArray(item.imagesUrl2) ? item.imagesUrl2 : [],
         settings: typeof item.settings === "object" && item.settings !== null ? item.settings : {},
         createdAt: item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt || Date.now()),
         status: item.status || "completed",
@@ -234,7 +239,7 @@ export default function AICreativePage() {
   const handleStartCreation = useCallback((type: "image" | "reel") => {
     setCurrentGenerationType(type)
     setActiveMode(type)
-    setGeneratedOutputs([])
+    setGeneratedOutputs([]) // Clear outputs
     setIsGenerating(false)
     setCurrentView("output")
     setWizardInitialPrompt("")
@@ -249,13 +254,10 @@ export default function AICreativePage() {
   const handleGenerationTypeSelect = useCallback((type: "image" | "reel") => {
     setCurrentGenerationType(type)
     setActiveMode(type)
-    setGeneratedOutputs([])
+    setGeneratedOutputs([]) // Clear outputs
     setIsGenerating(false)
     setCurrentView("output")
     setWizardInitialPrompt("")
-    //if (type === "image") setWizardInitialImageSettings(getDefaultImageSettings())
-    //else if (type === "reel") setWizardInitialReelSettings(getDefaultReelSettings())
-    //setIsWizardOpen(true)
   }, [])
 
   const handleInitiateNewGenerationWizard = useCallback(() => {
@@ -322,7 +324,7 @@ export default function AICreativePage() {
 
       setIsWizardOpen(false)
       setIsGenerating(true)
-      setGeneratedOutputs([])
+      setGeneratedOutputs([]) // Clear outputs
       setGenerationProgress(0)
       setCurrentPromptForOutput(data.prompt)
 
@@ -406,7 +408,7 @@ export default function AICreativePage() {
       }
       setTimeout(() => clearInterval(progressInterval), TARGET_DURATION + 10000)
     },
-    [currentGenerationType, activeMode, toast, shopData.id, pendingImageId, t],
+    [currentGenerationType, activeMode, toast, shopData.id, pendingImageId, t, setShopData],
   )
 
   const handlePhoneNumberSubmit = useCallback(
@@ -425,6 +427,7 @@ export default function AICreativePage() {
             phoneNumber: phoneNumber,
           }))
 
+          // When phone number is saved, set the generated outputs
           setGeneratedOutputs(pendingResults)
           setPendingResults([])
           setIsPhoneNumberModalOpen(false)
@@ -454,7 +457,6 @@ export default function AICreativePage() {
     const typeToUse = currentGenerationType || (activeMode === "image" || activeMode === "reel" ? activeMode : "image")
     if (!pendingImageId || !shopData.id || !typeToUse) return
 
-    // Listen to the collection to get change.type
     const collectionRef = collection(db, "Shops", shopData.id, "ImageAi")
     const unsubscribe = onSnapshot(
       collectionRef,
@@ -462,61 +464,50 @@ export default function AICreativePage() {
         snapshot.docChanges().forEach((change) => {
           if (change.doc.id === pendingImageId) {
             const data = change.doc.data()
-            const docType = change.type // "added", "modified", "removed"
+            const docType = change.type
 
-            if (docType === "added" || docType === "modified") {
-              // Use high-quality images (imagesUrl2) if available and it's a 'modified' event,
-              // otherwise use the initial images (imagesUrl) for 'added' or if imagesUrl2 is not present yet.
-              const imagesToUse =
-                docType === "modified" && data.imagesUrl2?.length > 0 ? data.imagesUrl2 : data.imagesUrl
+            // Determine which images to use based on premium status and document type
+            const imagesToUse =
+              shopData.isPremium && docType === "modified" && data.imagesUrl2?.length > 0
+                ? data.imagesUrl2
+                : data.imagesUrl
 
-              if (imagesToUse?.length) {
-                if (!shopData.phoneNumber || shopData.phoneNumber === "") {
-                  setPendingResults(imagesToUse)
-                  setIsPhoneNumberModalOpen(true)
-                  setGenerationProgress(100)
-                  setIsGenerating(false)
-                } else {
-                  setGeneratedOutputs(imagesToUse)
-                  setGenerationProgress(100)
-                  setIsGenerating(false)
-                }
+            if (imagesToUse?.length) {
+              // Map URLs to objects including the imageId
+              const outputsWithIds = imagesToUse.map((url: string) => ({ url, id: pendingImageId! }))
 
-                setCurrentBatchTimestamp(data.createdAt?.toDate ? data.createdAt.toDate() : new Date())
-                setCurrentProductUrlForOutput(data.productUrl)
-
-                const newHistoryItem: HistoryItem = {
-                  id: pendingImageId,
-                  type: typeToUse,
-                  prompt: data.prompt || currentPromptForOutput,
-                  results: Array.isArray(data.imagesUrl) ? data.imagesUrl : [],
-                  results2: Array.isArray(data.imagesUrl2) ? data.imagesUrl2 : [],
-                  settings: typeof data.settings === "object" && data.settings !== null ? data.settings : {},
-                  createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
-                  status: "completed",
-                  productUrl: data.productUrl,
-                }
-                setUserHistory((prev) => [newHistoryItem, ...prev.filter((item) => item.id !== newHistoryItem.id)])
-
-                if (shopData.phoneNumber && shopData.phoneNumber !== "") {
-                  toast({ title: t("success"), description: t("generationCompleted") })
-                }
-
-                // Once the final images (either initial or high-quality) are received,
-                // we can stop listening for this specific pendingImageId.
-                // Setting pendingImageId to null will trigger the useEffect cleanup.
-                setPendingImageId(null)
+              if (!shopData.phoneNumber || shopData.phoneNumber === "") {
+                setPendingResults(outputsWithIds) // Store objects with id
+                setIsPhoneNumberModalOpen(true)
+                setGenerationProgress(100)
+                setIsGenerating(false)
+              } else {
+                setGeneratedOutputs(outputsWithIds) // Store objects with id
+                setGenerationProgress(100)
+                setIsGenerating(false)
               }
-            } else if (docType === "removed" || data.status === "failed" || data.error) {
-              console.error("Generation failed or removed in Firestore:", data.error || "Unknown error")
-              toast({
-                title: t("generationFailed"),
-                description: data.error || `The ${typeToUse} could not be generated.`,
-                variant: "destructive",
-              })
-              setIsGenerating(false)
-              setGenerationProgress(0)
-              setPendingImageId(null) // Mark as completed/failed
+
+              setCurrentBatchTimestamp(data.createdAt?.toDate ? data.createdAt.toDate() : new Date())
+              setCurrentProductUrlForOutput(data.productUrl)
+
+              const newHistoryItem: HistoryItem = {
+                id: pendingImageId,
+                type: typeToUse,
+                prompt: data.prompt || currentPromptForOutput,
+                results: Array.isArray(data.imagesUrl) ? data.imagesUrl : [],
+                results2: Array.isArray(data.imagesUrl2) ? data.imagesUrl2 : [],
+                settings: typeof data.settings === "object" && data.settings !== null ? data.settings : {},
+                createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+                status: "completed",
+                productUrl: data.productUrl,
+              }
+              setUserHistory((prev) => [newHistoryItem, ...prev.filter((item) => item.id !== newHistoryItem.id)])
+
+              if (shopData.phoneNumber && shopData.phoneNumber !== "") {
+                toast({ title: t("success"), description: t("generationCompleted") })
+              }
+
+              setPendingImageId(null) // Mark as completed/processed
             }
           }
         })
@@ -534,8 +525,6 @@ export default function AICreativePage() {
       },
     )
 
-    // Clean up after 5 minutes to avoid infinite listening if something goes wrong
-    // This timeout will unsubscribe the *entire* collection listener.
     const timeoutId = setTimeout(
       () => {
         unsubscribe()
@@ -552,32 +541,33 @@ export default function AICreativePage() {
     pendingImageId,
     shopData.id,
     shopData.phoneNumber,
+    shopData.isPremium, // Added shopData.isPremium to dependencies
     currentGenerationType,
     activeMode,
     toast,
     currentPromptForOutput,
     t,
-    setShopData, // Added setShopData to dependencies as it's used in handlePhoneNumberSubmit
+    setShopData,
   ])
 
   const handleImageAction = useCallback(
     (action: string, imageIndex: number) => {
-      const typeForAction = currentGenerationType || activeMode
-      const url = generatedOutputs[imageIndex]
-      if (!url) return
+      const item = generatedOutputs[imageIndex]
+      if (!item) return
 
       if (action === "download") {
         setDownloadModalData({
-          imageUrl: url,
+          imageUrl: item.url,
           imageIndex: imageIndex,
           totalImages: generatedOutputs.length,
+          imageId: item.id, // Pass the imageId
         })
         setIsDownloadModalOpen(true)
       } else if (action === "view") {
-        setGeneratedItemViewerData({ image: url, index: imageIndex })
+        setGeneratedItemViewerData({ url: item.url, id: item.id, index: imageIndex }) // Pass id
       }
     },
-    [generatedOutputs, currentGenerationType, activeMode],
+    [generatedOutputs],
   )
 
   const handleDownloadAllGenerated = useCallback(() => {
@@ -586,32 +576,36 @@ export default function AICreativePage() {
       return
     }
     const typeForAction = currentGenerationType || activeMode
-    generatedOutputs.forEach((url, index) => {
-      if (url) {
+    generatedOutputs.forEach((item, index) => {
+      if (item.url) {
         let extension = typeForAction === "reel" ? ".mp4" : ".png"
-        if (url.includes(".svg")) extension = ".svg"
-        else if (url.includes(".jpg") || url.includes(".jpeg")) extension = ".jpg"
-        else if (url.includes(".mp4")) extension = ".mp4"
+        if (item.url.includes(".svg")) extension = ".svg"
+        else if (item.url.includes(".jpg") || item.url.includes(".jpeg")) extension = ".jpg"
+        else if (item.url.includes(".mp4")) extension = ".mp4"
         const filename = `${typeForAction}_batch_${Date.now()}_${index + 1}${extension}`
-        setTimeout(() => downloadFile(url, filename), index * 500)
+        setTimeout(() => downloadFile(item.url, filename), index * 500)
       }
     })
   }, [generatedOutputs, currentGenerationType, activeMode, downloadFile, toast, t])
 
-  const handleOpenHistoryItemDetail = useCallback((item: HistoryItem) => {
-    // Use high-quality images if available, otherwise use regular images
-    const imagesToUse = item.results2?.length ? item.results2 : item.results
+  const handleOpenHistoryItemDetail = useCallback(
+    (item: HistoryItem) => {
+      // Use high-quality images if available AND user is premium, otherwise use regular images
+      const imagesToUse = shopData.isPremium && item.results2?.length ? item.results2 : item.results
 
-    setHistoryViewerData({
-      images: imagesToUse,
-      images2: item.results2, // Pass high-quality images separately
-      prompt: item.prompt,
-      createdAt: item.createdAt,
-      type: item.type,
-      productUrl: item.productUrl,
-    })
-    setHistoryViewerIndex(0)
-  }, [])
+      setHistoryViewerData({
+        images: imagesToUse,
+        images2: item.results2,
+        prompt: item.prompt,
+        createdAt: item.createdAt,
+        type: item.type,
+        productUrl: item.productUrl,
+        id: item.id, // Pass the history item's ID
+      })
+      setHistoryViewerIndex(0)
+    },
+    [shopData.isPremium],
+  ) // Added shopData.isPremium to dependencies
 
   const handleNextHistoryImage = useCallback(() => {
     if (historyViewerData) {
@@ -633,14 +627,16 @@ export default function AICreativePage() {
   const handleNextGeneratedItem = useCallback(() => {
     if (generatedItemViewerData && generatedItemViewerData.index < generatedOutputs.length - 1) {
       const nextIndex = generatedItemViewerData.index + 1
-      setGeneratedItemViewerData({ image: generatedOutputs[nextIndex], index: nextIndex })
+      const nextItem = generatedOutputs[nextIndex]
+      setGeneratedItemViewerData({ url: nextItem.url, id: nextItem.id, index: nextIndex })
     }
   }, [generatedItemViewerData, generatedOutputs])
 
   const handlePreviousGeneratedItem = useCallback(() => {
     if (generatedItemViewerData && generatedItemViewerData.index > 0) {
       const prevIndex = generatedItemViewerData.index - 1
-      setGeneratedItemViewerData({ image: generatedOutputs[prevIndex], index: prevIndex })
+      const prevItem = generatedOutputs[prevIndex]
+      setGeneratedItemViewerData({ url: prevItem.url, id: prevItem.id, index: prevIndex })
     }
   }, [generatedItemViewerData, generatedOutputs])
 
@@ -693,7 +689,7 @@ export default function AICreativePage() {
 
   const navigateToWelcome = useCallback(() => {
     setCurrentView("welcome")
-    setGeneratedOutputs([])
+    setGeneratedOutputs([]) // Clear outputs
     setIsGenerating(false)
   }, [])
 
@@ -715,7 +711,7 @@ export default function AICreativePage() {
             />
           ) : (
             <OutputPanel
-              generatedImages={generatedOutputs}
+              generatedImages={generatedOutputs} // Now passes objects
               isGenerating={isGenerating}
               onImageAction={handleImageAction}
               onRegenerateVariation={handleRegenerateVariation}
@@ -775,14 +771,15 @@ export default function AICreativePage() {
           isReel={historyViewerData.type === "reel"}
           productUrl={historyViewerData.productUrl}
           onDownloadFile={downloadFile}
+          imageId={historyViewerData.id} // Pass the imageId
         />
       )}
 
       {generatedItemViewerData && (
         <ImageViewerModal
-          image={generatedItemViewerData.image}
+          image={generatedItemViewerData.url} // Use .url
           imageIndex={generatedItemViewerData.index}
-          images={generatedOutputs}
+          images={generatedOutputs.map((item) => item.url)} // Pass only URLs to images prop
           onClose={handleCloseGeneratedItemViewer}
           onNext={handleNextGeneratedItem}
           onPrevious={handlePreviousGeneratedItem}
@@ -791,6 +788,7 @@ export default function AICreativePage() {
           isReel={activeMode === "reel"}
           productUrl={currentProductUrlForOutput}
           onDownloadFile={downloadFile}
+          imageId={generatedItemViewerData.id} // Pass the imageId
         />
       )}
 
@@ -807,6 +805,7 @@ export default function AICreativePage() {
           imageIndex={downloadModalData.imageIndex}
           totalImages={downloadModalData.totalImages}
           onDownloadWithWatermark={downloadFile}
+          imageId={downloadModalData.imageId} // Pass the imageId
         />
       )}
 
