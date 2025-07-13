@@ -32,7 +32,7 @@ interface DownloadModalProps {
   imageUrl: string
   imageIndex?: number
   totalImages?: number
-  onDownloadWithWatermark: (imageUrl: string, filename: string) => void
+  onDownloadWithWatermark: (imageUrl: string, filename: string) => void // This prop is now explicitly for watermarked/free downloads
   imageId: string // Added imageId prop
 }
 
@@ -112,7 +112,7 @@ export function DownloadModal({
   imageUrl,
   imageIndex = 0,
   totalImages = 1,
-  onDownloadWithWatermark,
+  onDownloadWithWatermark, // This prop is now explicitly for watermarked/free downloads
   imageId, // Destructure imageId
 }: DownloadModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>("pack3")
@@ -126,9 +126,10 @@ export function DownloadModal({
     setIsLoading(true)
     try {
       const filename = `watermarked_image_${Date.now()}.png`
-      await updateDoc(doc(db,"Shops",shopData.id),{
-        freeDownload:true
+      await updateDoc(doc(db, "Shops", shopData.id), {
+        freeDownload: true,
       })
+      // Call the provided onDownloadWithWatermark prop
       onDownloadWithWatermark(imageUrl, filename)
       toast({
         title: "Download Started",
@@ -136,10 +137,10 @@ export function DownloadModal({
       })
       onClose()
     } catch (error) {
-      console.error("Error adding watermark:", error)
+      console.error("Error during free download:", error)
       toast({
         title: "Download Failed",
-        description: "Could not process watermark. Please try again.",
+        description: (error as Error).message || "Could not download watermarked image. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -154,8 +155,8 @@ export function DownloadModal({
       const docRef = await addDoc(checkoutSessionRef, {
         mode: "payment",
         price: priceId,
-        // Pass imageId and imageIndex to the success_url
-        success_url: `${window.location.origin}/payment-success?imageUrl=${imageId}&imageIndex=${imageIndex}`,
+        // Pass imageUrl (the original, non-watermarked one) and imageIndex to the success_url
+        success_url: `${window.location.origin}/payment-success?imgUrl=${encodeURIComponent(imageUrl)}&index=${imageIndex}`,
         cancel_url: window.location.href,
         allow_promotion_codes: true,
         client_reference_id: `${shopData.id}-${priceId}`,
