@@ -825,7 +825,8 @@ export default function AICreativePage() {
           imageIndex={downloadModalData.imageIndex}
           totalImages={downloadModalData.totalImages}
           onDownloadWithWatermark={downloadFile}
-          imageId={downloadModalData.imageId} // Pass the imageId
+          imageId={downloadModalData.imageId} // Pass the imageId\
+          isPremium={shopData.isPremium} {/* Pass the isPremium status */}
         />
       )}
 

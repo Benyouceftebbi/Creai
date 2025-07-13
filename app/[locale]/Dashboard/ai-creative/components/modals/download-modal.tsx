@@ -35,6 +35,7 @@ interface DownloadModalProps {
   totalImages?: number
   onDownloadWithWatermark: (imageUrl: string, filename: string) => void // This prop is now explicitly for watermarked/free downloads
   imageId: string // Added imageId prop
+  isPremium: boolean // New prop: indicates if the user is premium
 }
 
 const pricingPlans = [
@@ -116,6 +117,7 @@ export function DownloadModal({
   totalImages = 1,
   onDownloadWithWatermark, // This prop is now explicitly for watermarked/free downloads
   imageId, // Destructure imageId
+  isPremium, // Destructure new prop
 }: DownloadModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>("pack3")
   const [isLoading, setIsLoading] = useState(false)
@@ -127,22 +129,32 @@ export function DownloadModal({
   const handleFreeDownload = async () => {
     setIsLoading(true)
     try {
-      const filename = `watermarked_image_${Date.now()}.png`
-      await updateDoc(doc(db, "Shops", shopData.id), {
-        freeDownload: true,
-      })
-      // Call the provided onDownloadWithWatermark prop with the standard quality imageUrl
-      onDownloadWithWatermark(imageUrl, filename)
-      toast({
-        title: "Download Started",
-        description: "Your watermarked image is downloading...",
-      })
+      if (isPremium) {
+        // If premium, download high quality directly
+        const filename = `high_quality_image_${Date.now()}.png`
+        onDownloadWithWatermark(highQualityImageUrl, filename) // Use highQualityImageUrl
+        toast({
+          title: "Download Started",
+          description: "Your high-quality image is downloading...",
+        })
+      } else {
+        // If not premium, download watermarked
+        const filename = `watermarked_image_${Date.now()}.png`
+        await updateDoc(doc(db, "Shops", shopData.id), {
+          freeDownload: true,
+        })
+        onDownloadWithWatermark(imageUrl, filename) // Use standard imageUrl for watermarked
+        toast({
+          title: "Download Started",
+          description: "Your watermarked image is downloading...",
+        })
+      }
       onClose()
     } catch (error) {
-      console.error("Error during free download:", error)
+      console.error("Error during download:", error)
       toast({
         title: "Download Failed",
-        description: (error as Error).message || "Could not download watermarked image. Please try again.",
+        description: (error as Error).message || "Could not download image. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -371,10 +383,17 @@ export function DownloadModal({
                 )}
               >
                 {currentPlan.id === "free" ? (
-                  <>
-                    <Droplets className="w-3 h-3 mr-1" />
-                    Download with Watermark
-                  </>
+                  isPremium ? (
+                    <>
+                      <Download className="w-3 h-3 mr-1" />
+                      Download High Quality
+                    </>
+                  ) : (
+                    <>
+                      <Droplets className="w-3 h-3 mr-1" />
+                      Download with Watermark
+                    </>
+                  )
                 ) : (
                   <>
                     <Shield className="w-3 h-3 mr-1" />
@@ -390,8 +409,14 @@ export function DownloadModal({
             <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Droplets className="w-3 h-3 text-gray-500" />
-                  <span className="text-xs text-gray-600 dark:text-gray-400">Or download with watermark</span>
+                  {isPremium ? (
+                    <Download className="w-3 h-3 text-blue-500" />
+                  ) : (
+                    <Droplets className="w-3 h-3 text-gray-500" />
+                  )}
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {isPremium ? "Or download high quality" : "Or download with watermark"}
+                  </span>
                 </div>
                 <Button
                   variant="ghost"
@@ -400,7 +425,7 @@ export function DownloadModal({
                   disabled={isLoading}
                   className="text-xs h-6 px-2"
                 >
-                  Free
+                  {isPremium ? "Free" : "Free"}
                 </Button>
               </div>
             </div>
@@ -474,7 +499,7 @@ export function DownloadModal({
                           : "bg-primary hover:bg-primary/90 text-primary-foreground",
                     )}
                   >
-                    {plan.id === "free" ? "Free Download" : `Get ${plan.name}`}
+                    {plan.id === "free" ? (isPremium ? "Download High Quality" : "Free Download") : `Get ${plan.name}`}
                   </LoadingButton>
                 </div>
               )
