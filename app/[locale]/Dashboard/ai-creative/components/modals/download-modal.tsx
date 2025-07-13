@@ -21,7 +21,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 import { LoadingButton } from "@/components/ui/LoadingButton"
-import { collection, addDoc, onSnapshot } from "firebase/firestore"
+import { collection, addDoc, onSnapshot, updateDoc, doc } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
 import { useShop } from "@/app/context/ShopContext"
 import { toast } from "@/hooks/use-toast"
@@ -53,7 +53,7 @@ const pricingPlans = [
     savings: null,
   },
   {
-    id: "single",
+    id: "price_1RkWByDIpjCcuDeHMAGL8RiJ",
     name: "Single HD",
     price: "$0.99",
     originalPrice: "$1.99",
@@ -68,12 +68,12 @@ const pricingPlans = [
     savings: "50% OFF",
   },
   {
-    id: "pack3",
-    name: "3-Pack Pro",
+    id: "price_1RkWCmDIpjCcuDeHRzpB6PH5",
+    name: "6-Pack Pro",
     price: "$2.99",
     originalPrice: "$5.97",
-    description: "3 watermark-free downloads",
-    features: ["3 download credits", "No watermarks", "HD quality", "Commercial license", "Valid for 30 days"],
+    description: "6 watermark-free downloads",
+    features: ["6 download credits", "No watermarks", "HD quality", "Commercial license", "Valid for 30 days"],
     icon: Zap,
     color: "purple",
     popular: true,
@@ -83,9 +83,9 @@ const pricingPlans = [
     savings: "50% OFF",
   },
   {
-    id: "pack12",
+    id: "price_1RkWDADIpjCcuDeHcnaG3aMB",
     name: "12-Pack VIP",
-    price: "$5.00",
+    price: "$4.99",
     originalPrice: "$23.88",
     description: "12 watermark-free downloads",
     features: [
@@ -126,6 +126,9 @@ export function DownloadModal({
     setIsLoading(true)
     try {
       const filename = `watermarked_image_${Date.now()}.png`
+      await updateDoc(doc(db,"Shops",shopData.id),{
+        freeDownload:true
+      })
       onDownloadWithWatermark(imageUrl, filename)
       toast({
         title: "Download Started",
@@ -152,7 +155,7 @@ export function DownloadModal({
         mode: "payment",
         price: priceId,
         // Pass imageId and imageIndex to the success_url
-        success_url: `${window.location.origin}/payment-success?imageId=${imageId}&imageIndex=${imageIndex}`,
+        success_url: `${window.location.origin}/payment-success?imageUrl=${imageId}&imageIndex=${imageIndex}`,
         cancel_url: window.location.href,
         allow_promotion_codes: true,
         client_reference_id: `${shopData.id}-${priceId}`,
