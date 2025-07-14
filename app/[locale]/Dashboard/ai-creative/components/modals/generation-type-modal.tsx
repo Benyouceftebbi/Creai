@@ -74,7 +74,7 @@ export function GenerationTypeModal({ isOpen, onClose, onSelectType }: Generatio
                         className="text-xs border-purple-200 text-purple-600 dark:border-purple-800 dark:text-purple-400 px-1.5 py-0.5"
                       >
                         <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
-                        ~90s
+                        4-5 Min
                       </Badge>
                     </div>
                   </div>
@@ -146,7 +146,7 @@ export function GenerationTypeModal({ isOpen, onClose, onSelectType }: Generatio
                         className="text-xs border-blue-200 text-blue-600 dark:border-blue-800 dark:text-blue-400 px-1.5 py-0.5"
                       >
                         <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
-                        ~90s
+                        4-6 Min
                       </Badge>
                     </div>
                   </div>
