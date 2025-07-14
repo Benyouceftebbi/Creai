@@ -9,7 +9,7 @@ import { GenerationWizardModal } from "./components/modals/generation-wizard-mod
 import { WelcomeScreen } from "./components/core/welcome-screen"
 import { CreationDetailModal } from "./components/modals/creation-detail-modal"
 import { useShop } from "@/app/context/ShopContext"
-import { doc, onSnapshot ,collection} from "firebase/firestore"
+import { onSnapshot, collection } from "firebase/firestore"
 import { db, functions } from "@/firebase/firebase"
 import { httpsCallable } from "firebase/functions"
 import { PricingModal } from "@/components/ui/pricingModal"
@@ -17,9 +17,6 @@ import { PricingModal } from "@/components/ui/pricingModal"
 import { ImageViewerModal } from "./components/modals/image-viewer-modal"
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 import { useTranslations } from "next-intl"
-import { Play, X } from "lucide-react"
-import { ConversionModal } from "@/app/components/Conversion-modal"
-import { RatingModal } from "./components/ui/rating-modal"
 import { GenerationTypeModal } from "./components/modals/generation-type-modal" // New import
 import { PhoneNumberModal } from "./components/modals/phone-number-modal"
 import { DownloadModal } from "./components/modals/download-modal"
@@ -34,7 +31,6 @@ import PaymentSuccessModal from "./components/modals/paymentSuccess."
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
 
 // Declare the getDefaultImageSettings and getDefaultReelSettings functions
-
 
 const getDefaultImageSettings = (): any => {
   return {
@@ -132,8 +128,8 @@ export default function AICreativePage() {
 
   const [isPhoneNumberModalOpen, setIsPhoneNumberModalOpen] = useState(false)
   const [isUpdatingPhoneNumber, setIsUpdatingPhoneNumber] = useState(false)
-  // Updated pendingResults to store objects with url and id
-  const [pendingResults, setPendingResults] = useState<{ url: string; url2: string | null; id: string }[]>([])
+  // Updated pendingResults to store objects with url and id, using imageUrls2
+  const [pendingResults, setPendingResults] = useState<{ url: string; imageUrls2: string | null; id: string }[]>([])
 
   const [isVideoOpen, setIsVideoOpen] = useState(false)
   const [isVideoButtonAnimating, setIsVideoButtonAnimating] = useState(false)
@@ -141,7 +137,7 @@ export default function AICreativePage() {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
   const [downloadModalData, setDownloadModalData] = useState<{
     imageUrl: string // Standard quality for preview/free download
-    highQualityImageUrl: string // High quality for paid download
+    highQualityImageUrl: string // New prop for the high quality image
     imageIndex: number
     totalImages: number
     imageId: string // Added imageId
@@ -149,8 +145,8 @@ export default function AICreativePage() {
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(0)
-  // Updated generatedOutputs to store objects with url and id
-  const [generatedOutputs, setGeneratedOutputs] = useState<{ url: string; url2: string | null; id: string }[]>([])
+  // Updated generatedOutputs to store objects with url and id, using imageUrls2
+  const [generatedOutputs, setGeneratedOutputs] = useState<{ url: string; imageUrls2: string | null; id: string }[]>([])
   const [currentPromptForOutput, setCurrentPromptForOutput] = useState("")
   const [currentBatchTimestamp, setCurrentBatchTimestamp] = useState<Date | undefined>(undefined)
   const [currentProductUrlForOutput, setCurrentProductUrlForOutput] = useState<string | undefined>(undefined)
@@ -183,10 +179,10 @@ export default function AICreativePage() {
     }
   }, [isVideoOpen])
 
-  // Updated generatedItemViewerData to store objects with url, id, and index
+  // Updated generatedItemViewerData to store objects with url, id, and index, using imageUrls2
   const [generatedItemViewerData, setGeneratedItemViewerData] = useState<{
     url: string
-    url2: string | null
+    imageUrls2: string | null // Renamed from url2 to imageUrls2
     id: string
     index: number
   } | null>(null)
@@ -218,10 +214,10 @@ export default function AICreativePage() {
         type: item.type || "image",
         prompt: item.prompt || "",
         results: Array.isArray(item.imagesUrl) ? item.imagesUrl : Array.isArray(item.results) ? item.results : [],
-        results2: Array.isArray(item.imagesUrl2) ? item.imagesUrl2 : [],
+        results2: Array.isArray(item.imageUrls2) ? item.imageUrls2 : [], // Corrected from imageUrl2 to imageUrls2
         settings: typeof item.settings === "object" && item.settings !== null ? item.settings : {},
         createdAt: item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt || Date.now()),
-        status: item.status || "completed",
+        status: "completed",
         productUrl: item.productUrl,
       }))
       setUserHistory(transformedHistory as HistoryItem[])
@@ -284,6 +280,7 @@ export default function AICreativePage() {
   const downloadFile = useCallback(
     async (imageUrl: string, fileName = "image.png") => {
       try {
+        console.log("Attempting to download file:", { imageUrl, fileName }) // Log the URL being downloaded
         const downloadImage = httpsCallable(functions, "downloadImage")
 
         const result = await downloadImage({ url: imageUrl })
@@ -465,23 +462,24 @@ export default function AICreativePage() {
       collectionRef,
       (snapshot) => {
         snapshot.docChanges().forEach((change) => {
-          if (change.doc.id === pendingImageId) {
+          // Only process 'added' or 'modified' changes for the pending image
+          if ((change.type === "added" || change.type === "modified") && change.doc.id === pendingImageId) {
             const data = change.doc.data()
-            // Always store both imagesUrl and imagesUrl2 if they exist
+            // Always store both imagesUrl and imageUrls2 if they exist
             if (data.imagesUrl?.length) {
               const outputsWithIds = data.imagesUrl.map((url: string, idx: number) => ({
                 url: url, // Standard quality
-                url2: data.imagesUrl2?.[idx] || null, // High quality, if available
+                imageUrls2: data.imageUrls2?.[idx] || null, // High quality, if available - Corrected from imageUrl2 to imageUrls2
                 id: pendingImageId!,
               }))
 
               if (!shopData.phoneNumber || shopData.phoneNumber === "") {
-                setPendingResults(outputsWithIds) // Store objects with id and url2
+                setPendingResults(outputsWithIds) // Store objects with id and imageUrls2
                 setIsPhoneNumberModalOpen(true)
                 setGenerationProgress(100)
                 setIsGenerating(false)
               } else {
-                setGeneratedOutputs(outputsWithIds) // Store objects with id and url2
+                setGeneratedOutputs(outputsWithIds) // Store objects with id and imageUrls2
                 setGenerationProgress(100)
                 setIsGenerating(false)
               }
@@ -494,7 +492,7 @@ export default function AICreativePage() {
                 type: typeToUse,
                 prompt: data.prompt || currentPromptForOutput,
                 results: Array.isArray(data.imagesUrl) ? data.imagesUrl : [],
-                results2: Array.isArray(data.imagesUrl2) ? data.imagesUrl2 : [], // Ensure results2 is stored
+                results2: Array.isArray(data.imageUrls2) ? data.imageUrls2 : [], // Corrected from imageUrl2 to imageUrls2
                 settings: typeof data.settings === "object" && data.settings !== null ? data.settings : {},
                 createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
                 status: "completed",
@@ -524,7 +522,6 @@ export default function AICreativePage() {
       },
     )
 
-
     return () => {
       unsubscribe()
     }
@@ -546,21 +543,32 @@ export default function AICreativePage() {
       if (!item) return
 
       if (action === "download") {
-        setDownloadModalData({
-          imageUrl: item.url, // Standard quality for preview/free download
-          highQualityImageUrl: item.url2 || item.url, // High quality for paid download, fallback to standard
-          imageIndex: imageIndex,
-          totalImages: generatedOutputs.length,
-          imageId: item.id,
-        })
-        setIsDownloadModalOpen(true)
+        // ADDED LOGS FOR DEBUGGING
+        console.log("handleImageAction: Debugging download logic:")
+        console.log("  shopData.isPremium:", shopData.isPremium)
+        console.log("  item.url (watermarked):", item.url)
+        console.log("  item.imageUrls2 (high quality):", item.imageUrls2) // Corrected to imageUrls2
+
+        if (shopData.isPremium) {
+          const filename = `high-quality-image-${Date.now()}.png`
+          downloadFile(item.imageUrls2 || item.url, filename) // Use imageUrls2
+        } else {
+          setDownloadModalData({
+            imageUrl: item.url, // Standard quality for preview/free download
+            highQualityImageUrl: item.imageUrls2 || item.url, // High quality for paid download, fallback to standard - Corrected to imageUrls2
+            imageIndex: imageIndex,
+            totalImages: generatedOutputs.length,
+            imageId: item.id,
+          })
+          setIsDownloadModalOpen(true)
+        }
       } else if (action === "view") {
         // For viewer, display high quality if premium, otherwise standard
-        const urlToView = shopData.isPremium && item.url2 ? item.url2 : item.url
-        setGeneratedItemViewerData({ url: urlToView, url2: item.url2, id: item.id, index: imageIndex })
+        const urlToView = shopData.isPremium && item.imageUrls2 ? item.imageUrls2 : item.url // Corrected to imageUrls2
+        setGeneratedItemViewerData({ url: urlToView, imageUrls2: item.imageUrls2, id: item.id, index: imageIndex }) // Corrected to imageUrls2
       }
     },
-    [generatedOutputs, shopData.isPremium],
+    [generatedOutputs, shopData.isPremium, downloadFile],
   )
 
   const handleDownloadAllGenerated = useCallback(() => {
@@ -621,8 +629,8 @@ export default function AICreativePage() {
     if (generatedItemViewerData && generatedItemViewerData.index < generatedOutputs.length - 1) {
       const nextIndex = generatedItemViewerData.index + 1
       const nextItem = generatedOutputs[nextIndex]
-      const urlToView = shopData.isPremium && nextItem.url2 ? nextItem.url2 : nextItem.url
-      setGeneratedItemViewerData({ url: urlToView, url2: nextItem.url2, id: nextItem.id, index: nextIndex })
+      const urlToView = shopData.isPremium && nextItem.imageUrls2 ? nextItem.imageUrls2 : nextItem.url // Corrected to imageUrls2
+      setGeneratedItemViewerData({ url: urlToView, imageUrls2: nextItem.imageUrls2, id: nextItem.id, index: nextIndex }) // Corrected to imageUrls2
     }
   }, [generatedItemViewerData, generatedOutputs, shopData.isPremium])
 
@@ -630,8 +638,8 @@ export default function AICreativePage() {
     if (generatedItemViewerData && generatedItemViewerData.index > 0) {
       const prevIndex = generatedItemViewerData.index - 1
       const prevItem = generatedOutputs[prevIndex]
-      const urlToView = shopData.isPremium && prevItem.url2 ? prevItem.url2 : prevItem.url
-      setGeneratedItemViewerData({ url: urlToView, url2: prevItem.url2, id: prevItem.id, index: prevIndex })
+      const urlToView = shopData.isPremium && prevItem.imageUrls2 ? prevItem.imageUrls2 : prevItem.url // Corrected to imageUrls2
+      setGeneratedItemViewerData({ url: urlToView, imageUrls2: prevItem.imageUrls2, id: prevItem.id, index: prevIndex }) // Corrected to imageUrls2
     }
   }, [generatedItemViewerData, generatedOutputs, shopData.isPremium])
 
@@ -694,16 +702,27 @@ export default function AICreativePage() {
 
   const handleOpenDownloadModalFromViewer = useCallback(
     (imageUrl: string, highQualityImageUrl: string, imageIndex: number, imageId: string) => {
-      setDownloadModalData({
-        imageUrl,
-        highQualityImageUrl,
-        imageIndex,
-        totalImages: generatedOutputs.length, // Or historyViewerData.images.length if from history
-        imageId,
-      })
-      setIsDownloadModalOpen(true)
+      // ADDED LOGS FOR DEBUGGING
+      console.log("handleOpenDownloadModalFromViewer: Debugging download logic:")
+      console.log("  shopData.isPremium:", shopData.isPremium)
+      console.log("  imageUrl (watermarked):", imageUrl)
+      console.log("  highQualityImageUrl (high quality):", highQualityImageUrl)
+
+      if (shopData.isPremium) {
+        const filename = `high-quality-image-${Date.now()}.png`
+        downloadFile(highQualityImageUrl, filename)
+      } else {
+        setDownloadModalData({
+          imageUrl,
+          highQualityImageUrl,
+          imageIndex,
+          totalImages: generatedOutputs.length, // Or historyViewerData.images.length if from history
+          imageId,
+        })
+        setIsDownloadModalOpen(true)
+      }
     },
-    [generatedOutputs],
+    [generatedOutputs, shopData.isPremium, downloadFile],
   )
 
   return (
@@ -790,7 +809,7 @@ export default function AICreativePage() {
           image={generatedItemViewerData.url} // Use .url
           imageIndex={generatedItemViewerData.index}
           images={generatedOutputs.map((item) => item.url)} // Pass only standard URLs to images prop
-          images2={generatedOutputs.map((item) => item.url2 || item.url)} // Pass high-quality URLs to images2 prop
+          images2={generatedOutputs.map((item) => item.imageUrls2 || item.url)} // Pass high-quality URLs to images2 prop, fallback to standard
           onClose={handleCloseGeneratedItemViewer}
           onNext={handleNextGeneratedItem}
           onPrevious={handlePreviousGeneratedItem}

@@ -21,7 +21,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 import { LoadingButton } from "@/components/ui/LoadingButton"
-import { collection, addDoc, onSnapshot, updateDoc, doc } from "firebase/firestore"
+import { collection, addDoc, onSnapshot } from "firebase/firestore"
 import { db } from "@/firebase/firebase"
 import { useShop } from "@/app/context/ShopContext"
 import { toast } from "@/hooks/use-toast"
@@ -127,20 +127,28 @@ export function DownloadModal({
   const handleFreeDownload = async () => {
     setIsLoading(true)
     try {
-      const filename = `watermarked_image_${Date.now()}.png`
-
-      // Call the provided onDownloadWithWatermark prop with the standard quality imageUrl
-      onDownloadWithWatermark(imageUrl, filename)
-      toast({
-        title: "Download Started",
-        description: "Your watermarked image is downloading...",
-      })
+      if (shopData.isPremium) {
+        const filename = `high-quality-image-${Date.now()}.png`
+        onDownloadWithWatermark(highQualityImageUrl, filename)
+        toast({
+          title: "Download Started",
+          description: "Your high-quality image is downloading...",
+        })
+      } else {
+        const filename = `watermarked_image_${Date.now()}.png`
+        // Call the provided onDownloadWithWatermark prop with the standard quality imageUrl
+        onDownloadWithWatermark(imageUrl, filename)
+        toast({
+          title: "Download Started",
+          description: "Your watermarked image is downloading...",
+        })
+      }
       onClose()
     } catch (error) {
       console.error("Error during free download:", error)
       toast({
         title: "Download Failed",
-        description: (error as Error).message || "Could not download watermarked image. Please try again.",
+        description: (error as Error).message || "Could not download image. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -192,6 +200,7 @@ export function DownloadModal({
         description: "Something went wrong. Please try again.",
         variant: "destructive",
       })
+    } finally {
       setIsLoading(false)
     }
   }
@@ -369,10 +378,17 @@ export function DownloadModal({
                 )}
               >
                 {currentPlan.id === "free" ? (
-                  <>
-                    <Droplets className="w-3 h-3 mr-1" />
-                    Download with Watermark
-                  </>
+                  shopData.isPremium ? (
+                    <>
+                      <Download className="w-3 h-3 mr-1" />
+                      Download High Quality
+                    </>
+                  ) : (
+                    <>
+                      <Droplets className="w-3 h-3 mr-1" />
+                      Download with Watermark
+                    </>
+                  )
                 ) : (
                   <>
                     <Shield className="w-3 h-3 mr-1" />
@@ -384,7 +400,7 @@ export function DownloadModal({
           </div>
 
           {/* Compact Quick Free Option */}
-          {currentPlan.id !== "free" && (
+          {currentPlan.id !== "free" && !shopData.isPremium && (
             <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -472,7 +488,11 @@ export function DownloadModal({
                           : "bg-primary hover:bg-primary/90 text-primary-foreground",
                     )}
                   >
-                    {plan.id === "free" ? "Free Download" : `Get ${plan.name}`}
+                    {plan.id === "free"
+                      ? shopData.isPremium
+                        ? "Download High Quality"
+                        : "Free Download"
+                      : `Get ${plan.name}`}
                   </LoadingButton>
                 </div>
               )

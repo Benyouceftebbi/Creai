@@ -7,6 +7,7 @@ import { db } from "@/firebase/firebase"
 import type { DateRange } from "react-day-picker"
 
 interface ShopData {
+  isPremium: string | null
   phoneNumber: unknown
   id?: string
   senderId?: string
