@@ -210,8 +210,8 @@ export function DownloadModal({
     if (!plan) return
     if (planId === "free") {
       handleFreeDownload()
-    } else if (plan.priceId) {
-      handlePaidDownload(plan.priceId)
+    } else if (plan.id) {
+      handlePaidDownload(plan.id)
     }
   }
 
